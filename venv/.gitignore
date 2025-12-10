@@ -1,0 +1,35 @@
+# --- ENTORNO VIRTUAL ---
+venv/
+ENV/
+env/
+*.pyc
+__pycache__/
+
+# --- BASE DE DATOS LOCAL ---
+*.sqlite3
+
+# --- ARCHIVOS DE DJANGO ---
+media/
+staticfiles/
+static/
+logs/
+*.log
+
+# --- CONFIGURACIONES / SECRETOS ---
+.env
+*.env
+config.ini
+
+# --- COMPILADOS / CACHE ---
+*.py[cod]
+*$py.class
+
+# --- EDITOR / SISTEMA ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- MIGRACIONES COMPILADAS ---
+*/migrations/__pycache__/
+*/migrations/*.pyc

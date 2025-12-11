@@ -1,3 +1,6 @@
+{% load static %}
+
+{% block content %}
 <div class="login-container">
   <a href="/frontend/public/views/index.html" class="login__back">Volver</a>
 
@@ -5,7 +8,9 @@
     <div class="login">
       <h1 class="login__title">Iniciar Sesión</h1>
 
-      <form onsubmit="mostrarAlerta(event)" class="login-form">
+      <form method="POST" class="login-form">
+      {% csrf_token %}
+
         <div class="login-form__container">
           <label for="usuario" class="login-form__container__label">Número de documento</label>
           <input type="text" id="usuario" class="login-form__container__input" name="usuario" placeholder="Número de documento" required />
@@ -21,9 +26,8 @@
         <input type="checkbox" class="login-form__checkbox"/>
         <label for="toggle-password" class="login-form__checkbox-label">Mostrar contraseña</label>
       </div>
-      <a href="/frontend/public/views/interface_farmer.html" 
-      onclick="mostrarAlerta(event)" class="login__button">Iniciar sesión
-      </a>
+      <button type="submit" class="login__button">Iniciar sesión</button>
+
 
       <a href="/frontend/public/views/p_forgot-password.html" class="login-container__register">
         ¿Olvidaste tu contraseña?
@@ -31,3 +35,5 @@
     </div>
   </div>
 </div>
+
+{% endblock %}

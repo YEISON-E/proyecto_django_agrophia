@@ -1,5 +1,7 @@
 {% load static %}
 
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
 {% block content %}
 <div class="login-container">
   <a href="/frontend/public/views/index.html" class="login__back">Volver</a>
@@ -12,22 +14,22 @@
       {% csrf_token %}
 
         <div class="login-form__container">
-          <label for="usuario" class="login-form__container__label">Número de documento</label>
-          <input type="text" id="usuario" class="login-form__container__input" name="usuario" placeholder="Número de documento" required />
+          <label for="username" class="login-form__container__label">Número de documento</label>
+          <input type="text" id="username" class="login-form__container__input" name="username" placeholder="Número de documento" required />
         </div>
 
         <div class="login-form__container">
-          <label for="clave" class="login-form__container__label">Contraseña</label>
-          <input type="password" id="clave" class="login-form__container__input" name="clave" placeholder="Contraseña" required />
+          <label for="password" class="login-form__container__label">Contraseña</label>
+          <input type="password" id="password" class="login-form__container__input" name="password" placeholder="Contraseña" required />
         </div>
       </form>
-
+      
       <div class="login__show-password">
         <input type="checkbox" class="login-form__checkbox"/>
         <label for="toggle-password" class="login-form__checkbox-label">Mostrar contraseña</label>
       </div>
+      
       <button type="submit" class="login__button">Iniciar sesión</button>
-
 
       <a href="/frontend/public/views/p_forgot-password.html" class="login-container__register">
         ¿Olvidaste tu contraseña?

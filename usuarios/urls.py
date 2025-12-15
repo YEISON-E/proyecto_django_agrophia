@@ -1,7 +1,7 @@
 from django.urls import path
-from . import views
+from .views import Logueo
 
 urlpatterns = [
-    path('login/', views.login_view, name='login'),
-
+    path('', Logueo.as_view(), name='login'),  
+    path('login/', Logueo.as_view(), name='forloggin'),
 ]

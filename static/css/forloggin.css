@@ -1,0 +1,222 @@
+
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* arriba y centro */
+  box-sizing: border-box;
+}
+
+.register__back {
+  align-self: flex-start; /* lo manda a la izquierda */
+}
+
+.login-container__card {
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1; /* ocupa todo el espacio vertical restante */
+}
+
+
+/* LOGIN */
+.login {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background: var(--overlay-dark-strong);
+  border: 1px solid;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  margin: 24px;
+}
+
+/* Mantén el resto de tu estilo igual */
+
+
+.login__title-left{
+  display: none;
+}
+
+
+.login__title {
+  margin: 24px 0 0 0 ;
+  text-align: center;
+  font-size: var(--fs-sm);
+  font-weight: bold;
+  color: var(--white);
+}
+
+.login-form{
+  display: flex;
+  flex-direction:column;
+  gap:24px;
+
+}
+
+.login-form__container{
+  margin: 0;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  margin: 0 24px;
+  
+}
+.login-form__container__label {
+  display: block;
+  font-size: var(--fs-xxxs);
+  color: var(--gray-200);
+}
+
+.login-form__container__input{
+  width: 100%;
+  height: 56px;
+  padding: 16px;
+  border: 1px solid var(--black);
+  border-radius: 10px;
+  font-size: var(--fs-xxxxs);
+}
+
+.login__show-password {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin: 0 24px;
+}
+
+.login-form__checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.login-form__checkbox-label {
+  cursor: pointer;
+  /* user-select: none; */
+  font-size: var(--fs-xxxs);
+  color: var(--gray-200);
+}
+
+.login__button {
+  font-weight: 600;
+  height: 40px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+  color: var(--white);
+  font-size: var(--fs-xs);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login__button:hover {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.login-container__register {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  font-size: var(--fs-xxs);
+  font-weight: 800;
+  color: var(--white);
+  font-weight: bold;
+  margin: 0 0 24px 0;
+}
+
+.login-container__register a:hover {
+  text-decoration: underline;
+}
+
+.login__back{
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  background-color: var(--gray-700);
+  border-radius: 4px;
+  padding: 9px 16px;
+  height: 36px;
+  font-size: var(--fs-xs);
+  color: var(--white);
+  text-decoration: none;
+  transition: background-color .2s ease;
+}
+
+.login__back:hover{
+  opacity: 60%;
+  cursor: pointer;
+}
+
+@media (width > 640px){
+  .login{
+    width: 400px;
+  }
+  
+}
+@media (width > 1024px){
+  .page__left_login {
+  position: absolute;
+  /* top: 0; */
+  /* left: 0; */
+  width: 50%;
+  height: 87vh;   /* altura del viewport dinámico real */
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: 
+    linear-gradient(var(--overlay-dark), var(--overlay-dark)), 
+    url("/frontend/public/img/farmer.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.login__title-left {
+  display: flex;
+  text-align: center;
+  font-size: var(--fs-sm);
+  font-weight: bold;
+  color: var(--white); /* para que se vea sobre el fondo oscuro */
+}
+
+
+.page__right_login{
+  position: relative;
+  margin-left:50%;
+  width:50%;
+  height: 87vh;
+  color: var(--black);
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content: center;
+}
+.page__right::before, .page__right::after { 
+  content:""; 
+  display:block; 
+}
+  
+  .login{
+    width: 370px;
+  }
+  .login-form__container__input{
+    width: 320px;
+  }
+  .login__back{
+    position: fixed;
+    top: 64px;
+    left: 16px;
+  }
+}
+
+
+

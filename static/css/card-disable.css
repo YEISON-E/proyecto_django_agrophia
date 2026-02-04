@@ -1,0 +1,118 @@
+.card-disable__container-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: auto;
+}
+
+/* Contenedor que organiza las cards en grilla */
+.card-disable__container {
+  display: grid;
+  gap: 24px;
+  width: 100%;
+  justify-content: center;
+}
+
+/* === Card === */
+.card-disable {
+  width: 100%;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  /* min-width: 320px; */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-disable:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 4px rgba(0, 0, 0, 1);
+}
+
+/* Imagen de la card */
+.card-disable__img {
+  width: 100%;
+  height: 250px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
+.card-disable__info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+/* Texto dentro de la card */
+.card-disable__price {
+  font-size: var(--fs-sm);
+  color: var(--black);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.card-disable__name {
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--primary-700);
+  margin-bottom: 16px;
+}
+
+/* === Botón === */
+.card-disable__button-one {
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  /* Material Design spacing */
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.card-disable__button-one:hover {
+  background-color: var(--secundary-400);
+  transform: scale(1.02);
+}
+
+.card-disable__button-one:active {
+  background-color: var(--secundary-500);
+  transform: scale(0.98);
+}
+
+@media (width > 640px) {
+  .card-disable__container-section {
+    margin: 0;
+  }
+
+  .card-disable__container {
+    grid-template-columns: repeat(2, 1fr);
+    width: auto;
+    padding: 24px;
+  }
+}
+
+@media(width > 768px){
+  .card-disable__container {
+    grid-template-columns: repeat(3, 1fr);
+    width: auto;
+  }
+}
+
+@media (width > 1024px) {
+  .card-disable__container {
+    grid-template-columns: repeat(3, 1fr);
+    width: auto;
+  }
+}
+
+@media (width > 1280px) {
+  .card-disable__container {
+    grid-template-columns: repeat(4, 1fr);
+    width: auto;
+  }
+}

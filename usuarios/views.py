@@ -3,6 +3,7 @@ from django.http import HttpResponse
 
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.views import LoginView
 
 def login_view(request):
     if request.method == 'POST':
@@ -12,7 +13,12 @@ def login_view(request):
         print(usuario, password)
 
     return render(request, 'usuarios/login.html')
-    from django.shortcuts import redirect
 
 def home(request):
     return redirect('login')
+
+
+class Logueo(LoginView):
+    template_name = "components/loggin.html"
+    redirect_authenticated_user = True
+

@@ -29,18 +29,15 @@
         <input type="checkbox" class="login-form__checkbox"/>
         <label for="toggle-password" class="login-form__checkbox-label">Mostrar contraseña</label>
       </div>
-<<<<<<<< HEAD:usuarios/templates/usuarios/login.html
       <a href="/frontend/public/views/interface_farmer.html" 
       onclick="mostrarAlerta(event)" class="login__button">Iniciar sesión
       </a>
 
       <a href="{% url 'home' %}" class="login-container__register">
-========
       
       <button type="submit" class="login__button">Iniciar sesión</button>
 
-      <a href="/frontend/public/views/p_forgot-password.html" class="login-container__register">
->>>>>>>> 80392d2359f4eb695308bf9c70631930e9beb317:usuarios/templates/components/forloggin.html
+      <a href="{% url 'home' %}" class="login-container__register">
         ¿Olvidaste tu contraseña?
       </a>
     </div>
@@ -48,10 +45,3 @@
 </div>
 
 {% endblock %}
-
-
-
-   <!-- MISMO LINK -->
-      <a href="{% url 'home' %}" class="login-container__register">
-        ¿Olvidaste tu contraseña?
-      </a>

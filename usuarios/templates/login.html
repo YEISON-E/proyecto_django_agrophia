@@ -19,20 +19,29 @@
     <!-- <div class="page"> -->
     <!-- <div class="button-container"></div> -->
     <!-- Mitad izquierda (imagen) -->
-    <div class="page__left_login">
-        <h1 class="login__title-left">Bienvenido a Agrophia <br>conectando el campo con tu mesa</h1>
+    <div class="page__left_login"
+        style="background:
+        linear-gradient(var(--overlay-dark), var(--overlay-dark)),
+        url('{% static 'img/farmer.jpg' %}');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;">
+    <h1 class="login__title-left">
+        Bienvenido a Agrophia <br> conectando el campo con tu mesa
+    </h1>
     </div>
+
 
     <!-- Mitad derecha (formulario) -->
     <div class="page__right_login">
 
-        <div class="container-login"></div>
+        <!-- <div class="container-login"></div> -->
+        {% include 'components/forloggin.html' %}
     </div>
   </div>
 
   <div class="govco-container__two"></div>
 
-  {% include 'components/forloggin.html' %}
     
 </body>
 </html>

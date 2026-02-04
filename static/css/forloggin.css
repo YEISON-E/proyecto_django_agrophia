@@ -167,14 +167,14 @@
   /* top: 0; */
   /* left: 0; */
   width: 50%;
-  height: 87vh;   /* altura del viewport dinámico real */
+  height: 100vh;   /* altura del viewport dinámico real */
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
   background: 
     linear-gradient(var(--overlay-dark), var(--overlay-dark)), 
-    url("static/img/farmer.jpg");
+    url("{% static 'img/farmer.jpg' %}");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -193,7 +193,7 @@
   position: relative;
   margin-left:50%;
   width:50%;
-  height: 87vh;
+  height: 100vh;
   color: var(--black);
   display:flex;
   flex-direction:row;

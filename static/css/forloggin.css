@@ -174,7 +174,7 @@
   align-items: center;
   background: 
     linear-gradient(var(--overlay-dark), var(--overlay-dark)), 
-    url("/frontend/public/img/farmer.jpg");
+    url("static/img/farmer.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

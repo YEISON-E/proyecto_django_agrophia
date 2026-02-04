@@ -1,0 +1,47 @@
+
+
+.hero-content {
+  gap: 12px;
+  height: auto;                          
+  background-image: url(/frontend/public/img/hero__image.jpeg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  padding: 24px;                    
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: auto;
+  padding: 20px;
+  text-align: center;
+  align-items: center;
+}
+
+.hero-content__title{
+  font-size: var(--fs-sm);
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+}
+.hero-content__information{
+  font-size: var(--fs-xs);
+  font-weight: bold;
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+}
+
+@media (width > 768px) {
+  .hero-content{
+    text-align: center;
+    align-items: flex-start;
+    height: 180px;
+  }
+  .hero-content__title{
+    font-size: var(--fs-md);
+  }
+
+  /* .hero-content__information{
+    font-size: var(--fs-sm);
+  } */
+
+}

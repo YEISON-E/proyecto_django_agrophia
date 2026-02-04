@@ -75,3 +75,10 @@ def registrarse(request):
         return redirect("login")
 
     return render(request, "register.html")
+
+def olvidaste_contrasena(request):
+    return render(request, 'p_forgot-password.html')
+
+def restablecer_contrasena(request):
+    return render(request, 'reset_password.html')
+

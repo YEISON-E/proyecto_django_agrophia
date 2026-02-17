@@ -1,6 +1,6 @@
-<!-- <h1 class="home__title">Agrophia</h1> -->
-
 {% load static %}
+
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
 
 <div class="form-content__register">
   <h2 class="form__title">Formulario de Registro</h2>
@@ -8,18 +8,18 @@
   <div class="form-content__register-row">
 
   <div class="profile-update__group-file__photo">
-          <img src="{% static 'img/foto_sofi.png' %}" alt="foto de Perfil cargada" class="profile-update__group-file__photo_review">
+          <img id="preview" src="{% static 'img/foto_sofi.png' %}" alt="foto de Perfil cargada" class="profile-update__group-file__photo_review">
           
           <!-- Label que actúa como botón -->
           <label for="input-foto" class="profile-update__label--file">
             Cambiar foto
           </label>
-          <input id="input-foto" class="profile-update__input profile-update__input--file" type="file" name="foto" />
+          <input id="input-foto" class="profile-update__input profile-update__input--file" type="file" name="foto"/>
           
           <!-- Aquí se mostrará el nombre de la foto seleccionada -->
           <!-- <span id="file-name" class="profile-update__file-name">Ningún archivo seleccionado</span> -->
         </div>
-  <form method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group">
+  <form method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group" enctype="multipart/form-data">
   {% csrf_token %}
 
     <div class="form__group">
@@ -35,23 +35,37 @@
     </div>
     <div class="form__group">
       <label for="documento" class="form__label">Número de Documento</label>
-      <input type="text" class="form__input" placeholder="Número de documento">
+      <input type="text" name="documento" class="form__input" placeholder="Número de documento">
     </div>
 
     <div class="form__group">
       <label for="nombres" class="form__label">Nombres</label>
-      <input type="text" class="form__input" placeholder="Nombres">
+      <input type="text" name="nombres" class="form__input" placeholder="Nombres">
     </div>
 
     <div class="form__group">
       <label for="apellidos" class="form__label">Apellidos</label>
-      <input type="text" class="form__input" placeholder="Apellidos">
+      <input type="text" name="apellidos" class="form__input" placeholder="Apellidos">
     </div>    
+    <button type="submit" class="form-content__register--row-buttons__next">Siguiente</button>
   </form>
   </div>
 
   <div class="form-content__register--row-buttons">
-  <a href="/frontend/public/views/index.html" class="form-content__register--row-buttons__back">Volver</a>
-  <a href="/frontend/public/views/register2.html" class="form-content__register--row-buttons__next">Siguiente</a>
+    <a href="{% url 'login' %}"
+      class="form-content__register--row-buttons__back">
+      Volver
+    </a>
+
   </div>
 </div>
+
+<script>
+document.getElementById("input-foto").onchange = function(e){
+    let reader = new FileReader();
+    reader.onload = function(){
+        document.getElementById("preview").src = reader.result;
+    }
+    reader.readAsDataURL(e.target.files[0]);
+}
+</script>

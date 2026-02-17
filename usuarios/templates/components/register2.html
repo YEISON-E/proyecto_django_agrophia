@@ -10,17 +10,17 @@
 
     <div class="form__group">
       <label for="email" class="form__label">Correo Electrónico</label>
-      <input type="email" class="form__input" placeholder="Correo Electrónico">
+      <input type="email" name="email" class="form__input" placeholder="Correo Electrónico">
     </div>
 
     <div class="form__group">
       <label for="telefono" class="form__label">Teléfono</label>
-      <input type="tel" class="form__input" placeholder="Teléfono">
+      <input type="tel" name="telefono" class="form__input" placeholder="Teléfono">
     </div>
 
     <div class="form__group">
       <label class="form__label" for="input-departament">Departamento</label>
-      <select id="input-departament" name="input-departament" class="form__option">
+      <select id="input-departament" name="departamento" class="form__option">
         <option value="">Selecciona el Departamento</option>
         <option value="Risaralda">Risaralda</option>
         <option value="Caldas">Caldas</option>
@@ -30,7 +30,7 @@
       
       <div class="form__group">
         <label class="form__label" for="input-municipality">Municipio</label>
-        <select id="input-departament" name="" class="form__option">
+        <select id="input-departament" name="municipio" class="form__option">
           <option value="">Selecciona el Municipio</option>
           <option value="Risaralda">Neira</option>
           <option value="Caldas">Manizales</option>
@@ -40,22 +40,16 @@
       
     <div class="form__group">
       <label for="direccion" class="form__label">Dirección completa</label>
-      <input type="text" class="form__input" placeholder="Dirección completa">
-      <!-- <select i class="form__select">
-        <option value="">Selecciona una opción</option>
-        <option value="opt1">Risaralda</option>
-        <option value="opt2">Caldas</option>
-        <option value="opt2">Quindio</option>
-      </select> -->
+      <input type="text" class="form__input" name="direccion" placeholder="Dirección completa">
     </div>
     
     <div class="register__group-textarea">
           <label class="profile-update__label" for="input-descripcion">Descripción de perfil (opcional)</label>
-          <textarea id="input-direccion" class="register__textarea" type="text" name="direccion" placeholder="Maximo 40 Caracteres" autocomplete="street-address" required ></textarea>
+          <textarea id="input-direccion" class="register__textarea" type="text" name="descripcion" placeholder="Maximo 40 Caracteres" autocomplete="street-address" required ></textarea>
         </div>
     <div class="form__group">
       <label for="password" class="form__label">Contraseña</label>
-      <input type="password" class="form__input" placeholder="Contraseña">
+      <input type="password" name="password" class="form__input" placeholder="Contraseña">
 
         <div class="form__check">
           <label for="mostrar" class="form__label form__see--password">
@@ -66,15 +60,21 @@
   
     <div class="form__group">
         <label for="password" class="form__label"> Confirmar Contraseña</label>
-        <input type="password" class="form__input" placeholder="Contraseña">
+        <input type="password" name="confirm_password" class="form__input" placeholder="Contraseña">
     </div>
+
+    <button type="submit" onclick="mostrarAlerta(event)"
+      class="form-content__register--row-buttons__next">
+      Registrarse
+    </button>
     
   </form>
 
 
    <div class="form-content__register--row-buttons">
-      <a href="/frontend/public/views/register.html" class="form-content__register--row-buttons__back">Volver</a>
-      <a href="/frontend/public/views/login.html" 
-      onclick="mostrarAlerta(event)" class="form-content__register--row-buttons__next">Registrarse</a>
+      <a href="{% url 'register' %}"
+        class="form-content__register--row-buttons__back">
+        Volver
+      </a>
     </div>
 </div>

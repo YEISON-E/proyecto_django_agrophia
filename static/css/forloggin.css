@@ -167,7 +167,7 @@
   /* top: 0; */
   /* left: 0; */
   width: 50%;
-  height: 100vh;   /* altura del viewport dinámico real */
+  height: 86vh;   /* altura del viewport dinámico real */
   overflow: hidden;
   display: flex;
   justify-content: center;
@@ -193,7 +193,7 @@
   position: relative;
   margin-left:50%;
   width:50%;
-  height: 100vh;
+  height: 86vh;
   color: var(--black);
   display:flex;
   flex-direction:row;

@@ -2,8 +2,8 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
-{% block content %}
-{% load static %}
+<div class="login-container">
+  <a href="{% url 'index' %}" class="login__back">Volver</a>
 
 <div class="login-container">
   <a href="{% url 'home' %}" class="login-container__register">
@@ -61,12 +61,9 @@
       
       <button type="submit" class="login__button">Iniciar sesión</button>
 
-<<<<<<< HEAD
       <a href="{% url 'forgot_password' %}" class="login-container__register">
-=======
       <a href="/frontend/public/views/p_forgot-password.html" class="login-container__register">
 
->>>>>>> 9a91fb756bc7e8de89f6d9ef56c57e76c836080a
         ¿Olvidaste tu contraseña?
       </a>
     </div>
@@ -81,9 +78,6 @@
     password.type = checkbox.checked ? "text" : "password";
   });
 </script>
-
-    
-{% endblock %}
 
 
    <!-- MISMO LINK -->

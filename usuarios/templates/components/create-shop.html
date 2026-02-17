@@ -1,3 +1,8 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+
 <div class="form-shop__content">
 
     <a href="/frontend/public/views/p_login-customer.html" class="form-shop__back">Volver</a>
@@ -9,26 +14,27 @@
         <div class="shop">
                 <h2 class="form-shop__subtitle">Crea tu tienda</h2>
             <div class="form-shop">
-                <form class="form-shop__body">
+                <form method="POST" class="form-shop__body">
+                    {% csrf_token %}
 
                     <div class="form-shop__group">
                         <label for="nombre" class="form-shop__label">Nombre de la tienda</label>
-                        <input type="text" class="form-shop__input" placeholder="Ej:El ahorro" required>
+                        <input type="text" name="nombre" class="form-shop__input" placeholder="Nombre tienda" required>
                     </div>
 
                     <div class="form-shop__group">
                         <label for="tel" class="form-shop__label">Teléfono</label>
-                        <input type="tel" class="form-shop__input" placeholder="Ej:3056785643" required>
+                        <input type="tel" name="telefono" class="form-shop__input" placeholder="Teléfono" required>
                     </div>
 
                     <div class="form-shop__group">
                         <label for="email" class="form-shop__label">Correo Electrónico</label>
-                        <input type="email" class="form-shop__input" placeholder="Ej:sebasv@gmail.com" required>
+                        <input type="email" name="email" class="form-shop__input" placeholder="Correo" required>
                     </div>
 
                     <div class="form-shop__group">
                         <label class="form-shop__label" for="direccion">Departamento</label>
-                        <select id="direccion" name="" class="form-shop__option">
+                        <select id="direccion" name="departamento" class="form-shop__option">
                             <option value="">Selecciona el Departamento</option>
                             <option value="Risaralda">Risaralda</option>
                             <option value="Caldas">Caldas</option>
@@ -38,7 +44,7 @@
 
                     <div class="form-shop__group">
                         <label class="form-shop__label" for="direccion">Municipio</label>
-                        <select id="direccion" name="" class="form-shop__option">
+                        <select id="direccion" name="municipio" class="form-shop__option">
                             <option value="">Selecciona el Municipio</option>
                             <option value="Neira">Risaralda</option>
                             <option value="Manizales">Manizales</option>
@@ -46,6 +52,10 @@
                         </select>
                     </div>
 
+                    <div class="form-shop__next">
+                        <button type="submit"  class="create-perfil-farmer__next">Siguiente</button>
+                    </div>
+                    
                     <!-- <div class="form-shop__group">
                         <label for="horario" class="form-shop__label">Horario de atencion</label>
                         <input type="text" class="form-shop__input" placeholder="Ej:Lunes a viernes 8AM a 6PM" required>
@@ -81,9 +91,6 @@
                 </div> -->
 
             </div>
-            <a href="/frontend/public/views/create-shop2.html">
-                <button type="submit"  class="create-perfil-farmer__next">Siguiente</button>
-            </a>
         </div>
     </div>
 </div>

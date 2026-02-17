@@ -24,3 +24,13 @@ urlpatterns = [
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+from django.urls import path, include
+from .views import home   # ✅ ahora sí existe
+
+urlpatterns = [
+    path('', home, name='home'),
+    path('admin/', admin.site.urls),
+    path('usuarios/', include('usuarios.urls')),
+]
+

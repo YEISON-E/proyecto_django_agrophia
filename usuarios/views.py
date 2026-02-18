@@ -27,22 +27,6 @@ def index(request):
 
 class Logueo(LoginView):
     template_name = "login.html"
-
-def login_view(request):
-    if request.method == 'POST':
-        usuario = request.POST.get('usuario')
-        password = request.POST.get('password')
-        # Aquí luego conectamos autenticación real
-        print(usuario, password)
-
-    return render(request, 'usuarios/login.html')
-
-def home(request):
-    return redirect('login')
-
-
-class Logueo(LoginView):
-    template_name = "components/loggin.html"
     redirect_authenticated_user = True
 
     def post(self, request, *args, **kwargs):

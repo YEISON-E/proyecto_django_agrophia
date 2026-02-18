@@ -1,14 +1,9 @@
-{% extends 'usuarios/base.html' %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
 <div class="login-container">
   <a href="{% url 'index' %}" class="login__back">Volver</a>
 
-<div class="login-container">
-  <a href="{% url 'home' %}" class="login-container__register">
-          ¿Olvidaste tu contraseña?
-      </a>
   <div class="login-container__card">
     <div class="login">
       <h1 class="login__title">Iniciar Sesión</h1>
@@ -22,7 +17,6 @@
           </div>
         {% endif %}
 
-      <form onsubmit="mostrarAlerta(event)" class="login-form">
         <div class="login-form__container">
           <label for="id_username" class="login-form__container__label">Número de documento</label>
           <input type="text" id="id_username" class="login-form__container__input" name="username" placeholder="Número de documento" value="{{ valores.username|default:'' }}" required />
@@ -33,7 +27,8 @@
         </div>
 
         <div class="login-form__container">
-          <label for="id_password" class="login-form__container__label">Contraseña</label> <input type="password" id="id_password" class="login-form__container__input" name="password" placeholder="Contraseña" required />
+          <label for="id_password" class="login-form__container__label">Contraseña</label>
+          <input type="password" id="id_password" class="login-form__container__input" name="password" placeholder="Contraseña" required />
 
           {% if errores.password %}
             <small class="error-text">{{ errores.password }}</small>
@@ -47,23 +42,8 @@
 
         <button type="submit" class="login__button">Iniciar sesión</button>
       </form>
-      
-      <div class="login__show-password">
-        <input type="checkbox" class="login-form__checkbox"/>
-        <label for="toggle-password" class="login-form__checkbox-label">Mostrar contraseña</label>
-      </div>
-        
-      <a href="/frontend/public/views/interface_farmer.html" 
-      onclick="mostrarAlerta(event)" class="login__button">Iniciar sesión
-      </a>
-
-      <a href="{% url 'home' %}" class="login-container__register">
-      
-      <button type="submit" class="login__button">Iniciar sesión</button>
 
       <a href="{% url 'forgot_password' %}" class="login-container__register">
-      <a href="/frontend/public/views/p_forgot-password.html" class="login-container__register">
-
         ¿Olvidaste tu contraseña?
       </a>
     </div>
@@ -79,8 +59,3 @@
   });
 </script>
 
-
-   <!-- MISMO LINK -->
-      <a href="{% url 'home' %}" class="login-container__register">
-        ¿Olvidaste tu contraseña?
-      </a>

@@ -296,3 +296,83 @@
         font-weight: bold; /* Opcional, para que coincida con tu imagen */
     }
 }
+
+/* ===== ESTILOS DE VALIDACIÓN Y ERRORES ===== */
+
+/* Error inline debajo del input */
+.input-error {
+    color: var(--white);
+    font-size: var(--fs-xxs);
+    margin-top: 6px;
+    margin-left: 4px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: slideDown 0.3s ease-out;
+}
+
+.input-error::before {
+    content: '⚠';
+    flex-shrink: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== ERRORES DEL SERVIDOR ===== */
+
+.server-errors {
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+    border: 2px solid #b00020;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    animation: slideDown 0.4s ease-out;
+}
+
+.error-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.error-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.error-header h3 {
+    margin: 0;
+    color: #b00020;
+    font-size: var(--fs-xs);
+}
+
+.error-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.error-list li {
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.7);
+    border-left: 4px solid #b00020;
+    margin-bottom: 8px;
+    color: var(--gray-900);
+    font-size: 0.95rem;
+    border-radius: 4px;
+}
+
+.error-list li:last-child {
+    margin-bottom: 0;
+}

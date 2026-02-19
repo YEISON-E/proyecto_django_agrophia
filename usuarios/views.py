@@ -92,16 +92,56 @@ def register_step_1(request):
 
 
 def register_step_2(request):
+    valores = {}
+    errores = {}
+
     if request.method == "POST":
         step1 = request.session.get("register_step_1")
 
-        email = request.POST["email"]
-        telefono = request.POST["telefono"]
-        password = request.POST["password"]
-        confirm = request.POST["confirm_password"]
+        email = request.POST.get("email", "").strip()
+        telefono = request.POST.get("telefono", "").strip()
+        password = request.POST.get("password", "").strip()
+        confirm = request.POST.get("confirm_password", "").strip()
+        departamento = request.POST.get("departamento", "").strip()
+        municipio = request.POST.get("municipio", "").strip()
+        direccion = request.POST.get("direccion", "").strip()
+        descripcion = request.POST.get("descripcion", "").strip()
+        documento = step1.get("documento", "") if step1 else ""
 
+        # Guardar valores para pre-llenar en caso de error
+        valores = {
+            "email": email,
+            "telefono": telefono,
+            "departamento": departamento,
+            "municipio": municipio,
+            "direccion": direccion,
+            "descripcion": descripcion,
+        }
+
+        # Validar que las contraseñas coincidan
         if password != confirm:
-            return HttpResponse("Contraseñas no coinciden")
+            errores["password"] = "Las contraseñas no coinciden."
+
+        # Validar que el documento no esté registrado
+        if documento and Register.objects.filter(numero_documento=documento).exists():
+            errores["documento"] = "Este número de documento ya está registrado."
+
+        # Validar que el correo no esté registrado
+        if User.objects.filter(email=email).exists():
+            errores["email"] = "Este correo ya está registrado."
+        elif Register.objects.filter(correo_electronico=email).exists():
+            errores["email"] = "Este correo ya está registrado."
+
+        # Validar que el teléfono no esté registrado
+        if Register.objects.filter(telefono=telefono).exists():
+            errores["telefono"] = "Este teléfono ya está registrado."
+
+        # Si hay errores, retornar a la plantilla con los mensajes
+        if errores:
+            return render(request, "register2.html", {
+                "errores": errores,
+                "valores": valores
+            })
 
         # Crear usuario Django
         user = User.objects.create_user(
@@ -119,10 +159,10 @@ def register_step_2(request):
             apellidos=step1["apellidos"],
             correo_electronico=email,
             telefono=telefono,
-            departamento=request.POST["departamento"],
-            municipio=request.POST["municipio"],
-            direccion_completa=request.POST["direccion"],
-            descripcion_perfil=request.POST.get("descripcion"),
+            departamento=departamento,
+            municipio=municipio,
+            direccion_completa=direccion,
+            descripcion_perfil=descripcion,
             contrasena=password,
         )
 
@@ -130,7 +170,7 @@ def register_step_2(request):
 
         return redirect("login")
 
-    return render(request, "register2.html")
+    return render(request, "register2.html", {"valores": valores, "errores": errores})
 
 def olvidaste_contrasena(request):
     errores = {}

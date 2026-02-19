@@ -4,7 +4,7 @@
 
 <div class="form-content__register">
   <h2 class="form__title">Formulario de Registro</h2>
-  <form method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group2">
+  <form id="register-form" method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group2">
   {% csrf_token %}
     
 
@@ -30,12 +30,9 @@
       
       <div class="form__group">
         <label class="form__label" for="input-municipality">Municipio</label>
-        <select id="input-departament" name="municipio" class="form__option">
-          <option value="">Selecciona el Municipio</option>
-          <option value="Risaralda">Neira</option>
-          <option value="Caldas">Manizales</option>
-          <option value="Quindio">San josé</option>
-        </select>
+          <select id="input-municipality" name="municipio" class="form__option">
+            <option value="">Selecciona el Municipio</option>
+          </select>
       </div>
       
     <div class="form__group">
@@ -49,12 +46,13 @@
         </div>
     <div class="form__group">
       <label for="password" class="form__label">Contraseña</label>
-      <input type="password" name="password" class="form__input" placeholder="Contraseña">
+      <input id="password" type="password" name="password" class="form__input" placeholder="Contraseña">
 
         <div class="form__check">
-          <label for="mostrar" class="form__label form__see--password">
-          <input type="checkbox">
-            Mostrar contraseña</label>
+          <label class="form__label form__see--password">
+            <input id="mostrar" type="checkbox">
+            Mostrar contraseña
+          </label>
         </div>
     </div>
   
@@ -63,18 +61,111 @@
         <input type="password" name="confirm_password" class="form__input" placeholder="Contraseña">
     </div>
 
-    <button type="submit" onclick="mostrarAlerta(event)"
-      class="form-content__register--row-buttons__next">
-      Registrarse
-    </button>
     
   </form>
 
 
    <div class="form-content__register--row-buttons">
-      <a href="{% url 'register' %}"
-        class="form-content__register--row-buttons__back">
-        Volver
-      </a>
+     <a href="{% url 'register' %}"
+     class="form-content__register--row-buttons__back">
+     Volver
+    </a>
+    <button type="submit" form="register-form" class="form-content__register--row-buttons__next">Registrarse</button>
     </div>
+    
+    <script>
+    // Mapa simple de departamentos -> municipios
+    const municipiosPorDepartamento = {
+
+      'Risaralda': [
+        'Pereira',
+        'Dosquebradas',
+        'La Virginia',
+        'Apía',
+        'Balboa',
+        'Belén de Umbría',
+        'Guática',
+        'La Celia',
+        'Marsella',
+        'Mistrató',
+        'Pueblo Rico',
+        'Quinchía',
+        'Santa Rosa de Cabal',
+        'Santuario'
+      ],
+
+      'Caldas': [
+        'Manizales',
+        'Aguadas',
+        'Anserma',
+        'Aranzazu',
+        'Belalcázar',
+        'Chinchiná',
+        'Filadelfia',
+        'La Dorada',
+        'La Merced',
+        'Manzanares',
+        'Marmato',
+        'Marquetalia',
+        'Marulanda',
+        'Neira',
+        'Norcasia',
+        'Pácora',
+        'Palestina',
+        'Pensilvania',
+        'Riosucio',
+        'Risaralda',
+        'Salamina',
+        'Samaná',
+        'San José',
+        'Supía',
+        'Victoria',
+        'Villamaría',
+        'Viterbo'
+      ],
+
+      'Quindio': [
+        'Armenia',
+        'Buenavista',
+        'Calarcá',
+        'Circasia',
+        'Córdoba',
+        'Filandia',
+        'Génova',
+        'La Tebaida',
+        'Montenegro',
+        'Pijao',
+        'Quimbaya',
+        'Salento'
+      ]
+    };
+
+    const departSelect = document.getElementById('input-departament');
+    const munSelect = document.getElementById('input-municipality');
+
+    function poblarMunicipios() {
+      const dep = departSelect.value;
+      // limpiar
+      munSelect.innerHTML = '<option value="">Selecciona el Municipio</option>';
+      if (!dep || !municipiosPorDepartamento[dep]) return;
+      municipiosPorDepartamento[dep].forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m;
+        opt.textContent = m;
+        munSelect.appendChild(opt);
+      });
+    }
+
+    departSelect.addEventListener('change', poblarMunicipios);
+
+    // Mostrar/ocultar contraseña
+    const mostrarChk = document.getElementById('mostrar');
+    const passField = document.getElementById('password');
+    const confirmField = document.querySelector('input[name="confirm_password"]');
+    mostrarChk.addEventListener('change', function(){
+      const tipo = this.checked ? 'text' : 'password';
+      if(passField) passField.type = tipo;
+      if(confirmField) confirmField.type = tipo;
+    });
+    </script>
 </div>

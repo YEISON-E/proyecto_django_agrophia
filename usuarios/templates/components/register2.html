@@ -4,27 +4,37 @@
 
 <div class="form-content__register">
   <h2 class="form__title">Formulario de Registro</h2>
+  <!-- Contenedor de errores del servidor -->
+  {% if errores.documento %}
+  <div class="input-error" style="display: block; margin-bottom: 20px; padding: 10px; background-color: var(--gray-800); border-left: 4px solid var(--black); border-radius: 4px;"> {{ errores.documento }}</div>
+  {% endif %}
   <form id="register-form" method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group2">
   {% csrf_token %}
     
 
     <div class="form__group">
       <label for="email" class="form__label">Correo Electrónico</label>
-      <input type="email" name="email" class="form__input" placeholder="Correo Electrónico">
+      <input type="email" name="email" class="form__input" placeholder="Correo Electrónico" value="{{ valores.email }}">
+      {% if errores.email %}
+      <div class="input-error">{{ errores.email }}</div>
+      {% endif %}
     </div>
 
     <div class="form__group">
       <label for="telefono" class="form__label">Teléfono</label>
-      <input type="tel" name="telefono" class="form__input" placeholder="Teléfono">
+      <input type="tel" name="telefono" class="form__input" placeholder="Teléfono" value="{{ valores.telefono }}">
+      {% if errores.telefono %}
+      <div class="input-error">{{ errores.telefono }}</div>
+      {% endif %}
     </div>
 
     <div class="form__group">
       <label class="form__label" for="input-departament">Departamento</label>
       <select id="input-departament" name="departamento" class="form__option">
         <option value="">Selecciona el Departamento</option>
-        <option value="Risaralda">Risaralda</option>
-        <option value="Caldas">Caldas</option>
-        <option value="Quindio">Quindio</option>
+        <option value="Risaralda" {% if valores.departamento == 'Risaralda' %}selected{% endif %}>Risaralda</option>
+        <option value="Caldas" {% if valores.departamento == 'Caldas' %}selected{% endif %}>Caldas</option>
+        <option value="Quindio" {% if valores.departamento == 'Quindio' %}selected{% endif %}>Quindio</option>
       </select>
     </div>
       
@@ -32,17 +42,21 @@
         <label class="form__label" for="input-municipality">Municipio</label>
           <select id="input-municipality" name="municipio" class="form__option">
             <option value="">Selecciona el Municipio</option>
+            <option value="{{ valores.municipio }}" selected>{{ valores.municipio }}</option>
           </select>
       </div>
       
     <div class="form__group">
       <label for="direccion" class="form__label">Dirección completa</label>
-      <input type="text" class="form__input" name="direccion" placeholder="Dirección completa">
+      <input type="text" class="form__input" name="direccion" placeholder="Dirección completa" value="{{ valores.direccion }}">
     </div>
     
     <div class="register__group-textarea">
           <label class="profile-update__label" for="input-descripcion">Descripción de perfil (opcional)</label>
-          <textarea id="input-direccion" class="register__textarea" type="text" name="descripcion" placeholder="Maximo 40 Caracteres" autocomplete="street-address" required ></textarea>
+          <textarea id="input-direccion" class="register__textarea" type="text" name="descripcion" placeholder="Maximo 40 Caracteres" autocomplete="street-address">{{ valores.descripcion }}</textarea>
+          {% if errores.descripcion %}
+          <div class="input-error">{{ errores.descripcion }}</div>
+          {% endif %}
         </div>
     <div class="form__group">
       <label for="password" class="form__label">Contraseña</label>
@@ -73,99 +87,5 @@
     <button type="submit" form="register-form" class="form-content__register--row-buttons__next">Registrarse</button>
     </div>
     
-    <script>
-    // Mapa simple de departamentos -> municipios
-    const municipiosPorDepartamento = {
-
-      'Risaralda': [
-        'Pereira',
-        'Dosquebradas',
-        'La Virginia',
-        'Apía',
-        'Balboa',
-        'Belén de Umbría',
-        'Guática',
-        'La Celia',
-        'Marsella',
-        'Mistrató',
-        'Pueblo Rico',
-        'Quinchía',
-        'Santa Rosa de Cabal',
-        'Santuario'
-      ],
-
-      'Caldas': [
-        'Manizales',
-        'Aguadas',
-        'Anserma',
-        'Aranzazu',
-        'Belalcázar',
-        'Chinchiná',
-        'Filadelfia',
-        'La Dorada',
-        'La Merced',
-        'Manzanares',
-        'Marmato',
-        'Marquetalia',
-        'Marulanda',
-        'Neira',
-        'Norcasia',
-        'Pácora',
-        'Palestina',
-        'Pensilvania',
-        'Riosucio',
-        'Risaralda',
-        'Salamina',
-        'Samaná',
-        'San José',
-        'Supía',
-        'Victoria',
-        'Villamaría',
-        'Viterbo'
-      ],
-
-      'Quindio': [
-        'Armenia',
-        'Buenavista',
-        'Calarcá',
-        'Circasia',
-        'Córdoba',
-        'Filandia',
-        'Génova',
-        'La Tebaida',
-        'Montenegro',
-        'Pijao',
-        'Quimbaya',
-        'Salento'
-      ]
-    };
-
-    const departSelect = document.getElementById('input-departament');
-    const munSelect = document.getElementById('input-municipality');
-
-    function poblarMunicipios() {
-      const dep = departSelect.value;
-      // limpiar
-      munSelect.innerHTML = '<option value="">Selecciona el Municipio</option>';
-      if (!dep || !municipiosPorDepartamento[dep]) return;
-      municipiosPorDepartamento[dep].forEach(m => {
-        const opt = document.createElement('option');
-        opt.value = m;
-        opt.textContent = m;
-        munSelect.appendChild(opt);
-      });
-    }
-
-    departSelect.addEventListener('change', poblarMunicipios);
-
-    // Mostrar/ocultar contraseña
-    const mostrarChk = document.getElementById('mostrar');
-    const passField = document.getElementById('password');
-    const confirmField = document.querySelector('input[name="confirm_password"]');
-    mostrarChk.addEventListener('change', function(){
-      const tipo = this.checked ? 'text' : 'password';
-      if(passField) passField.type = tipo;
-      if(confirmField) confirmField.type = tipo;
-    });
-    </script>
+    <script src="{% static 'js/components/register.js' %}"></script>
 </div>

@@ -1,4 +1,4 @@
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 
 def home(request):
-    return redirect('login')
+    return render(request, 'index.html')

@@ -191,6 +191,12 @@
 }
 
 @media (width > 768px) {
+    .form-group__container{
+        display:grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 24px;
+
+    }
     .form-container{
         align-items: center;
         justify-content: center;
@@ -205,9 +211,9 @@
     }
     .form-content__group {
         width: 100%;
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
         gap: 24px;
+        display: flex;
+        flex-direction: column;
     }
     .form-content__group2 {
         width: 100%;
@@ -314,6 +320,35 @@
 
 .input-error::before {
     content: '⚠';
+    flex-shrink: 0;
+}
+
+/* ===== LISTA DE REQUISITOS DE CONTRASEÑA ===== */
+/* Estilos para la lista de requisitos de fortaleza de contraseña */
+.password-requirements {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.password-requirements li {
+    font-size: var(--fs-xxs);
+    color: var(--white);
+    font-weight: 500;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    word-break: break-word;
+}
+
+.password-requirements li::before {
+    content: '';
+    display: inline-block;
     flex-shrink: 0;
 }
 

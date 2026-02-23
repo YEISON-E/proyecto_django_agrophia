@@ -3,7 +3,7 @@
 .hero-content {
   gap: 12px;
   height: auto;                          
-  background-image: url(/frontend/public/img/hero__image.jpeg);
+  background-image: url(img/hero__image.jpeg);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;

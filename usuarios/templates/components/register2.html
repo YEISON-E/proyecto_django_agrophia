@@ -4,77 +4,96 @@
 
 <div class="form-content__register">
   <h2 class="form__title">Formulario de Registro</h2>
-  <form method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group2">
+  <!-- Contenedor de errores del servidor -->
+  {% if errores.documento %}
+  <div class="input-error" style="display: block; margin-bottom: 20px; padding: 10px; background-color: var(--gray-800); border-left: 4px solid var(--black); border-radius: 4px;"> {{ errores.documento }}</div>
+  {% endif %}
+  <form id="register-form" method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group2">
   {% csrf_token %}
     
 
     <div class="form__group">
       <label for="email" class="form__label">Correo Electrónico</label>
-      <input type="email" class="form__input" placeholder="Correo Electrónico">
+      <input type="email" name="email" class="form__input" placeholder="Correo Electrónico" value="{{ valores.email }}">
+      {% if errores.email %}
+      <div class="input-error">{{ errores.email }}</div>
+      {% endif %}
     </div>
 
     <div class="form__group">
       <label for="telefono" class="form__label">Teléfono</label>
-      <input type="tel" class="form__input" placeholder="Teléfono">
+      <input type="tel" name="telefono" class="form__input" placeholder="Teléfono" value="{{ valores.telefono }}">
+      {% if errores.telefono %}
+      <div class="input-error">{{ errores.telefono }}</div>
+      {% endif %}
     </div>
 
     <div class="form__group">
       <label class="form__label" for="input-departament">Departamento</label>
-      <select id="input-departament" name="input-departament" class="form__option">
+      <select id="input-departament" name="departamento" class="form__option">
         <option value="">Selecciona el Departamento</option>
-        <option value="Risaralda">Risaralda</option>
-        <option value="Caldas">Caldas</option>
-        <option value="Quindio">Quindio</option>
+        <option value="Risaralda" {% if valores.departamento == 'Risaralda' %}selected{% endif %}>Risaralda</option>
+        <option value="Caldas" {% if valores.departamento == 'Caldas' %}selected{% endif %}>Caldas</option>
+        <option value="Quindio" {% if valores.departamento == 'Quindio' %}selected{% endif %}>Quindio</option>
       </select>
     </div>
       
       <div class="form__group">
         <label class="form__label" for="input-municipality">Municipio</label>
-        <select id="input-departament" name="" class="form__option">
-          <option value="">Selecciona el Municipio</option>
-          <option value="Risaralda">Neira</option>
-          <option value="Caldas">Manizales</option>
-          <option value="Quindio">San josé</option>
-        </select>
+          <select id="input-municipality" name="municipio" class="form__option">
+            <option value="">Selecciona el Municipio</option>
+            <option value="{{ valores.municipio }}" selected>{{ valores.municipio }}</option>
+          </select>
       </div>
       
     <div class="form__group">
       <label for="direccion" class="form__label">Dirección completa</label>
-      <input type="text" class="form__input" placeholder="Dirección completa">
-      <!-- <select i class="form__select">
-        <option value="">Selecciona una opción</option>
-        <option value="opt1">Risaralda</option>
-        <option value="opt2">Caldas</option>
-        <option value="opt2">Quindio</option>
-      </select> -->
+      <input type="text" class="form__input" name="direccion" placeholder="Dirección completa" value="{{ valores.direccion }}">
     </div>
     
     <div class="register__group-textarea">
           <label class="profile-update__label" for="input-descripcion">Descripción de perfil (opcional)</label>
-          <textarea id="input-direccion" class="register__textarea" type="text" name="direccion" placeholder="Maximo 40 Caracteres" autocomplete="street-address" required ></textarea>
+          <textarea id="input-direccion" class="register__textarea" type="text" name="descripcion" placeholder="Maximo 40 Caracteres" autocomplete="street-address">{{ valores.descripcion }}</textarea>
+          {% if errores.descripcion %}
+          <div class="input-error">{{ errores.descripcion }}</div>
+          {% endif %}
         </div>
     <div class="form__group">
-      <label for="password" class="form__label">Contraseña</label>
-      <input type="password" class="form__input" placeholder="Contraseña">
+      <label for="id_password" class="form__label">Contraseña</label>
+      <input id="id_password" type="password" name="password" class="form__input" placeholder="Contraseña" required>
+      <div id="error-password" class="input-error" style="display: none;">
+        {% if errores.password %}{{ errores.password }}{% endif %}
+      </div>
 
-        <div class="form__check">
-          <label for="mostrar" class="form__label form__see--password">
-          <input type="checkbox">
-            Mostrar contraseña</label>
-        </div>
+      <div class="login__show-password">
+        <input id="toggle-password" type="checkbox" class="login-form__checkbox"/>
+        <label for="toggle-password" class="login-form__checkbox-label">Mostrar contraseña</label>
+      </div>
     </div>
   
     <div class="form__group">
-        <label for="password" class="form__label"> Confirmar Contraseña</label>
-        <input type="password" class="form__input" placeholder="Contraseña">
+        <label for="id_confirm_password" class="form__label">Confirmar Contraseña</label>
+        <input id="id_confirm_password" type="password" name="confirm_password" class="form__input" placeholder="Confirmar Contraseña" required>
+        <div id="error-confirm-password" class="input-error" style="display: none;">
+          {% if errores.confirm_password %}{{ errores.confirm_password }}{% endif %}
+        </div>
+
+        <div class="login__show-password">
+          <input id="toggle-confirm-password" type="checkbox" class="login-form__checkbox"/>
+          <label for="toggle-confirm-password" class="login-form__checkbox-label">Mostrar contraseña</label>
+        </div>
     </div>
+
     
   </form>
 
 
    <div class="form-content__register--row-buttons">
-      <a href="/frontend/public/views/register.html" class="form-content__register--row-buttons__back">Volver</a>
-      <a href="/frontend/public/views/login.html" 
-      onclick="mostrarAlerta(event)" class="form-content__register--row-buttons__next">Registrarse</a>
+     <a href="{% url 'usuarios:register' %}"
+     class="form-content__register--row-buttons__back">
+     Volver
+    </a>
+    <button type="submit" form="register-form" class="form-content__register--row-buttons__next">Registrarse</button>
     </div>
+
 </div>

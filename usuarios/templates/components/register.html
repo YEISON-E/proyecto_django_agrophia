@@ -1,25 +1,29 @@
 {% load static %}
+
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
 <div class="form-content__register">
   <h2 class="form__title">Formulario de Registro</h2>
 
-  <form method="POST" enctype="multipart/form-data" class="form-content__group">
-    {% csrf_token %}
+  <div class="form-content__register-row">
 
-    <div class="form-content__register-row">
+  <form id="register-form-step1" method="POST" onsubmit="return validarRegistroStep1(event)" class="form-content__group" enctype="multipart/form-data">
+  {% csrf_token %}
 
-      <div class="profile-update__group-file__photo">
-        <img src="/frontend/public/img/foto_sofi.png" alt="foto de Perfil cargada" class="profile-update__group-file__photo_review">
+    <div class="profile-update__group-file__photo">
+      <img id="preview" src="{% static 'img/not-found.png' %}" alt="foto de Perfil cargada" class="profile-update__group-file__photo_review">
+      
+      <!-- Label que actúa como botón -->
+      <label for="input-foto" class="profile-update__label--file">
+        Cambiar foto
+      </label>
+      <input id="input-foto" class="profile-update__input profile-update__input--file" type="file" name="foto"/>
+      
+      <!-- Aquí se mostrará el error de foto -->
+    </div>
+    <div class="form-group__container">
 
-        <label for="input-foto" class="profile-update__label--file">
-          Cambiar foto
-        </label>
-
-        <input id="input-foto" class="profile-update__input profile-update__input--file"
-               type="file" name="foto" />
-      </div>
-
+      
       <div class="form__group">
         <label for="tdocumento" class="form__label">Tipo de Documento</label>
         <select id="tdocumento" name="tdocumento" class="form__option" required>
@@ -29,29 +33,34 @@
           <option value="cedula extranjera">Cédula extranjera</option>
           <option value="pasaporte">Pasaporte</option>
         </select>
+        
       </div>
-
       <div class="form__group">
         <label for="documento" class="form__label">Número de Documento</label>
-        <input id="documento" type="text" name="documento" class="form__input" placeholder="Número de documento" required>
+        <input type="text" name="documento" class="form__input" placeholder="Número de documento">
       </div>
-
+      
       <div class="form__group">
         <label for="nombres" class="form__label">Nombres</label>
-        <input id="nombres" type="text" name="nombres" class="form__input" placeholder="Nombres" required>
+        <input type="text" name="nombres" class="form__input" placeholder="Nombres">
       </div>
-
+      
       <div class="form__group">
         <label for="apellidos" class="form__label">Apellidos</label>
-        <input id="apellidos" type="text" name="apellidos" class="form__input" placeholder="Apellidos" required>
+        <input type="text" name="apellidos" class="form__input" placeholder="Apellidos">
       </div>
-
     </div>
-
-    <div class="form-content__register--row-buttons">
-      <a href="/" class="form-content__register--row-buttons__back">Volver</a>
-      <button type="submit" class="form-content__register--row-buttons__next">Siguiente</button>
-    </div>
-
   </form>
+  </div>
+
+  <div class="form-content__register--row-buttons">
+    <a href="{% url 'usuarios:index' %}"
+    class="form-content__register--row-buttons__back">
+    Volver
+  </a>
+  <button type="submit" form="register-form-step1" class="form-content__register--row-buttons__next">Siguiente</button>
+
+  </div>
 </div>
+
+<script src="{% static 'js/components/register.js' %}"></script>

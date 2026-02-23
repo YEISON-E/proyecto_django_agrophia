@@ -5,25 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulario de Registro</title>
     {% load static %}
-    <link rel="icon" href="{% static 'css/icons/planta.png' %}">
+    <link rel="icon" href="{% static 'icons/planta.png' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <script src="/frontend/public/js/components/gov-co__one.js"></script>
     <script src="/frontend/public/js/components/gov-co__two.js"></script>
-    <script src="/frontend/public/js/components/navbar.js" defer></script>
     <script src="/frontend/public/js/components/register.js", defer></script>
     <script src="/frontend/public/js/components/footer.js", defer></script>
 </head>
 <body>
-    <div class="govco-container__one"></div>
+    <div class="govco-container__one">
+        {% include 'components/gov-co__one.html' %} 
+    </div>
     
-    <header class="navbar-container"></header>
+    <header class="navbar-container">
+        {% include 'components/navbar.html' %} 
+    </header>
 
-    <div class="form-container"></div>
-    <div class="footer-container"></div>
+    <div class="form-container">
+        {% include 'components/register.html' %}
+
+    </div>
+     
+    <div class="footer-container">
+        {% include 'components/footer.html' %} 
+    </div>
     
-    <div class="govco-container__two"></div>
+    <div class="govco-container__two">
+        {% include 'components/gov-co__one.html' %} 
+    </div>
 
 
-    {% include 'components/register.html' %}
 </body>
 </html>

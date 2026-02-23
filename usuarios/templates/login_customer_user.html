@@ -1,0 +1,21 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interfaz usuario logueado</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <script src="{% static 'js/components/gov-co__one.js' %}"></script>
+    <script src="{% static 'js/components/gov-co__two.js' %}"></script>
+</head>
+<body>
+    <div class="govco-container__one">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+    {% include 'components/navbar-home.html' %}
+    <div class="govco-container__two">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+</body>
+</html> 

@@ -1,5 +1,9 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
 <div class="govco-content">
     <a href="https://www.gov.co/" target="_blank">
-        <img loading="lazy" src="/frontend/public/img/gov-logo.svg" alt="Logo de la pagina gov.co" class="gov__img">
+        <img loading="lazy" src="{% static 'img/gov-logo.svg' %}" alt="Logo de la página gov.co" class="gov__img">
     </a>
 </div>

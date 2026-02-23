@@ -8,8 +8,6 @@ from django.views.generic.edit import CreateView,  UpdateView, DeleteView, FormV
 
 from django.contrib.auth.views import LoginView
 
-from django.contrib import messages
-
 from django.contrib.auth.models import User
 
 from django.urls import reverse
@@ -354,6 +352,7 @@ def restablecer_contrasena(request):
     errores = {}
     valores = {}
     email_sesion = request.session.get("reset_email")
+    reset_success = request.session.pop("reset_success", False)
 
     if request.method == "POST":
         codigo = request.POST.get("codigo", "").strip()
@@ -417,10 +416,10 @@ def restablecer_contrasena(request):
                     except User.DoesNotExist:
                         pass
                     
-                    # Limpiar sesión y redirigir al login
+                    # Limpiar sesión y marcar exito
                     del request.session["reset_email"]
-                    
-                    return redirect("usuarios:login")
+                    request.session["reset_success"] = True
+                    return redirect("usuarios:reset_password")
             
             except Register.DoesNotExist:
                 errores["codigo"] = "Error en el proceso de recuperación. Intenta de nuevo."
@@ -430,7 +429,8 @@ def restablecer_contrasena(request):
 
     return render(request, "reset_password.html", {
         "errores": errores,
-        "valores": valores
+        "valores": valores,
+        "reset_success": reset_success,
     })
 
 def create_shop_step1(request):

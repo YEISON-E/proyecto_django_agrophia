@@ -148,6 +148,11 @@
   color: var(--white);
   text-decoration: none;
   transition: background-color .2s ease;
+  border: none;
+  cursor: pointer;
+  display: inline-block;
+  font-family: inherit;
+  font-weight: inherit;
 }
 
 .login__back:hover{
@@ -216,6 +221,37 @@
     top: 64px;
     left: 16px;
   }
+}
+
+/* ===== ESTILOS DE VALIDACIÓN Y ERRORES ===== */
+
+/* Error inline debajo del input */
+.input-error {
+    color: var(--white);
+    font-size: var(--fs-xxs);
+    margin-top: 6px;
+    margin-left: 4px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: slideDown 0.3s ease-out;
+}
+
+.input-error::before {
+    content: '⚠️'; /* Icono de advertencia */
+    flex-shrink: 0;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 

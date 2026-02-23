@@ -71,6 +71,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'agrophia.wsgi.application'
 
+# Sesiones basadas en archivos (sin tocar la BD)
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+SESSION_FILE_PATH = os.path.join(BASE_DIR, 'session_files')
+
+# Crear carpeta de sesiones si no existe
+os.makedirs(SESSION_FILE_PATH, exist_ok=True)
+
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -129,3 +136,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+LOGIN_REDIRECT_URL = '/'
+LOGIN_URL = '/usuarios/login/'
+
+# Configuración de Email - Consola (para testing)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Cuando quieras usar Gmail real, cambiar a:
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'tu-email@gmail.com'
+# EMAIL_HOST_PASSWORD = 'xxxx xxxx xxxx xxxx'
+
+DEFAULT_FROM_EMAIL = 'soporte@agrophia.com'

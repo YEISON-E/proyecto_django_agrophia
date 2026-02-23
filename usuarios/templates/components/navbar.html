@@ -15,11 +15,11 @@
 
     <div class="navbar__group">
       <ul class="navbar__list">
-        <li class="navbar__item"><a href="{% url 'index' %}" class="navbar__link">Inicio</a></li>
+          <li class="navbar__item"><a href="{% url 'usuarios:index' %}" class="navbar__link">Inicio</a></li>
         <li class="navbar__item"><a href="/frontend/public/views/p_card-available.html" class="navbar__link">Productos</a></li>
         <li class="navbar__item"><a href="#" class="navbar__link">Contacto</a></li>
-        <li class="navbar__item"><a href="{% url 'login' %}" class="navbar__link">Iniciar sesión</a></li>
-        <li class="navbar__item"><a href="{% url 'register' %}" class="navbar__link">Registrarse</a></li>
+         <li class="navbar__item"><a href="{% url 'usuarios:login' %}" class="navbar__link">Iniciar sesión</a></li>
+         <li class="navbar__item"><a href="{% url 'usuarios:register' %}" class="navbar__link">Registrarse</a></li>
       </ul>
     </div>
     

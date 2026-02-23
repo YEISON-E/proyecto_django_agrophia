@@ -1,40 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inicio de sesión</title>
     {% load static %}
-    <link rel="icon" href="{% static 'icons/planta.png' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
-
-
 </head>
 <body>
-    {% include 'components/gov-co__one.html' %} 
-    <!-- Mitad izquierda (imagen) -->
-    <div class="page__left_login"
-    style="background:
-        linear-gradient(var(--overlay-dark), var(--overlay-dark)),
-        url('{% static 'img/farmer.jpg' %}');
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;">
-    <h1 class="login__title-left">
-        Bienvenido a Agrophia <br> conectando el campo con tu mesa
-    </h1>
-</div>
-
-
-<!-- Mitad derecha (formulario) -->
-<div class="page__right_login">
-    
-    <!-- <div class="container-login"></div> -->
-    {% include 'components/forloggin.html' %}
-</div>
-</div>
-
-    {% include 'components/gov-co__one.html' %} 
-
+    {% include 'components/gov-co__one.html' %}
+    <div class="page__left_login" style="background: linear-gradient(var(--overlay-dark), var(--overlay-dark)), url('{% static "img/farmer.jpg" %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <h1 class="login__title-left">
+            Bienvenido a Agrophia <br> conectando el campo con tu mesa
+        </h1>
+    </div>
+    <div class="page__right_login">
+        {% include 'components/forloggin.html' %}
+    </div>
+    {% include 'components/gov-co__one.html' %}
 </body>
 </html>

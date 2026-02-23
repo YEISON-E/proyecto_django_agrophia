@@ -2,7 +2,10 @@
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
 <div class="login-container">
-  <a href="{% url 'index' %}" class="login__back">Volver</a>
+  <form method="POST" action="{% url 'usuarios:logout' %}" style="display: inline; margin: 0; padding: 0;">
+    {% csrf_token %}
+    <button type="submit" class="login__back">← Volver al inicio</button>
+  </form>
 
   <div class="login-container__card">
     <div class="login">
@@ -12,27 +15,22 @@
         {% csrf_token %}
 
         {% if errores.general %}
-          <div class="error-box">
-            {{ errores.general }}
+          <div class="error-box" style="display: none;">
+            {{ errores.general|safe }}
           </div>
         {% endif %}
 
         <div class="login-form__container">
           <label for="id_username" class="login-form__container__label">Número de documento</label>
           <input type="text" id="id_username" class="login-form__container__input" name="username" placeholder="Número de documento" value="{{ valores.username|default:'' }}" required />
-
-          {% if errores.username %}
-            <small class="error-text">{{ errores.username }}</small>
-          {% endif %}
+          <div id="error-username" class="input-error" style="display: none;">
+            {% if errores.username %}{{ errores.username }}{% endif %}
+          </div>
         </div>
 
         <div class="login-form__container">
           <label for="id_password" class="login-form__container__label">Contraseña</label>
           <input type="password" id="id_password" class="login-form__container__input" name="password" placeholder="Contraseña" required />
-
-          {% if errores.password %}
-            <small class="error-text">{{ errores.password }}</small>
-          {% endif %}
         </div>
 
         <div class="login__show-password">
@@ -43,19 +41,12 @@
         <button type="submit" class="login__button">Iniciar sesión</button>
       </form>
 
-      <a href="{% url 'forgot_password' %}" class="login-container__register">
+      <a href="{% url 'usuarios:forgot_password' %}" class="login-container__register">
         ¿Olvidaste tu contraseña?
       </a>
     </div>
   </div>
 </div>
 
-<script>
-  const checkbox = document.getElementById("toggle-password");
-  const password = document.getElementById("id_password");
-
-  checkbox.addEventListener("change", () => {
-    password.type = checkbox.checked ? "text" : "password";
-  });
-</script>
+<script src="{% static 'js/components/login.js' %}"></script>
 

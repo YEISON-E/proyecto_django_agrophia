@@ -59,20 +59,29 @@
           {% endif %}
         </div>
     <div class="form__group">
-      <label for="password" class="form__label">Contraseña</label>
-      <input id="password" type="password" name="password" class="form__input" placeholder="Contraseña">
+      <label for="id_password" class="form__label">Contraseña</label>
+      <input id="id_password" type="password" name="password" class="form__input" placeholder="Contraseña" required>
+      <div id="error-password" class="input-error" style="display: none;">
+        {% if errores.password %}{{ errores.password }}{% endif %}
+      </div>
 
-        <div class="form__check">
-          <label class="form__label form__see--password">
-            <input id="mostrar" type="checkbox">
-            Mostrar contraseña
-          </label>
-        </div>
+      <div class="login__show-password">
+        <input id="toggle-password" type="checkbox" class="login-form__checkbox"/>
+        <label for="toggle-password" class="login-form__checkbox-label">Mostrar contraseña</label>
+      </div>
     </div>
   
     <div class="form__group">
-        <label for="password" class="form__label"> Confirmar Contraseña</label>
-        <input type="password" name="confirm_password" class="form__input" placeholder="Contraseña">
+        <label for="id_confirm_password" class="form__label">Confirmar Contraseña</label>
+        <input id="id_confirm_password" type="password" name="confirm_password" class="form__input" placeholder="Confirmar Contraseña" required>
+        <div id="error-confirm-password" class="input-error" style="display: none;">
+          {% if errores.confirm_password %}{{ errores.confirm_password }}{% endif %}
+        </div>
+
+        <div class="login__show-password">
+          <input id="toggle-confirm-password" type="checkbox" class="login-form__checkbox"/>
+          <label for="toggle-confirm-password" class="login-form__checkbox-label">Mostrar contraseña</label>
+        </div>
     </div>
 
     
@@ -80,12 +89,11 @@
 
 
    <div class="form-content__register--row-buttons">
-     <a href="{% url 'register' %}"
+     <a href="{% url 'usuarios:register' %}"
      class="form-content__register--row-buttons__back">
      Volver
     </a>
     <button type="submit" form="register-form" class="form-content__register--row-buttons__next">Registrarse</button>
     </div>
-    
-    <script src="{% static 'js/components/register.js' %}"></script>
+
 </div>

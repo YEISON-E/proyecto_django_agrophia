@@ -43,7 +43,7 @@ class Shop(models.Model):
     municipio = models.CharField(max_length=50)
 
     horario = models.CharField(max_length=100)
-    sitio_web = models.URLField(blank=True, null=True)
+    direccion = models.CharField(max_length=255, blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)

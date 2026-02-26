@@ -2,15 +2,12 @@
 
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
-
 <div class="form-shop__content">
-    
     <div class="form-shop__container">
-
         <div class="shop">
-                <h2 class="form-shop__subtitle">Crea tu tienda</h2>
+            <h2 class="form-shop__subtitle">Crea tu tienda</h2>
             <div class="form-shop">
-                <form id="create-shop-form" method="POST" action="{% url 'usuarios:create_shop_step1' %}" class="form-shop__body">
+                <form id="create-shop-form" method="POST" action="{% url 'tiendas:create_shop_step1' %}" class="form-shop__body">
                     {% csrf_token %}
 
                     <div class="form-shop__group">
@@ -49,7 +46,6 @@
                         </select>
                         <div id="error-municipio" class="input-error" style="display: none;"></div>
                     </div>
-
                 </form>
                 <div class="form-content__register--row-buttons">
                     <a href="{% url 'usuarios:login_customer_user' %}" class="form-content__register--row-buttons__back">Volver</a>
@@ -60,5 +56,5 @@
     </div>
 </div>
 
-<script src="{% static 'js/components/location-utils.js' %}" defer></script>
-<script src="{% static 'js/components/create-shop.js' %}" defer></script>
+<script src="{% static 'Tiendas/js/components/location-utils.js' %}" defer></script>
+<script src="{% static 'Tiendas/js/components/create-shop.js' %}" defer></script>

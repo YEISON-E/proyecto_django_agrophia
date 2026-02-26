@@ -18,7 +18,7 @@ from django.core.exceptions import ValidationError
 
 from django.core.mail import send_mail
 from django.utils import timezone
-from datetime import timedelta, datetime
+from datetime import timedelta
 import random
 import string
 
@@ -26,8 +26,8 @@ import re
 import os
 from django.conf import settings
 
-from .models import Shop
 from .models import Register
+from Tiendas.models import Shop
 from django.core.files.storage import FileSystemStorage
 # from django.contrib.auth.decorators import login_required
 
@@ -294,10 +294,6 @@ def update_perfil2(request):
         "errores": errores,
     })
 
-def create_farmer_perfil(request):
-    """Renderiza el paso 1 para creación de tienda/perfil agricultor."""
-    return render(request, "create-farmer-perfil.html")
-
 @never_cache
 def login_customer_user(request):
     """
@@ -307,22 +303,8 @@ def login_customer_user(request):
     if not request.user.is_authenticated:
         return redirect("usuarios:login")
     if Shop.objects.filter(owner=request.user).exists():
-        return redirect("usuarios:interface_farmer")
+        return redirect("tiendas:interface_farmer")
     return render(request, "login_customer_user.html")
-
-@never_cache
-def interface_farmer(request):
-    """Panel principal para usuarios con tienda creada."""
-    if not request.user.is_authenticated:
-        return redirect("usuarios:login")
-    return render(request, "interface_farmer.html")
-
-@never_cache
-def create_product(request):
-    """Renderiza la vista para crear/publicar un producto."""
-    if not request.user.is_authenticated:
-        return redirect("usuarios:login")
-    return render(request, "create_product.html")
 
 def index(request):
     """Página pública principal. Si está autenticado, redirige al home interno."""
@@ -346,7 +328,7 @@ def legacy_frontend_view(request, page):
         "profile.html": ("redirect", "usuarios:profile"),
         "update_perfil.html": ("redirect", "usuarios:update_perfil"),
         "update-perfil2.html": ("redirect", "usuarios:update_perfil2"),
-        "form_subir_producto.html": ("redirect", "usuarios:create_product"),
+        "form_subir_producto.html": ("redirect", "tiendas:create_product"),
         "index.html": ("redirect", "usuarios:index"),
     }
 
@@ -761,76 +743,3 @@ def restablecer_contrasena(request):
         "reset_success": reset_success,
     })
 
-def create_shop_step1(request):
-    """
-    Paso 1 de creación de tienda.
-    Guarda datos base en sesión y redirige al paso 2.
-    """
-    if request.method == "POST":
-        request.session["shop_step1"] = {
-            "nombre": request.POST.get("nombre"),
-            "telefono": request.POST.get("telefono"),
-            "email": request.POST.get("email"),
-            "departamento": request.POST.get("departamento"),
-            "municipio": request.POST.get("municipio"),
-        }
-        return redirect("usuarios:create_shop_step2")
-
-    return render(request, "create-shop.html")
-
-
-# PASO 2
-def create_shop_step2(request):
-    """
-    Paso 2 de creación de tienda.
-    Valida horario de apertura/cierre, crea la tienda y muestra mensaje de éxito.
-    """
-    shop_success = request.session.pop("shop_success", False)
-
-    if request.method == "POST":
-        step1 = request.session.get("shop_step1")
-
-        # Horario en formato 24h desde inputs type="time"
-        hora_apertura = request.POST.get("hora_apertura", "").strip()
-        hora_cierre = request.POST.get("hora_cierre", "").strip()
-
-        if not hora_apertura or not hora_cierre:
-            return render(request, "create-shop2.html", {
-                "error_horario": "Debes ingresar la hora de apertura y cierre.",
-            })
-
-        try:
-            apertura_dt = datetime.strptime(hora_apertura, "%H:%M")
-            cierre_dt = datetime.strptime(hora_cierre, "%H:%M")
-        except ValueError:
-            return render(request, "create-shop2.html", {
-                "error_horario": "Formato de horario invalido.",
-            })
-
-        if cierre_dt <= apertura_dt:
-            return render(request, "create-shop2.html", {
-                "error_horario": "La hora de cierre debe ser mayor que la de apertura.",
-            })
-
-        # Se persiste como texto legible en el campo horario
-        horario = f"{hora_apertura} - {hora_cierre}"
-
-        Shop.objects.create(
-            owner=request.user if request.user.is_authenticated else None,
-            nombre=step1["nombre"],
-            telefono=step1["telefono"],
-            email=step1["email"],
-            departamento=step1["departamento"],
-            municipio=step1["municipio"],
-            horario=horario,
-            direccion=request.POST.get("direccion"),
-            descripcion=request.POST.get("descripcion"),
-        )
-
-        # borrar sesión
-        del request.session["shop_step1"]
-
-        request.session["shop_success"] = True
-        return redirect("usuarios:create_shop_step2")
-
-    return render(request, "create-shop2.html", {"shop_success": shop_success})

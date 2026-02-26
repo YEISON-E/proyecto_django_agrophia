@@ -14,12 +14,9 @@
 {% endif %}
 
 <div class="form-shop__content">
-    <!-- <h1 class="form-shop__title">Agrophia</h1> -->
-
     <div class="form-shop__container">
-
         <div class="shop">
-                <h2 class="form-shop__subtitle">Crea tu tienda</h2>
+            <h2 class="form-shop__subtitle">Crea tu tienda</h2>
             <div class="form-shop">
                 <form id="create-shop-step2-form" method="POST" class="form-shop__body">
                     {% csrf_token %}
@@ -44,21 +41,19 @@
                         <label for="url" class="form-shop__label">Dirección</label>
                         <input type="text" class="form-shop__input" name="direccion" placeholder="Escribe la dirección" required>
                     </div>
-                    
+
                     <div class="form-shop__textarea">
                         <label for="message" class="form-shop__label">Descripcion breve de la tienda (opcional)</label>
                         <textarea type="message" class="form-shop__description" name="descripcion" placeholder="Descripcion breve de la tienda"></textarea>
                     </div>
-
                 </form>
                 <div class="form-content__register--row-buttons">
-                    <a href="{% url 'usuarios:create_shop_step1' %}" class="form-content__register--row-buttons__back">Volver</a>
+                    <a href="{% url 'tiendas:create_shop_step1' %}" class="form-content__register--row-buttons__back">Volver</a>
                     <button type="submit" form="create-shop-step2-form" class="form-shop__button">Crear tienda</button>
                 </div>
-
             </div>
         </div>
     </div>
 </div>
 
-<script src="{% static 'js/components/create-shop2.js' %}" defer></script>
+<script src="{% static 'Tiendas/js/components/create-shop2.js' %}" defer></script>

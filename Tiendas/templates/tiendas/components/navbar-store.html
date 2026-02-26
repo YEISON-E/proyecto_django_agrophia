@@ -1,17 +1,15 @@
-<!-- <header class="header">
-  <h1 class="header__title">Bienvenido</h1>
-  <h2 class="header__subtitle">Explora tus productos y revisa tus pedidos</h2> -->
+{% load static %}
 
 <nav class="navbar">
   <div class="header-home__group header-home__group--left">
     <h1 class="header-home__title">Agrophia</h1>
-    <img src="/frontend/public/icons/planta.png" alt="Icon principal">
+    <img src="{% static 'icons/planta.png' %}" alt="Icon principal">
   </div>
   <div class="header-home__group header-home__group--right">
     <div class="navbar__group navbar__group--right">
       <ul class="navbar__list">
         <li class="navbar__item">
-          <a href="interface_farmer.html" class="navbar__link">Inicio</a>
+          <a href="{% url 'tiendas:interface_farmer' %}" class="navbar__link">Inicio</a>
         </li>
         <li class="navbar__item">
           <a href="contact.html" class="navbar__link">Contacto</a>
@@ -20,12 +18,11 @@
           <a href="mensajes_farmer.html" class="navbar__link">Mensajes</a>
         </li>
         <li class="navbar__item">
-          <a href="index.html" class="navbar__link">Cerrar sesión</a>
+          <a href="{% url 'usuarios:logout' %}" class="navbar__link">Cerrar sesión</a>
         </li>
-        <!-- Icono dentro del navbar -->
         <li class="navbar__item navbar__item--icon">
           <a href="/frontend/public/views/profile_shop.html" class="navbar__link navbar__link--icon">
-            <img src="/frontend/public/icons/user.svg"
+            <img src="{% static 'icons/user.svg' %}"
                   alt="Perfil de usuario"
                   class="navbar__icon"
                   width="24"
@@ -36,4 +33,3 @@
     </div>
   </div>
 </nav>
-<!-- </header> -->

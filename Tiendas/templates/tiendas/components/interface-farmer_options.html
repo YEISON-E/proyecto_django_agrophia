@@ -3,23 +3,21 @@
 <section class="board">
     <div class="board__item">
         <img src="{% static 'icons/subir_producto.jpeg' %}" alt="Subir producto" class="board__icon">
-        <a href="{% url 'usuarios:create_product' %}" class="board__button">Subir nuevo producto</a>
+        <a href="{% url 'tiendas:create_product' %}" class="board__button">Subir nuevo producto</a>
     </div>
 
     <div class="board__item">
         <img src="{% static 'icons/productos_deshabilitados.png' %}" alt="Productos deshabilitados" class="board__icon">
-        <button class="board__button" >Productos deshabilitados</button>
+        <button class="board__button">Productos deshabilitados</button>
     </div>
 
     <div class="board__item">
         <img src="{% static 'icons/pedidos.png' %}" alt="pedidos" width="48px" height="48px" class="board__icon">
-        <button class="board__button" >Pedidos</button>
+        <button class="board__button">Pedidos</button>
     </div>
 
    <div class="board__item">
         <img src="{% static 'icons/ver_productos.jpeg' %}" alt="Ver productos" class="board__icon">
         <button class="board__button">Ver productos publicados</button>
     </div>
-
 </section>
- 

@@ -1,0 +1,20 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publicar producto</title>
+    <link rel="icon" href="{% static 'icons/planta.png' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+    <header class="navbar-container"></header>
+
+    <div class="producto-form__body">
+        {% include 'tiendas/components/create_product.html' %}
+    </div>
+
+    <footer class="footer-container"></footer>
+</body>
+</html>

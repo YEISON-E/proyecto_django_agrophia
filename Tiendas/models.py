@@ -1,3 +1,7 @@
-from django.db import models
+from usuarios.models import Shop as UsuarioShop
 
-# Create your models here.
+
+class Shop(UsuarioShop):
+	class Meta:
+		proxy = True
+		app_label = "Tiendas"

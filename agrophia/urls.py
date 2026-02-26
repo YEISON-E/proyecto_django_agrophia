@@ -26,9 +26,10 @@ urlpatterns = [
     path('', home, name='home'),
     path('admin/', admin.site.urls),
     path('usuarios/', include('usuarios.urls')),
+    path('tiendas/', include('Tiendas.urls')),
     path(
         'frontend/public/views/create-shop.html',
-        RedirectView.as_view(pattern_name='usuarios:create_farmer_perfil', permanent=False),
+        RedirectView.as_view(pattern_name='tiendas:create_farmer_perfil', permanent=False),
     ),
     path('frontend/public/views/<path:page>', legacy_frontend_view),
 ]

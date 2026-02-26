@@ -18,8 +18,8 @@
           <img src="{% static 'icons/menu.svg' %}" alt="Menú" class="nav-menu__icon">
         </summary>
         <ul class="nav-menu__list">
-          <li><a href="/frontend/public/views/profile.html">Perfil</a></li>
-          <li><a href="/frontend/public/views/update_perfil.html">Editar perfil</a></li>
+          <li><a href="{% url 'usuarios:profile' %}">Perfil</a></li>
+          <li><a href="{% url 'usuarios:update_perfil' %}">Editar perfil</a></li>
           <!-- <li><a href="/frontend/public/views/create-farmer-perfil.html">Ser Agricultor</a></li> -->
           <li><a href="/frontend/public/views/mensajes_sends.html">Mensajes Enviados</a></li>
           <li><a href="/frontend/public/views/my_orders.html">Tus pedidos</a></li>

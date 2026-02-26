@@ -1,17 +1,22 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const profileContainer = document.querySelector(".profile-form-update-container");
+function initializeUpdatePerfilStep1() {
+    const inputFoto = document.getElementById('input-foto');
+    const fotoPreview = document.querySelector('.profile-update__group-file__photo_review');
 
-    if (profileContainer) {
-        fetch("/frontend/public/views/components/update_perfil.html")
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Error al cargar el componente");
-                }
-                return response.text();
-            })
-            .then(data => {
-                profileContainer.innerHTML = data;
-            })
-            .catch(error => console.log("Error cargando el componente de perfil:", error));
+    if (!inputFoto || !fotoPreview) {
+        return;
     }
-});
+
+    inputFoto.addEventListener('change', (event) => {
+        const archivo = event.target.files && event.target.files[0];
+        if (!archivo) {
+            return;
+        }
+        fotoPreview.src = URL.createObjectURL(archivo);
+    });
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeUpdatePerfilStep1);
+} else {
+    initializeUpdatePerfilStep1();
+}

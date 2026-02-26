@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index, Logueo, register_step_1, register_step_2, olvidaste_contrasena, restablecer_contrasena, create_shop_step1, create_shop_step2, login_customer_user, logout_user, create_farmer_perfil, interface_farmer
+from .views import index, Logueo, register_step_1, register_step_2, olvidaste_contrasena, restablecer_contrasena, create_shop_step1, create_shop_step2, login_customer_user, logout_user, create_farmer_perfil, interface_farmer, profile, update_perfil, update_perfil2
 app_name = 'usuarios'
 
 urlpatterns = [
@@ -8,6 +8,9 @@ urlpatterns = [
     path('login-customer-user/', login_customer_user, name='login_customer_user'),
     path('interface-farmer/', interface_farmer, name='interface_farmer'),
     path('create-farmer-perfil/', create_farmer_perfil, name='create_farmer_perfil'),
+    path('profile/', profile, name='profile'),
+    path('update-perfil/', update_perfil, name='update_perfil'),
+    path('update-perfil2/', update_perfil2, name='update_perfil2'),
 
     path('register/', register_step_1, name='register'),
     path('register/step-2/', register_step_2, name='register2'),

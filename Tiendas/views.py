@@ -6,6 +6,24 @@ from datetime import datetime
 from .models import Shop
 
 
+def user_has_shop(user):
+	if not user or not user.is_authenticated:
+		return False
+	return Shop.objects.filter(owner=user).exists()
+
+
+def resolve_legacy_tienda_route(page):
+	legacy_routes = {
+		"create-shop.html": ("redirect", "tiendas:create_farmer_perfil"),
+		"create-farmer-perfil.html": ("redirect", "tiendas:create_farmer_perfil"),
+		"create-shop2.html": ("redirect", "tiendas:create_shop_step2"),
+		"interface_farmer.html": ("redirect", "tiendas:interface_farmer"),
+		"form_subir_producto.html": ("redirect", "tiendas:create_product"),
+		"form_subir_producto2.html": ("redirect", "tiendas:create_product2"),
+	}
+	return legacy_routes.get(page)
+
+
 def create_farmer_perfil(request):
 	return render(request, "tiendas/create-farmer-perfil.html")
 
@@ -22,6 +40,13 @@ def create_product(request):
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 	return render(request, "tiendas/create_product.html")
+
+
+@never_cache
+def create_product2(request):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+	return render(request, "tiendas/create_product2.html")
 
 
 def create_shop_step1(request):

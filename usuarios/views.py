@@ -27,7 +27,7 @@ import os
 from django.conf import settings
 
 from .models import Register
-from Tiendas.models import Shop
+from Tiendas.views import user_has_shop, resolve_legacy_tienda_route
 from django.core.files.storage import FileSystemStorage
 # from django.contrib.auth.decorators import login_required
 
@@ -302,7 +302,7 @@ def login_customer_user(request):
     """
     if not request.user.is_authenticated:
         return redirect("usuarios:login")
-    if Shop.objects.filter(owner=request.user).exists():
+    if user_has_shop(request.user):
         return redirect("tiendas:interface_farmer")
     return render(request, "login_customer_user.html")
 
@@ -317,6 +317,13 @@ def legacy_frontend_view(request, page):
     Compatibilidad con rutas legacy del frontend estático.
     Mapea URLs antiguas a vistas/plantillas Django actuales.
     """
+    tienda_action = resolve_legacy_tienda_route(page)
+    if tienda_action:
+        mode, target = tienda_action
+        if mode == "template":
+            return render(request, target)
+        return redirect(target)
+
     legacy_routes = {
         "p_login-customer.html": ("redirect", "usuarios:login_customer_user"),
         "p_login-customer-vegetables.html": ("redirect", "usuarios:login_customer_user"),
@@ -328,7 +335,6 @@ def legacy_frontend_view(request, page):
         "profile.html": ("redirect", "usuarios:profile"),
         "update_perfil.html": ("redirect", "usuarios:update_perfil"),
         "update-perfil2.html": ("redirect", "usuarios:update_perfil2"),
-        "form_subir_producto.html": ("redirect", "tiendas:create_product"),
         "index.html": ("redirect", "usuarios:index"),
     }
 

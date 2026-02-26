@@ -3,39 +3,59 @@
 <div class="product-form__content">
   <div class="product-form__container">
     <h2 class="product-form__subtitle">Subir producto</h2>
-  </div>
+  </div> 
   <div class="product-form">
-    <div class="product-form__group-file__photo">
-      <img src="{% static 'img/not-found.png' %}" alt="foto de Producto cargada" class="product-form__img">
 
-      <label for="input-foto" class="profile-update__label--file">
-        Elegir foto
+    <div class="product-form__upload">
+      <label for="input-fotos-producto" class="product-form__dropzone" id="dropzone-fotos-producto">
+        <strong>Arrastra imágenes aquí o haz clic para seleccionar</strong>
+        <span id="fotos-counter" class="product-form__counter">0/8 fotos cargadas</span>
       </label>
-      <input id="input-foto-producto" class="profile-update__input profile-update__input--file" type="file" name="foto" />
+      <input id="input-fotos-producto" class="product-form_input--file" type="file" name="fotos" accept="image/*" multiple />
+      <div id="fotos-preview" class="product-form__preview-grid"></div>
     </div>
 
     <div class="product-form__fields">
-      <form onsubmit="mostrarAlerta()" class="product-form__body">
+      <form id="create-product-step1-form" class="product-form__body">
+        
         <div class="product-form__group">
-          <label for="nombre" class="product-form__label">Nombre del producto</label>
-          <input type="text" class="product-form__input" placeholder="Ej: Tomates frescos" required>
+          <label for="nombre-producto" class="product-form__label">Nombre del producto</label>
+          <input id="nombre-producto" name="nombre" type="text" class="product-form__input" placeholder="Ej: Tomates frescos" required>
+          <div id="error-nombre-producto" class="input-error" style="display: none;"></div>
         </div>
 
         <div class="product-form__group">
-          <label for="tipo" class="product-form__label">Tipo de producto</label>
-          <input type="text" class="product-form__input" placeholder="Ej: Verdura, fruta..." required>
+          <label for="tipo-producto" class="product-form__label">Tipo de producto</label>
+          <select id="tipo-producto" name="tipo" class="product-form__input" required>
+            <option value="">-- Selecciona --</option>
+            <option value="Frutas">Frutas</option>
+            <option value="Vegetales">Vegetales</option>
+            <option value="Lácteos">Lácteos</option>
+            <option value="Carne">Carne</option>
+            <option value="Granos">Granos</option>
+            <option value="Otros">Otros</option>
+          </select>
+          <div id="error-tipo-producto" class="input-error" style="display: none;"></div>
         </div>
 
         <div class="product-form__group">
-          <label for="cantidad" class="product-form__label">Cantidad</label>
-          <input type="number" class="product-form__input" placeholder="Ej: 50" required>
+          <label for="cantidad-producto" class="product-form__label">Cantidad</label>
+          <input id="cantidad-producto" name="cantidad" type="number" min="1" step="1" class="product-form__input" placeholder="Ej: 50" required>
+          <div id="error-cantidad-producto" class="input-error" style="display: none;"></div>
         </div>
+
+        
+
+        
       </form>
     </div>
-  </div>
+    </div>
 
   <div class="product-form__row ">
     <a href="{% url 'tiendas:interface_farmer' %}" class="product-form__row--back">Volver</a>
-    <a href="#" class="product-form__row--next">Siguiente</a>
+    <a id="btn-next-step-producto" href="{% url 'tiendas:create_product2' %}" class="product-form__row--next">Siguiente</a>
+
   </div>
+
 </div>
+

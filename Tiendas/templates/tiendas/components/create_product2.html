@@ -4,32 +4,24 @@
   </div> 
 
   <div class="product-form2">
-    <form onsubmit="mostrarAlerta(event)" class="product-form__body">
+    <form id="create-product-step2-form" class="product-form__body2">
       
       <div class="product-form__group">
         <label for="precio" class="product-form__label">Precio</label>
-        <input type="number" class="product-form__input" placeholder="Ej: 20.00" required>
-      </div>
-
-      <div class="product-form__group">
-        <label for="unidad" class="product-form__label">Unidad de medida</label>
-        <select id="unidad" name="unidad" class="product-form__input" required>
-          <option value="">-- Selecciona --</option>
-          <option value="Libra">Libra</option>
-          <option value="Kilo">Kilo</option>
-          <option value="Arroba">Arroba</option>
-          <option value="Litro">Litro</option>
-        </select>
+        <input id="precio-producto" name="precio" type="number" min="0.01" step="0.01" class="product-form__input" placeholder="Ej: 20.00" required>
+        <div id="error-precio-producto" class="input-error" style="display: none;"></div>
       </div>
 
       <div class="product-form__group">
         <label for="descripcion" class="product-form__label">Descripción</label>
-        <input type="text" class="product-form__input" placeholder="Breve descripción del producto">
+        <input id="descripcion-producto" name="descripcion" type="text" class="product-form__input" placeholder="Breve descripción del producto" required>
+        <div id="error-descripcion-producto" class="input-error" style="display: none;"></div>
       </div>
 
       <div class="product-form__group">
         <label for="garantia" class="product-form__label">Garantía</label>
-        <input type="text" class="product-form__input" placeholder="Ej: 7 días">
+        <input id="garantia-producto" name="garantia" type="text" class="product-form__input" placeholder="Garantía que ofreces del producto" required>
+        <div id="error-garantia-producto" class="input-error" style="display: none;"></div>
       </div>
       
       <div class="product-form__group">
@@ -57,7 +49,7 @@
       <!-- Botones -->
       <div class="product-form__row">
         <a href="{% url 'tiendas:create_product' %}" class="product-form__row--back">Volver</a>
-        <a href="#" onclick="mostrarAlerta(event)" class="product-form__row--next">Publicar Producto</a>
+        <a id="btn-publicar-producto" href="#" class="product-form__row--next">Publicar Producto</a>
       </div>
 </div>
 

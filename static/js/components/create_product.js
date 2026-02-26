@@ -13,8 +13,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const nombreInput = document.getElementById("nombre-producto");
     const tipoSelect = document.getElementById("tipo-producto");
-    const cantidadInput = document.getElementById("cantidad-producto");
+    const tipoOtroGroup = document.getElementById("group-tipo-producto-otro");
+    const tipoOtroInput = document.getElementById("tipo-producto-otro");
+    const unidadSelect = document.getElementById("unidad-producto");
     const nextStepButton = document.getElementById("btn-next-step-producto");
+
+    const unidadesPorTipo = {
+        Frutas: ["Libra", "Kilo", "Arroba"],
+        Vegetales: ["Libra", "Kilo", "Arroba"],
+        "Lácteos": ["Litro"],
+        Carne: ["Libra", "Kilo", "Arroba"],
+        Granos: ["Libra", "Kilo", "Arroba"],
+        Otros: ["Libra", "Kilo", "Arroba", "Litro"],
+    };
 
     const setError = (id, message) => {
         const el = document.getElementById(id);
@@ -32,6 +43,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const validateStep1 = () => {
         let hasErrors = false;
+
+        if (selectedFiles.length === 0) {
+            setError("error-fotos-producto", "Debes cargar al menos una imagen.");
+            hasErrors = true;
+        } else {
+            setError("error-fotos-producto", "");
+        }
 
         const nombre = (nombreInput?.value || "").trim();
         if (!nombre) {
@@ -52,16 +70,39 @@ document.addEventListener("DOMContentLoaded", function () {
             setError("error-tipo-producto", "");
         }
 
-        const cantidadRaw = (cantidadInput?.value || "").trim();
-        const cantidad = Number(cantidadRaw);
-        if (!cantidadRaw) {
-            setError("error-cantidad-producto", "La cantidad es obligatoria.");
+        const requiereTipoOtro = tipo === "Otros";
+        if (tipoOtroGroup) {
+            tipoOtroGroup.style.display = requiereTipoOtro ? "flex" : "none";
+        }
+
+        if (requiereTipoOtro) {
+            const tipoOtro = (tipoOtroInput?.value || "").trim();
+            if (!tipoOtro) {
+                setError("error-tipo-producto-otro", "Escribe el tipo de producto.");
+                hasErrors = true;
+            } else if (tipoOtro.length < 3) {
+                setError("error-tipo-producto-otro", "Debe tener al menos 3 caracteres.");
+                hasErrors = true;
+            } else {
+                setError("error-tipo-producto-otro", "");
+            }
+        } else {
+            setError("error-tipo-producto-otro", "");
+            if (tipoOtroInput) {
+                tipoOtroInput.value = "";
+            }
+        }
+
+        const unidad = unidadSelect?.value || "";
+        const unidadesPermitidas = unidadesPorTipo[tipo] || [];
+        if (!unidad) {
+            setError("error-unidad-producto", "Selecciona una unidad de medida.");
             hasErrors = true;
-        } else if (!Number.isInteger(cantidad) || cantidad <= 0) {
-            setError("error-cantidad-producto", "Ingresa una cantidad válida mayor que 0.");
+        } else if (tipo && !unidadesPermitidas.includes(unidad)) {
+            setError("error-unidad-producto", `La unidad no aplica para ${tipo}.`);
             hasErrors = true;
         } else {
-            setError("error-cantidad-producto", "");
+            setError("error-unidad-producto", "");
         }
 
         return !hasErrors;
@@ -131,13 +172,44 @@ document.addEventListener("DOMContentLoaded", function () {
         renderPreview();
     };
 
+    const updateUnidadOptions = () => {
+        if (!unidadSelect) {
+            return;
+        }
+
+        const tipo = tipoSelect?.value || "";
+        const unidades = unidadesPorTipo[tipo] || [];
+        const valorActual = unidadSelect.value;
+
+        unidadSelect.innerHTML = '<option value="">-- Selecciona --</option>';
+
+        unidades.forEach((unidad) => {
+            const option = document.createElement("option");
+            option.value = unidad;
+            option.textContent = unidad;
+            unidadSelect.appendChild(option);
+        });
+
+        if (unidades.includes(valorActual)) {
+            unidadSelect.value = valorActual;
+        } else {
+            unidadSelect.value = "";
+        }
+    };
+
     input.addEventListener("change", () => {
         addFiles(input.files);
+        validateStep1();
     });
 
-    [nombreInput, tipoSelect, cantidadInput].forEach((field) => {
+    [nombreInput, tipoSelect, tipoOtroInput, unidadSelect].forEach((field) => {
         field?.addEventListener("input", validateStep1);
         field?.addEventListener("change", validateStep1);
+    });
+
+    tipoSelect?.addEventListener("change", () => {
+        updateUnidadOptions();
+        validateStep1();
     });
 
     nextStepButton?.addEventListener("click", (event) => {
@@ -169,5 +241,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    updateUnidadOptions();
     updateCounter();
 });

@@ -72,6 +72,11 @@
   flex-direction: column;
   gap: 24px;
 }
+.product-form__body2{
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 .product-form__fields{
   display: flex;
   flex-direction: column;
@@ -338,8 +343,16 @@
 
 /* ===== TABLET (641px – 1024px) ===== */
 @media (width > 768px) {
+  .product-form__body2{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
   .product-form__input{
     width: 320px;
+  }
+  .product-form__content {
+    width: 714px;
   }
   .product-form2{
     display: grid;
@@ -365,5 +378,6 @@
 .update-product{
   height: 80vh;
 }
+
 
 }

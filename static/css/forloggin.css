@@ -30,7 +30,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 100%;
-  margin: 24px;
+  margin: 0 24px 24px 24px;
 }
 
 /* Mantén el resto de tu estilo igual */
@@ -137,7 +137,8 @@
 }
 
 .login__back{
-  position: fixed;
+  margin: 12px 0 0 12px;
+  position: static;
   top: 16px;
   left: 16px;
   background-color: var(--gray-700);

@@ -8,9 +8,10 @@
 
       <div class="profile-update__group-file__photo">
             {% if register_user and register_user.foto %}
-            <img src="{{ register_user.foto.url }}" alt="foto de Perfil cargada" class="profile-update__group-file__photo_review">
+        <img id="preview-update" src="{{ register_user.foto.url }}" alt="foto de Perfil cargada" class="profile-update__group-file__photo_review">
             {% else %}
-            <img src="/frontend/public/img/foto_sofi.png" alt="foto de Perfil cargada" class="profile-update__group-file__photo_review">
+        {% load static %}
+        <img id="preview-update" src="{% static 'img/foto_sofi.png' %}" alt="foto de Perfil cargada" class="profile-update__group-file__photo_review">
             {% endif %}
           
           <!-- Label que actúa como botón -->
@@ -32,8 +33,6 @@
                 <option value="">-- Tipo de documento --</option>
                 <option value="CC" {% if valores.tdocumento|lower == 'cc' %}selected{% endif %}>CC</option>
                 <option value="TI" {% if valores.tdocumento|lower == 'ti' %}selected{% endif %}>TI</option>
-                <option value="Cédula extranjera" {% if valores.tdocumento|lower == 'cédula extranjera' or valores.tdocumento|lower == 'cedula extranjera' %}selected{% endif %}>Cédula extranjera</option>
-                <option value="Pasaporte" {% if valores.tdocumento|lower == 'pasaporte' %}selected{% endif %}>Pasaporte</option>
               </select>
               {% if errores.tdocumento %}<small class="form__error">{{ errores.tdocumento }}</small>{% endif %}
                   </div>
@@ -55,8 +54,8 @@
           {% if errores.apellidos %}<small class="form__error">{{ errores.apellidos }}</small>{% endif %}
         </div>
 
+        <a href="{% url 'usuarios:profile' %}" class="profile-update__row-buttons__back">Volver</a>
         <div class="profile-update__row-buttons">
-          <a href="{% url 'usuarios:profile' %}" class="profile-update__row-buttons__back">Volver</a>
           <button type="submit" class="profile-update__row-buttons__next">Siguiente</button>
         </div>
       </form>

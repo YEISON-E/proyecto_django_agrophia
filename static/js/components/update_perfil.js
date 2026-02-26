@@ -1,6 +1,7 @@
 function initializeUpdatePerfilStep1() {
     const inputFoto = document.getElementById('input-foto');
-    const fotoPreview = document.querySelector('.profile-update__group-file__photo_review');
+    const fotoPreview = document.getElementById('preview-update') || document.querySelector('.profile-update__group-file__photo_review');
+    let previousObjectUrl = null;
 
     if (!inputFoto || !fotoPreview) {
         return;
@@ -11,7 +12,11 @@ function initializeUpdatePerfilStep1() {
         if (!archivo) {
             return;
         }
-        fotoPreview.src = URL.createObjectURL(archivo);
+        if (previousObjectUrl) {
+            URL.revokeObjectURL(previousObjectUrl);
+        }
+        previousObjectUrl = URL.createObjectURL(archivo);
+        fotoPreview.src = previousObjectUrl;
     });
 }
 

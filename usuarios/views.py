@@ -317,6 +317,13 @@ def interface_farmer(request):
         return redirect("usuarios:login")
     return render(request, "interface_farmer.html")
 
+@never_cache
+def create_product(request):
+    """Renderiza la vista para crear/publicar un producto."""
+    if not request.user.is_authenticated:
+        return redirect("usuarios:login")
+    return render(request, "create_product.html")
+
 def index(request):
     """Página pública principal. Si está autenticado, redirige al home interno."""
     if request.user.is_authenticated:
@@ -339,6 +346,7 @@ def legacy_frontend_view(request, page):
         "profile.html": ("redirect", "usuarios:profile"),
         "update_perfil.html": ("redirect", "usuarios:update_perfil"),
         "update-perfil2.html": ("redirect", "usuarios:update_perfil2"),
+        "form_subir_producto.html": ("redirect", "usuarios:create_product"),
         "index.html": ("redirect", "usuarios:index"),
     }
 

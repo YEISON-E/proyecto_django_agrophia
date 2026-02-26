@@ -88,6 +88,7 @@
 
 /* Inputs: 100% ancho, padding manejado por box-sizing */
 .profile-update__input{
+  border: none;
   height: 48px;
   width: 100%;
   padding: 12px 16px;
@@ -209,9 +210,10 @@
 .profile-update__row-buttons{
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-end;
 }
 .profile-update__row-buttons__back{
+  width: max-content;
   background-color: var(--gray-800);
   color: var(--white);
   padding: 12px 24px;
@@ -224,6 +226,7 @@
 }
 
 .profile-update__row-buttons__next{
+  border: none;
   background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
   color: var(--white);
   padding: 12px 24px;
@@ -231,8 +234,6 @@
   text-decoration: none;
   border-radius: 12px;
   transition: all 0.3s ease;
-
-
 }
 .profile-update__row-buttons__next:hover{
   background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
@@ -241,6 +242,7 @@
 }
 
 .profile-update__row-buttons__save{
+  border: none;
   background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
   color: var(--white);
   padding: 12px 24px;

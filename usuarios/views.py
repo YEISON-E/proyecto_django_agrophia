@@ -2,9 +2,10 @@
 from django.http import HttpResponse
 
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 from django.views.generic.edit import CreateView,  UpdateView, DeleteView, FormView
+from django.views.decorators.cache import never_cache
 
 from django.contrib.auth.views import LoginView
 
@@ -17,7 +18,7 @@ from django.core.exceptions import ValidationError
 
 from django.core.mail import send_mail
 from django.utils import timezone
-from datetime import timedelta
+from datetime import timedelta, datetime
 import random
 import string
 
@@ -31,17 +32,76 @@ from django.core.files.storage import FileSystemStorage
 # from django.contrib.auth.decorators import login_required
 
 def profile(request):
+    """Renderiza la vista de perfil de usuario."""
     return render(request, "profile.html")
 
+def create_farmer_perfil(request):
+    """Renderiza el paso 1 para creación de tienda/perfil agricultor."""
+    return render(request, "create-farmer-perfil.html")
+
+@never_cache
 def login_customer_user(request):
+    """
+    Home de usuario autenticado.
+    Si el usuario ya tiene una tienda creada, redirige al panel de agricultor.
+    """
     if not request.user.is_authenticated:
         return redirect("usuarios:login")
+    if Shop.objects.filter(owner=request.user).exists():
+        return redirect("usuarios:interface_farmer")
     return render(request, "login_customer_user.html")
 
+@never_cache
+def interface_farmer(request):
+    """Panel principal para usuarios con tienda creada."""
+    if not request.user.is_authenticated:
+        return redirect("usuarios:login")
+    return render(request, "interface_farmer.html")
+
 def index(request):
+    """Página pública principal. Si está autenticado, redirige al home interno."""
     if request.user.is_authenticated:
         return redirect("usuarios:login_customer_user")
     return render(request, "index.html")
+
+def legacy_frontend_view(request, page):
+    """
+    Compatibilidad con rutas legacy del frontend estático.
+    Mapea URLs antiguas a vistas/plantillas Django actuales.
+    """
+    legacy_routes = {
+        "p_login-customer.html": ("redirect", "usuarios:login_customer_user"),
+        "p_login-customer-vegetables.html": ("redirect", "usuarios:login_customer_user"),
+        "p_login-customer-dairy.html": ("redirect", "usuarios:login_customer_user"),
+        "shopping.html": ("redirect", "usuarios:login_customer_user"),
+        "mensajes_sends.html": ("redirect", "usuarios:login_customer_user"),
+        "my_orders.html": ("redirect", "usuarios:login_customer_user"),
+        "contact.html": ("template", "contact.html"),
+        "profile.html": ("template", "profile.html"),
+        "update_perfil.html": ("template", "update_perfil.html"),
+        "index.html": ("redirect", "usuarios:index"),
+    }
+
+    action = legacy_routes.get(page)
+    if not action:
+        return redirect("usuarios:index")
+
+    mode, target = action
+    if mode == "template":
+        return render(request, target)
+
+    return redirect(target)
+
+def logout_user(request):
+    """
+    Cierra sesión y aplica cabeceras no-cache para evitar volver a vistas protegidas con botón atrás.
+    """
+    logout(request)
+    response = redirect("usuarios:index")
+    response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 class Logueo(LoginView):
     template_name = "login.html"
@@ -434,6 +494,10 @@ def restablecer_contrasena(request):
     })
 
 def create_shop_step1(request):
+    """
+    Paso 1 de creación de tienda.
+    Guarda datos base en sesión y redirige al paso 2.
+    """
     if request.method == "POST":
         request.session["shop_step1"] = {
             "nombre": request.POST.get("nombre"),
@@ -449,8 +513,39 @@ def create_shop_step1(request):
 
 # PASO 2
 def create_shop_step2(request):
+    """
+    Paso 2 de creación de tienda.
+    Valida horario de apertura/cierre, crea la tienda y muestra mensaje de éxito.
+    """
+    shop_success = request.session.pop("shop_success", False)
+
     if request.method == "POST":
         step1 = request.session.get("shop_step1")
+
+        # Horario en formato 24h desde inputs type="time"
+        hora_apertura = request.POST.get("hora_apertura", "").strip()
+        hora_cierre = request.POST.get("hora_cierre", "").strip()
+
+        if not hora_apertura or not hora_cierre:
+            return render(request, "create-shop2.html", {
+                "error_horario": "Debes ingresar la hora de apertura y cierre.",
+            })
+
+        try:
+            apertura_dt = datetime.strptime(hora_apertura, "%H:%M")
+            cierre_dt = datetime.strptime(hora_cierre, "%H:%M")
+        except ValueError:
+            return render(request, "create-shop2.html", {
+                "error_horario": "Formato de horario invalido.",
+            })
+
+        if cierre_dt <= apertura_dt:
+            return render(request, "create-shop2.html", {
+                "error_horario": "La hora de cierre debe ser mayor que la de apertura.",
+            })
+
+        # Se persiste como texto legible en el campo horario
+        horario = f"{hora_apertura} - {hora_cierre}"
 
         Shop.objects.create(
             owner=request.user if request.user.is_authenticated else None,
@@ -459,14 +554,15 @@ def create_shop_step2(request):
             email=step1["email"],
             departamento=step1["departamento"],
             municipio=step1["municipio"],
-            horario=request.POST.get("horario"),
-            sitio_web=request.POST.get("sitio_web"),
+            horario=horario,
+            direccion=request.POST.get("direccion"),
             descripcion=request.POST.get("descripcion"),
         )
 
         # borrar sesión
         del request.session["shop_step1"]
 
-        return redirect("index")
+        request.session["shop_success"] = True
+        return redirect("usuarios:create_shop_step2")
 
-    return render(request, "create-shop2.html")
+    return render(request, "create-shop2.html", {"shop_success": shop_success})

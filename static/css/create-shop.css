@@ -140,8 +140,6 @@
     width: max-content;
     padding: 12px 24px;
     margin-left: auto;
-    margin-top: 26px;
-    /* margin-right: auto; */
     margin-bottom: 0px;
     background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
     color: var(--white);
@@ -171,6 +169,37 @@
 .form-shop__next {
     display: flex;
     align-items: center;
+}
+
+.form-shop__buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    align-items: center;
+}
+
+.form-shop__buttons .form-shop__button {
+    margin: 0;
+}
+
+.form-shop__back-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background-color: var(--gray-800);
+    color: var(--white);
+    text-decoration: none;
+    font-size: var(--fs-xs);
+    transition: background-color .2s ease;
+}
+
+.form-shop__back-btn:hover {
+    opacity: 60%;
+    cursor: pointer;
 }
 
 .form-shop__button:hover {

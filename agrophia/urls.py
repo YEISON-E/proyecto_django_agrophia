@@ -16,14 +16,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 from .views import home
+from usuarios.views import legacy_frontend_view
 
 urlpatterns = [
     path('', home, name='home'),
     path('admin/', admin.site.urls),
     path('usuarios/', include('usuarios.urls')),
+    path(
+        'frontend/public/views/create-shop.html',
+        RedirectView.as_view(pattern_name='usuarios:create_farmer_perfil', permanent=False),
+    ),
+    path('frontend/public/views/<path:page>', legacy_frontend_view),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -13,20 +13,6 @@
  * Se ejecuta cuando el DOM está completamente cargado
  */
 function initializeRegisterStep2() {
-  // ===== CONFIGURACIÓN DE DEPARTAMENTOS Y MUNICIPIOS =====
-  // Mapa que contiene la relación entre departamentos y sus municipios
-  const municipiosPorDepartamento = {
-    'Risaralda': [
-      'Pereira','Dosquebradas','La Virginia','Apía','Balboa','Belén de Umbría','Guática','La Celia','Marsella','Mistrató','Pueblo Rico','Quinchía','Santa Rosa de Cabal','Santuario'
-    ],
-    'Caldas': [
-      'Manizales','Aguadas','Anserma','Aranzazu','Belalcázar','Chinchiná','Filadelfia','La Dorada','La Merced','Manzanares','Marmato','Marquetalia','Marulanda','Neira','Norcasia','Pácora','Palestina','Pensilvania','Riosucio','Risaralda','Salamina','Samaná','San José','Supía','Victoria','Villamaría','Viterbo'
-    ],
-    'Quindio': [
-      'Armenia','Buenavista','Calarcá','Circasia','Córdoba','Filandia','Génova','La Tebaida','Montenegro','Pijao','Quimbaya','Salento'
-    ]
-  };
-
   const departSelect = document.getElementById('input-departament');
   const munSelect = document.getElementById('input-municipality');
 
@@ -37,20 +23,13 @@ function initializeRegisterStep2() {
   function poblarMunicipios() {
     const dep = departSelect.value;
     if (!munSelect) return;
-    
-    // Limpiar opciones previas
+
+    if (window.LocationUtils) {
+      window.LocationUtils.poblarMunicipios(dep, munSelect);
+      return;
+    }
+
     munSelect.innerHTML = '<option value="">Selecciona el Municipio</option>';
-    
-    // Si no hay departamento seleccionado o no existe en el mapa, no hacer nada
-    if (!dep || !municipiosPorDepartamento[dep]) return;
-    
-    // Agregar cada municipio como opción al select
-    municipiosPorDepartamento[dep].forEach(m => {
-      const opt = document.createElement('option');
-      opt.value = m;
-      opt.textContent = m;
-      munSelect.appendChild(opt);
-    });
   }
 
   // Agregar listener para cambios de departamento

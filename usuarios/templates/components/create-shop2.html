@@ -2,9 +2,18 @@
 
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
-<div class="form-shop__content">
-    <a href="{% url 'usuarios:create_shop_step1' %}" class="form-shop__back">Volver</a>
+{% if shop_success %}
+<div class="reset-success-overlay">
+    <div class="reset-success-alert">
+        Tu tienda fue creada exitosamente.<br><br>
+        Para continuar, inicia sesion nuevamente con tu usuario y contrasena.<br><br>
+        Si deseas completar o actualizar la informacion de tu tienda, ingresa a la seccion Perfil.<br><br>
+        <a href="{% url 'usuarios:login' %}" class="form-shop__button">Continuar</a>
+    </div>
+</div>
+{% endif %}
 
+<div class="form-shop__content">
     <!-- <h1 class="form-shop__title">Agrophia</h1> -->
 
     <div class="form-shop__container">
@@ -12,31 +21,44 @@
         <div class="shop">
                 <h2 class="form-shop__subtitle">Crea tu tienda</h2>
             <div class="form-shop">
-                <form method="POST" class="form-shop__body">
+                <form id="create-shop-step2-form" method="POST" class="form-shop__body">
                     {% csrf_token %}
 
+                    {% if error_horario %}
+                        <div class="input-error" style="display: block;">{{ error_horario }}</div>
+                    {% endif %}
+
                     <div class="form-shop__group">
-                        <label for="horario" class="form-shop__label">Horario de atención</label>
-                        <input type="text" class="form-shop__input" name="horario" placeholder="Ej:Lunes a viernes 8AM a 6PM" required>
+                        <label for="hora_apertura" class="form-shop__label">Hora de apertura</label>
+                        <input type="time" id="hora_apertura" class="form-shop__input" name="hora_apertura" required>
+                        <div id="error-hora-apertura" class="input-error" style="display: none;"></div>
                     </div>
 
                     <div class="form-shop__group">
-                        <label for="url" class="form-shop__label">URL de tu sitio web (opcional)</label>
-                        <input type="url" class="form-shop__input" name="sitio_web" placeholder="www.el ahorro.com.co">
+                        <label for="hora_cierre" class="form-shop__label">Hora de cierre</label>
+                        <input type="time" id="hora_cierre" class="form-shop__input" name="hora_cierre" required>
+                        <div id="error-hora-cierre" class="input-error" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-shop__group">
+                        <label for="url" class="form-shop__label">Dirección</label>
+                        <input type="text" class="form-shop__input" name="direccion" placeholder="Escribe la dirección" required>
                     </div>
                     
                     <div class="form-shop__textarea">
                         <label for="message" class="form-shop__label">Descripcion breve de la tienda (opcional)</label>
-                        <textarea type="message" class="form-shop__description" placeholder="Descripcion breve de la tienda"></textarea>
+                        <textarea type="message" class="form-shop__description" name="descripcion" placeholder="Descripcion breve de la tienda"></textarea>
                     </div>
 
-                    <div class="form-shop__create">
-                        <button type="submit" class="form-shop__button">Crear tienda</button>
-                    </div>
                 </form>
-                
+                <div class="form-content__register--row-buttons">
+                    <a href="{% url 'usuarios:create_shop_step1' %}" class="form-content__register--row-buttons__back">Volver</a>
+                    <button type="submit" form="create-shop-step2-form" class="form-shop__button">Crear tienda</button>
+                </div>
 
             </div>
         </div>
     </div>
 </div>
+
+<script src="{% static 'js/components/create-shop2.js' %}" defer></script>

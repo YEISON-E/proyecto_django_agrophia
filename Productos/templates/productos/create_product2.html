@@ -7,9 +7,11 @@
     <title>Publicar producto</title>
     <link rel="icon" href="{% static 'icons/planta.png' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/flash_product_created.css' %}">
     <script src="{% static 'js/components/gov-co__one.js' %}"></script>
     <script src="{% static 'js/components/gov-co__two.js' %}"></script>
-    <script src="{% static 'js/components/create_product.js' %}" defer></script>
+    <script src="{% static 'js/components/create_product2.js' %}" defer></script>
+    <script src="{% static 'js/components/flash_product_created.js' %}" defer></script>
 </head>
 <body>
     <div class="govco-container__one">
@@ -21,7 +23,7 @@
     {% include 'tiendas/components/navbar-store.html' %}
 
     <div class="producto-form__body">
-        {% include 'tiendas/components/create_product.html' %}
+        {% include 'productos/components/create_product2.html' %}
     </div>
 
     <footer class="footer-container"></footer>

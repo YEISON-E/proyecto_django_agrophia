@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'usuarios',
     'Tiendas',
+    'Productos',
+    'carrito_compras',
     # 'widget_tweaks',
 ]
 

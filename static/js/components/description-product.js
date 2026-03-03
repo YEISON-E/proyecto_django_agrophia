@@ -1,18 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const cardDescriptionProductElement = document.querySelector(".card__description-container");
-
-  if (cardDescriptionProductElement) {
-    fetch("/frontend/public/views/components/card-description-product.html")
-      .then((response) => response.text())
-      .then((data) => {
-        // Insertar el componente HTML
-        cardDescriptionProductElement.innerHTML = data;
-
-        // Luego de cargar el HTML, inicializamos la lógica de las imágenes
-        initializeProductImageGallery();
-      })
-      .catch((error) => console.log("Error cargando la descripción del producto.", error));
-  }
+  initializeProductImageGallery();
 
   // === Función para inicializar el cambio de imágenes ===
   function initializeProductImageGallery() {

@@ -28,6 +28,7 @@ from django.conf import settings
 
 from .models import Register
 from Tiendas.views import user_has_shop, resolve_legacy_tienda_route
+from Productos.models import Product
 from django.core.files.storage import FileSystemStorage
 # from django.contrib.auth.decorators import login_required
 
@@ -304,7 +305,12 @@ def login_customer_user(request):
         return redirect("usuarios:login")
     if user_has_shop(request.user):
         return redirect("tiendas:interface_farmer")
-    return render(request, "login_customer_user.html")
+
+    productos = Product.objects.prefetch_related("images").order_by("-created_at")
+
+    return render(request, "login_customer_user.html", {
+        "productos": productos,
+    })
 
 def index(request):
     """Página pública principal. Si está autenticado, redirige al home interno."""
@@ -328,7 +334,7 @@ def legacy_frontend_view(request, page):
         "p_login-customer.html": ("redirect", "usuarios:login_customer_user"),
         "p_login-customer-vegetables.html": ("redirect", "usuarios:login_customer_user"),
         "p_login-customer-dairy.html": ("redirect", "usuarios:login_customer_user"),
-        "shopping.html": ("redirect", "usuarios:login_customer_user"),
+        "shopping.html": ("redirect", "carrito_compras:shopping_cart"),
         "mensajes_sends.html": ("redirect", "usuarios:login_customer_user"),
         "my_orders.html": ("redirect", "usuarios:login_customer_user"),
         "contact.html": ("template", "contact.html"),

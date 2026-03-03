@@ -4,6 +4,7 @@ from django.views.decorators.cache import never_cache
 from datetime import datetime
 
 from .models import Shop
+from Productos.models import Product
 
 
 def user_has_shop(user):
@@ -18,8 +19,8 @@ def resolve_legacy_tienda_route(page):
 		"create-farmer-perfil.html": ("redirect", "tiendas:create_farmer_perfil"),
 		"create-shop2.html": ("redirect", "tiendas:create_shop_step2"),
 		"interface_farmer.html": ("redirect", "tiendas:interface_farmer"),
-		"form_subir_producto.html": ("redirect", "tiendas:create_product"),
-		"form_subir_producto2.html": ("redirect", "tiendas:create_product2"),
+		"form_subir_producto.html": ("redirect", "productos:create_product"),
+		"form_subir_producto2.html": ("redirect", "productos:create_product2"),
 	}
 	return legacy_routes.get(page)
 
@@ -32,21 +33,22 @@ def create_farmer_perfil(request):
 def interface_farmer(request):
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
-	return render(request, "tiendas/interface_farmer.html")
+
+	productos = Product.objects.filter(owner=request.user).prefetch_related("images").order_by("-created_at")
+
+	return render(request, "tiendas/interface_farmer.html", {
+		"productos": productos,
+	})
 
 
 @never_cache
 def create_product(request):
-	if not request.user.is_authenticated:
-		return redirect("usuarios:login")
-	return render(request, "tiendas/create_product.html")
+	return redirect("productos:create_product")
 
 
 @never_cache
 def create_product2(request):
-	if not request.user.is_authenticated:
-		return redirect("usuarios:login")
-	return render(request, "tiendas/create_product2.html")
+	return redirect("productos:create_product2")
 
 
 def create_shop_step1(request):

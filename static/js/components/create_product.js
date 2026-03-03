@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const tipoOtroInput = document.getElementById("tipo-producto-otro");
     const unidadSelect = document.getElementById("unidad-producto");
     const nextStepButton = document.getElementById("btn-next-step-producto");
+    const step1Form = document.getElementById("create-product-step1-form");
 
     const unidadesPorTipo = {
         Frutas: ["Libra", "Kilo", "Arroba"],
@@ -213,6 +214,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     nextStepButton?.addEventListener("click", (event) => {
+        if (!validateStep1()) {
+            event.preventDefault();
+        }
+    });
+
+    step1Form?.addEventListener("submit", (event) => {
         if (!validateStep1()) {
             event.preventDefault();
         }

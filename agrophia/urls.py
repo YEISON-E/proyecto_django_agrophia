@@ -27,6 +27,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('usuarios/', include('usuarios.urls')),
     path('tiendas/', include('Tiendas.urls')),
+    path('productos/', include('Productos.urls')),
+    path('carrito/', include('carrito_compras.urls')),
     path(
         'frontend/public/views/create-shop.html',
         RedirectView.as_view(pattern_name='tiendas:create_farmer_perfil', permanent=False),

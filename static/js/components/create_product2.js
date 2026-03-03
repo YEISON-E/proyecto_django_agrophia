@@ -2,9 +2,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const precioInput = document.getElementById("precio-producto");
     const descripcionInput = document.getElementById("descripcion-producto");
     const garantiaInput = document.getElementById("garantia-producto");
+    const metodoPagoSelect = document.getElementById("metodo-pago");
+    const metodoEntregaSelect = document.getElementById("metodo-entrega");
     const publicarButton = document.getElementById("btn-publicar-producto");
+    const step2Form = document.getElementById("create-product-step2-form");
 
-    if (!precioInput || !descripcionInput || !garantiaInput || !publicarButton) {
+    if (!precioInput || !descripcionInput || !garantiaInput || !metodoPagoSelect || !metodoEntregaSelect || !publicarButton) {
         return;
     }
 
@@ -59,15 +62,37 @@ document.addEventListener("DOMContentLoaded", function () {
             setError("error-garantia-producto", "");
         }
 
+        const metodoPago = (metodoPagoSelect.value || "").trim();
+        if (!metodoPago) {
+            setError("error-metodo-pago", "Selecciona un método de pago.");
+            hasErrors = true;
+        } else {
+            setError("error-metodo-pago", "");
+        }
+
+        const metodoEntrega = (metodoEntregaSelect.value || "").trim();
+        if (!metodoEntrega) {
+            setError("error-metodo-entrega", "Selecciona un método de entrega.");
+            hasErrors = true;
+        } else {
+            setError("error-metodo-entrega", "");
+        }
+
         return !hasErrors;
     };
 
-    [precioInput, descripcionInput, garantiaInput].forEach((field) => {
+    [precioInput, descripcionInput, garantiaInput, metodoPagoSelect, metodoEntregaSelect].forEach((field) => {
         field.addEventListener("input", validateStep2);
         field.addEventListener("change", validateStep2);
     });
 
     publicarButton.addEventListener("click", (event) => {
+        if (!validateStep2()) {
+            event.preventDefault();
+        }
+    });
+
+    step2Form?.addEventListener("submit", (event) => {
         if (!validateStep2()) {
             event.preventDefault();
         }

@@ -35,6 +35,11 @@
     color: var(--black);
 }
 
+.list-home__option--active {
+    background: var(--primary-700);
+    color: var(--white);
+}
+
 
 @media (width > 768px) {
     .list-home {

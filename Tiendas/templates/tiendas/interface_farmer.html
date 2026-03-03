@@ -21,7 +21,15 @@
             {% include 'tiendas/components/interface-farmer_options.html' %}
         </section>
         <section class="search__container-index"></section>
-        <div class="card-farmer__container"></div>
+        <section class="card-farmer__container-section">
+            <div class="card-farmer__container">
+                {% for product in productos %}
+                    {% include 'productos/components/card-home-farmer.html' with product=product %}
+                {% empty %}
+                    <p class="card-farmer__empty">Aún no tienes productos publicados.</p>
+                {% endfor %}
+            </div>
+        </section>
     </div>
 
     <footer class="footer-container"></footer>

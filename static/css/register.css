@@ -292,7 +292,7 @@
     }
 
     .form-content__register{
-        max-width:max-content;
+        width:900px;
     }
 
     .form__see--password {

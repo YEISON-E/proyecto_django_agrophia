@@ -1,51 +1,57 @@
+{% load static %}
+
 <div class="profile-content">
   <!-- <h1 class="profile__title-principal">Informacion de perfil</h1> -->
   <div class="profile">
     <div class="profile__header">
       <div class="profile__img-container">
-        <img src="/frontend/public/img/foto_sofi.png" alt="imagen de Perfil" class="profile__img">
+        {% if register_user and register_user.foto %}
+        <img src="{{ register_user.foto.url }}" alt="imagen de Perfil" class="profile__img">
+        {% else %}
+        <img src="{% static 'img/foto_sofi.png' %}" alt="imagen de Perfil" class="profile__img">
+        {% endif %}
       </div>
-      <h2 class="profile__title">Sofia Cardona</h2>
-      <p class="profile__subtitle">Productora de Café - Risaralda con una excelente calidad en mis productos</p>
+      <h2 class="profile__title">{{ register_user.nombres|default:'' }} {{ register_user.apellidos|default:'' }}</h2>
+      <p class="profile__subtitle">{{ register_user.descripcion_perfil|default:'Sin descripción de perfil.' }}</p>
     </div>
     <div class="profile_group">
 
       <div class="profile__body">
         <div class="profile__item">
           <span class="profile__label">Tipo de documento</span>
-          <div class="profile__value">CC</div>
+          <div class="profile__value">{{ register_user.tipo_documento|default:'-' }}</div>
         </div>
         
       <div class="profile__item">
         <span class="profile__label">Número de Identificación</span>
-        <div class="profile__value">123456789</div>
+        <div class="profile__value">{{ register_user.numero_documento|default:'-' }}</div>
       </div>
       <div class="profile__item">
         <span class="profile__label">Nombres</span>
-        <div class="profile__value">Sofia</div>
+        <div class="profile__value">{{ register_user.nombres|default:'-' }}</div>
       </div>
       <div class="profile__item">
         <span class="profile__label">Apellidos</span>
-        <div class="profile__value">Cardona</div>
+        <div class="profile__value">{{ register_user.apellidos|default:'-' }}</div>
       </div>
       
       <div class="profile__item">
         <span class="profile__label">Teléfono</span>
-        <div class="profile__value">3123456789</div>
+        <div class="profile__value">{{ register_user.telefono|default:'-' }}</div>
       </div>
 
       <div class="profile__item">
         <span class="profile__label">Correo Electrónico</span>
-        <div class="profile__value">sofiacardona@agrophia.com</div>
+        <div class="profile__value">{{ register_user.correo_electronico|default:'-' }}</div>
       </div>
       
       <div class="profile__item">
         <span class="profile__label">Departamento</span>
-        <div class="profile__value">Risaralda</div>
+        <div class="profile__value">{{ register_user.departamento|default:'-' }}</div>
       </div>
       <div class="profile__item">
         <span class="profile__label">Municipio</span>
-        <div class="profile__value">Dosquebradas</div>
+        <div class="profile__value">{{ register_user.municipio|default:'-' }}</div>
       </div>
       <div class="profile__item">
         <span class="profile__label">Contraseña</span>
@@ -53,14 +59,14 @@
       </div>
       <div class="profile__item">
         <span class="profile__label">Dirección</span>
-        <div class="profile__value">Finca La Esperanza</div>
+        <div class="profile__value">{{ register_user.direccion_completa|default:'-' }}</div>
       </div>
     </div>
     
     <div class="profile__actions">
       <a href="/frontend/public/views/p_login-customer.html" class="profile__actions--back">Volver</a>
 
-      <a href="/frontend/public/views/update_perfil.html" class="profile__actions--edit">
+      <a href="{% url 'usuarios:update_perfil' %}" class="profile__actions--edit">
         Editar Información
       </a>
     </div>

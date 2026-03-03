@@ -20,6 +20,17 @@
     <section class="list-home">
         {% include 'components/list_home.html' %}
     </section>
+
+    <section class="card-home__container-section">
+        <div class="card-home__container">
+            {% for product in productos %}
+                {% include 'productos/components/card-home.html' with product=product %}
+            {% empty %}
+                <p class="card-home__empty">Aún no hay productos publicados.</p>
+            {% endfor %}
+        </div>
+    </section>
+
     <div class="govco-container__two">
         {% include 'components/gov-co__one.html' %}
     </div>

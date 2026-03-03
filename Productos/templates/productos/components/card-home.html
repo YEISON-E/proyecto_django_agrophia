@@ -1,0 +1,48 @@
+{% load static %}
+
+{% if product.tipo == 'Otros' and product.tipo_otro %}
+  {% with product_type=product.tipo_otro %}
+  <div class="card-home"
+       data-name="{{ product.nombre|lower }}"
+      data-category="{{ product.tipo|lower }}"
+       data-type="{{ product_type|lower }}"
+       data-unit="{{ product.unidad|lower }}"
+       data-price="{{ product.precio }}">
+  {% endwith %}
+{% else %}
+  <div class="card-home"
+       data-name="{{ product.nombre|lower }}"
+      data-category="{{ product.tipo|lower }}"
+       data-type="{{ product.tipo|lower }}"
+       data-unit="{{ product.unidad|lower }}"
+       data-price="{{ product.precio }}">
+{% endif %}
+
+  {% with first_image=product.images.first %}
+  <img src="{% if first_image %}{{ first_image.image.url }}{% else %}{% static 'icons/planta.png' %}{% endif %}" alt="{{ product.nombre }}" class="card-home__img">
+  {% endwith %}
+  <div class="card-home__info">
+    <p class="card-home__price">$ {{ product.precio }}</p>
+    <p class="card-home__name">{{ product.nombre }}</p>
+  </div>
+
+  <div class="card-available__button">
+     <a href="{% url 'carrito_compras:add_to_cart' %}"
+       data-product-id="{{ product.id }}"
+       class="card-available__button-one btn-agregar-carrito">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" 
+           viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round"  
+           class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+        <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+        <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+        <path d="M17 17h-11v-14h-2" />
+        <path d="M6 5l14 1l-1 7h-13" />
+      </svg>
+      Agregar
+    </a>
+
+    <a href="{% url 'productos:descripcion_product' product.id %}" class="card-available__button-two">Visualizar</a>
+  </div>
+</div>

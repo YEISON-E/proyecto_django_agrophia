@@ -1,0 +1,37 @@
+<div class="client-messages">
+  <div class="client-messages__header">
+    <h2 class="client-messages__title">Mis mensajes</h2>
+    <p class="client-messages__subtitle">Aquí puedes ver los mensajes que has enviado y sus respuestas</p>
+  </div>
+
+  <div class="client-messages__list">
+    {% for message in messages_sent %}
+    <div class="client-messages__item">
+      <div class="client-messages__sent">
+        <div class="client-messages__info">
+          <span class="client-messages__date">{{ message.created_at|date:"d \d\e F \d\e Y" }}</span>
+          <span class="client-messages__status {% if message.status == 'replied' %}client-messages__status--replied{% elif message.status == 'rejected' %}client-messages__status--rejected{% else %}client-messages__status--pending{% endif %}">{{ message.get_status_display }}</span>
+        </div>
+        <p class="client-messages__content">{{ message.content }}</p>
+      </div>
+
+      <div class="client-messages__reply">
+        {% if message.farmer_replies.all %}
+        {% for reply in message.farmer_replies.all %}
+        <div class="client-messages__reply-item">
+          <p class="client-messages__reply-content">{{ reply.content }}</p>
+          <span class="client-messages__reply-time">{{ reply.created_at|date:"d/m/Y H:i" }}</span>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p class="client-messages__reply-content">Aún no hay respuesta del vendedor.</p>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="client-messages__item">
+      <p class="client-messages__content">Aún no has enviado mensajes.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>

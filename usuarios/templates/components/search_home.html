@@ -13,5 +13,42 @@
         fill="none"/><path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z" /></svg>
     </p>
 
+    <div class="search-home__filter-panel" id="search-home-filter-panel" style="display: none;">
+        <div class="search-home__filter-group">
+            <label for="filter-product-type" class="search-home__filter-label">Tipo</label>
+            <select id="filter-product-type" class="search-home__filter-select">
+                <option value="">Todos</option>
+                <option value="frutas">Frutas</option>
+                <option value="vegetales">Vegetales</option>
+                <option value="lácteos">Lácteos</option>
+                <option value="carne">Carne</option>
+                <option value="granos">Granos</option>
+                <option value="otros">Otros</option>
+            </select>
+        </div>
+
+        <div class="search-home__filter-group">
+            <label for="filter-product-unit" class="search-home__filter-label">Unidad</label>
+            <select id="filter-product-unit" class="search-home__filter-select">
+                <option value="">Todas</option>
+                <option value="libra">Libra</option>
+                <option value="kilo">Kilo</option>
+                <option value="arroba">Arroba</option>
+                <option value="litro">Litro</option>
+            </select>
+        </div>
+
+        <div class="search-home__filter-group">
+            <label for="filter-product-order" class="search-home__filter-label">Precio</label>
+            <select id="filter-product-order" class="search-home__filter-select">
+                <option value="none">Sin orden</option>
+                <option value="price-asc">Menor a mayor</option>
+                <option value="price-desc">Mayor a menor</option>
+            </select>
+        </div>
+
+        <button type="button" id="filter-confirm-btn" class="search-home__filter-confirm">Confirmar</button>
+    </div>
+
 </div>
 

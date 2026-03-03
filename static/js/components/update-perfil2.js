@@ -1,36 +1,71 @@
-document.addEventListener("DOMContentLoaded", function() {
-    const profileContainer = document.querySelector(".profile-form-update-container2");
+function initializeUpdatePerfilStep2() {
+    const departamentoSelect = document.getElementById('input-departament');
+    const municipioSelect = document.getElementById('input-municipality');
+    const showPasswordCheckbox = document.getElementById('show-password');
+    const currentPasswordInput = document.getElementById('input-password');
+    const newPasswordInput = document.getElementById('input-new-password');
 
-    if (profileContainer) {
-        fetch("/frontend/public/views/components/update-perfil2.html")
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Error al cargar el componente");
-                }
-                return response.text();
-            })
-            .then(data => {
-                // Insertamos el componente en el contenedor
-                profileContainer.innerHTML = data;
-
-                // Obtenemos los elementos del componente
-                const saveButton = profileContainer.querySelector("#btn-save");
-                const successMessage = profileContainer.querySelector("#success-message");
-
-                // Verificamos que existan antes de usarlos
-                if (saveButton && successMessage) {
-                    saveButton.addEventListener("click", () => {
-                        // Mostrar mensaje de éxito
-                        successMessage.classList.add("profile-update__message--show");
-
-                        // Esperar 2 segundos y redirigir
-                        setTimeout(() => {
-                            successMessage.classList.remove("profile-update__message--show");
-                            window.location.href = "/frontend/public/views/profile.html";
-                        }, 2000);
-                    });
-                }
-            })
-            .catch(error => console.log("Error cargando el componente de perfil 2:", error));
+    if (!departamentoSelect || !municipioSelect) {
+        return;
     }
-});
+
+    const normalizarTexto = (valor) => {
+        if (window.LocationUtils && typeof window.LocationUtils.normalizarTexto === 'function') {
+            return window.LocationUtils.normalizarTexto(valor || '');
+        }
+        return (valor || '').normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
+    };
+
+    const preseleccionado = municipioSelect.dataset.selected || municipioSelect.value || '';
+
+    const poblarMunicipios = () => {
+        const departamento = departamentoSelect.value || '';
+
+        if (window.LocationUtils && typeof window.LocationUtils.poblarMunicipios === 'function') {
+            window.LocationUtils.poblarMunicipios(departamento, municipioSelect);
+        } else {
+            municipioSelect.innerHTML = '<option value="">Selecciona el Municipio</option>';
+        }
+    };
+
+    const seleccionarMunicipioSiExiste = (valorMunicipio) => {
+        if (!valorMunicipio) {
+            return;
+        }
+
+        const valorNormalizado = normalizarTexto(valorMunicipio).toLowerCase();
+        const opcion = Array.from(municipioSelect.options).find((option) => {
+            return normalizarTexto(option.value).toLowerCase() === valorNormalizado;
+        });
+
+        if (opcion) {
+            municipioSelect.value = opcion.value;
+        }
+    };
+
+    poblarMunicipios();
+    seleccionarMunicipioSiExiste(preseleccionado);
+
+    departamentoSelect.addEventListener('change', () => {
+        poblarMunicipios();
+    });
+
+    if (showPasswordCheckbox) {
+        showPasswordCheckbox.addEventListener('change', () => {
+            const inputType = showPasswordCheckbox.checked ? 'text' : 'password';
+
+            if (currentPasswordInput) {
+                currentPasswordInput.type = inputType;
+            }
+            if (newPasswordInput) {
+                newPasswordInput.type = inputType;
+            }
+        });
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeUpdatePerfilStep2);
+} else {
+    initializeUpdatePerfilStep2();
+}

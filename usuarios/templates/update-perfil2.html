@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editar Perfil</title>
+  {% load static %}
 
   <link rel="icon" href="/frontend/public/icons/planta.png">
 
@@ -13,14 +14,17 @@
   <!-- JS del componente -->
   <script src="/frontend/public/js/components/gov-co__one.js"></script>
   <script src="/frontend/public/js/components/gov-co__two.js"></script>
-  <script src="/frontend/public/js/components/update-perfil2.js" defer></script>
+  <script src="{% static 'js/components/location-utils.js' %}" defer></script>
+  <script src="{% static 'js/components/update-perfil2.js' %}" defer></script>
   <script src="/frontend/public/js/components/footer.js" defer></script>
 </head>
 <body>
   <div class="govco-container__one">
     {% include 'components/gov-co__one.html' %}
   </div>
-  <div class="profile-form-update-container2"></div>
+  <div class="profile-form-update-container2">
+    {% include 'components/update-perfil2.html' %}
+  </div>
   <footer class="footer-container"></footer>
   <div class="govco-container__two">
     {% include 'components/gov-co__one.html' %}

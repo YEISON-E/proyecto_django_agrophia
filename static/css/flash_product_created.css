@@ -1,0 +1,21 @@
+.flash-product-created {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #ffffff, #b9eebc);
+  color: var(--primary-800);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  padding: 40px 50px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  z-index: 9999;
+  box-shadow: 0 14px 30px rgba(20, 122, 76, 0.35);
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.flash-product-created--hide {
+  opacity: 0;
+}

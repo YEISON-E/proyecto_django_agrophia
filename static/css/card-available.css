@@ -74,18 +74,19 @@
 
 .card-available__button-one {
   display: flex;
-  height: 40px;
+  height: 42px;
   gap: 8px;
   background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
   color: var(--white);
   border: none;
   border-radius: 8px;
   padding: 10px 16px;
-  height: 40px;
+  text-decoration: none;
   font-size: var(--fs-xs);
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
   align-items: center;
+  justify-content: center;
 }
 
 .card-available__button-one:hover {
@@ -100,14 +101,16 @@
 }
 
 .card-available__button-two {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  height: 40px;
+  height: 42px;
   background-color: var(--gray-600);
   color: var(--white);
   border: none;
   border-radius: 8px;
   padding: 9px 16px;
-  height: 36px;
+  text-decoration: none;
   font-size: var(--fs-xs);
   transition: background-color 0.3s ease, transform 0.2s ease;
 }

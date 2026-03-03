@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="icon" href="{% static 'icons/planta.png' %}">
+
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+    <script src="{% static 'js/components/gov-co__one.js' %}"></script>
+    <script src="{% static 'js/components/gov-co__two.js' %}"></script>
+    <script src="{% static 'js/components/description-product.js' %}" defer></script>
+    
+    <title>Descripción del producto</title>
+</head>
+<body>
+
+    <div class="govco-container__one">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+
+    {% include 'components/navbar-home.html' %}
+    
+    <section class="card__description-container">
+        {% include 'productos/components/descripcion_product.html' %}
+    </section>
+    
+    <footer class="footer">  
+         <div class="footer-container">
+            {% include 'components/footer.html' %}
+         </div>
+    </footer> 
+
+    <div class="govco-container__two">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+
+</body>
+</html>

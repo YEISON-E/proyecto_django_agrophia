@@ -4,24 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Editar Perfil</title>
+  {% load static %}
 
-  <link rel="icon" href="/frontend/public/icons/planta.png">
+  <link rel="icon" href="{% static 'icons/planta.png' %}">
 
 
   <!-- CSS principal -->
-  <link rel="stylesheet" href="/frontend/public/css/main.css">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
   <!-- JS del componente -->
-  <script src="/frontend/public/js/components/gov-co__one.js"></script>
-  <script src="/frontend/public/js/components/gov-co__two.js"></script>
-  <script src="/frontend/public/js/components/update_perfil.js" defer></script>
-  <script src="/frontend/public/js/components/footer.js" defer></script>
+  <script src="{% static 'js/components/gov-co__one.js' %}"></script>
+  <script src="{% static 'js/components/gov-co__two.js' %}"></script>
+  <script src="{% static 'js/components/update_perfil.js' %}" defer></script>
+  <script src="{% static 'js/components/footer.js' %}" defer></script>
 </head>
 <body>
   <div class="govco-container__one">
     {% include 'components/gov-co__one.html' %}
   </div>
-  <div class="profile-form-update-container"></div>
+  <div class="profile-form-update-container">
+    {% include 'components/update_perfil.html' %}
+  </div>
   <footer class="footer-container"></footer>
   <div class="govco-container__two">
     {% include 'components/gov-co__one.html' %}

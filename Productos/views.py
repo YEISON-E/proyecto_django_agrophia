@@ -1,0 +1,253 @@
+from django.shortcuts import render
+from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
+from django.views.decorators.cache import never_cache
+from django.conf import settings
+from django.core.files import File
+from django.urls import reverse
+from decimal import Decimal, InvalidOperation
+
+import os
+
+from Tiendas.models import Shop
+
+from .models import Product, ProductImage
+
+# Create your views here.
+
+
+def _temp_product_dir():
+	temp_dir = os.path.join(settings.MEDIA_ROOT, "temp_productos")
+	os.makedirs(temp_dir, exist_ok=True)
+	return temp_dir
+
+
+def _remove_temp_files(paths):
+	for path in paths or []:
+		try:
+			if path and os.path.exists(path):
+				os.remove(path)
+		except OSError:
+			pass
+
+
+def _validate_step1(data, files):
+	errors = {}
+
+	nombre = (data.get("nombre") or "").strip()
+	tipo = (data.get("tipo") or "").strip()
+	tipo_otro = (data.get("tipo_otro") or "").strip()
+	unidad = (data.get("unidad") or "").strip()
+
+	if not files:
+		errors["fotos"] = "Debes cargar al menos una imagen."
+	elif len(files) > 8:
+		errors["fotos"] = "Solo puedes cargar máximo 8 imágenes."
+	else:
+		for photo in files:
+			if not (photo.content_type or "").startswith("image/"):
+				errors["fotos"] = "Solo se permiten archivos de imagen."
+				break
+
+	if not nombre:
+		errors["nombre"] = "El nombre del producto es obligatorio."
+	elif len(nombre) < 3:
+		errors["nombre"] = "El nombre debe tener al menos 3 caracteres."
+
+	tipos_validos = {choice[0] for choice in Product.TIPO_CHOICES}
+	if tipo not in tipos_validos:
+		errors["tipo"] = "Selecciona un tipo de producto válido."
+
+	if tipo == Product.TIPO_OTROS:
+		if not tipo_otro:
+			errors["tipo_otro"] = "Escribe el tipo de producto."
+		elif len(tipo_otro) < 3:
+			errors["tipo_otro"] = "Debe tener al menos 3 caracteres."
+
+	unidades_validas = {choice[0] for choice in Product.UNIDAD_CHOICES}
+	if unidad not in unidades_validas:
+		errors["unidad"] = "Selecciona una unidad de medida válida."
+	else:
+		permitidas = Product.UNIDADES_POR_TIPO.get(tipo, set())
+		if tipo and unidad not in permitidas:
+			errors["unidad"] = f"La unidad no aplica para {tipo}."
+
+	return errors
+
+
+def _validate_step2(data):
+	errors = {}
+
+	precio_raw = (data.get("precio") or "").strip()
+	descripcion = (data.get("descripcion") or "").strip()
+	garantia = (data.get("garantia") or "").strip()
+	metodo_pago = (data.get("metodo-pago") or "").strip()
+	metodo_entrega = (data.get("metodo-entrega") or "").strip()
+
+	precio_value = None
+	if not precio_raw:
+		errors["precio"] = "El precio es obligatorio."
+	else:
+		try:
+			precio_value = Decimal(precio_raw)
+		except InvalidOperation:
+			errors["precio"] = "Ingresa un precio válido mayor que 0."
+		else:
+			if precio_value <= 0:
+				errors["precio"] = "Ingresa un precio válido mayor que 0."
+
+	if not descripcion:
+		errors["descripcion"] = "La descripción es obligatoria."
+	elif len(descripcion) < 10:
+		errors["descripcion"] = "La descripción debe tener al menos 10 caracteres."
+
+	if not garantia:
+		errors["garantia"] = "La garantía es obligatoria."
+	elif len(garantia) < 3:
+		errors["garantia"] = "La garantía debe tener al menos 3 caracteres."
+
+	pagos_validos = {choice[0] for choice in Product.METODO_PAGO_CHOICES}
+	if metodo_pago not in pagos_validos:
+		errors["metodo_pago"] = "Selecciona un método de pago válido."
+
+	entregas_validas = {choice[0] for choice in Product.METODO_ENTREGA_CHOICES}
+	if metodo_entrega not in entregas_validas:
+		errors["metodo_entrega"] = "Selecciona un método de entrega válido."
+
+	return errors, precio_value
+
+
+@never_cache
+def create_product(request):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	if request.method == "POST":
+		photos = request.FILES.getlist("fotos")
+		errors = _validate_step1(request.POST, photos)
+
+		valores = {
+			"nombre": (request.POST.get("nombre") or "").strip(),
+			"tipo": (request.POST.get("tipo") or "").strip(),
+			"tipo_otro": (request.POST.get("tipo_otro") or "").strip(),
+			"unidad": (request.POST.get("unidad") or "").strip(),
+		}
+
+		if errors:
+			return render(request, "productos/create_product.html", {
+				"errores": errors,
+				"valores": valores,
+			})
+
+		old_paths = request.session.get("product_temp_images", [])
+		_remove_temp_files(old_paths)
+
+		temp_dir = _temp_product_dir()
+		temp_paths = []
+		for photo in photos:
+			safe_name = f"{request.user.id}_{photo.name}"
+			temp_path = os.path.join(temp_dir, safe_name)
+			base_name, ext = os.path.splitext(temp_path)
+			counter = 1
+			while os.path.exists(temp_path):
+				temp_path = f"{base_name}_{counter}{ext}"
+				counter += 1
+
+			with open(temp_path, "wb") as temp_file:
+				for chunk in photo.chunks():
+					temp_file.write(chunk)
+			temp_paths.append(temp_path)
+
+		request.session["product_step1"] = valores
+		request.session["product_temp_images"] = temp_paths
+		return redirect("productos:create_product2")
+
+	valores = request.session.get("product_step1", {})
+	return render(request, "productos/create_product.html", {"valores": valores})
+
+
+@never_cache
+def create_product2(request):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	product_success = request.session.pop("product_success", False)
+	if request.method == "GET" and product_success:
+		return render(request, "productos/create_product2.html", {
+			"product_success": True,
+			"flash_redirect_url": reverse("tiendas:interface_farmer"),
+		})
+
+	step1 = request.session.get("product_step1")
+	temp_paths = request.session.get("product_temp_images", [])
+
+	if not step1:
+		return redirect("productos:create_product")
+
+	if request.method == "POST":
+		errors, precio_value = _validate_step2(request.POST)
+		valores = {
+			"precio": (request.POST.get("precio") or "").strip(),
+			"descripcion": (request.POST.get("descripcion") or "").strip(),
+			"garantia": (request.POST.get("garantia") or "").strip(),
+			"metodo_pago": (request.POST.get("metodo-pago") or "").strip(),
+			"metodo_entrega": (request.POST.get("metodo-entrega") or "").strip(),
+		}
+
+		if not temp_paths:
+			errors["fotos"] = "Debes volver al paso 1 y cargar imágenes del producto."
+
+		if errors:
+			return render(request, "productos/create_product2.html", {
+				"errores": errors,
+				"valores": valores,
+			})
+
+		shop = Shop.objects.filter(owner=request.user).first()
+
+		product = Product.objects.create(
+			owner=request.user,
+			shop=shop,
+			nombre=step1.get("nombre", ""),
+			tipo=step1.get("tipo", ""),
+			tipo_otro=step1.get("tipo_otro", ""),
+			unidad=step1.get("unidad", ""),
+			precio=precio_value,
+			descripcion=valores["descripcion"],
+			garantia=valores["garantia"],
+			metodo_pago=valores["metodo_pago"],
+			metodo_entrega=valores["metodo_entrega"],
+		)
+
+		for temp_path in temp_paths:
+			if not os.path.exists(temp_path):
+				continue
+			filename = os.path.basename(temp_path)
+			with open(temp_path, "rb") as img_stream:
+				ProductImage.objects.create(
+					product=product,
+					image=File(img_stream, name=filename),
+				)
+
+		_remove_temp_files(temp_paths)
+		request.session.pop("product_step1", None)
+		request.session.pop("product_temp_images", None)
+		request.session["product_success"] = True
+		return redirect("productos:create_product2")
+
+	return render(request, "productos/create_product2.html")
+
+
+@never_cache
+def descripcion_product(request, product_id):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	product = get_object_or_404(
+		Product.objects.select_related("shop", "owner").prefetch_related("images"),
+		pk=product_id,
+	)
+
+	return render(request, "productos/descripcion_product.html", {
+		"product": product,
+	})

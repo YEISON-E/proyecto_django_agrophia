@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis pedidos</title>
+    <link rel="icon" href="{% static 'icons/planta.png' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+    <div class="govco-container__one">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+
+    {% include 'components/navbar-home.html' %}
+
+    <div class="my-orders">
+        {% include 'pedidos/components/orders_client.html' %}
+    </div>
+
+    <footer class="footer-container">
+        {% include 'components/footer.html' %}
+    </footer>
+
+    <div class="govco-container__two">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+</body>
+</html>

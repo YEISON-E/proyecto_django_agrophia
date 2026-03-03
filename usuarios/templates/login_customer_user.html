@@ -9,13 +9,31 @@
     <script src="{% static 'js/components/gov-co__one.js' %}"></script>
     <script src="{% static 'js/components/gov-co__two.js' %}"></script>
 </head>
-<body>
+<body data-login-url="{% url 'usuarios:login' %}">
     <div class="govco-container__one">
         {% include 'components/gov-co__one.html' %}
     </div>
     {% include 'components/navbar-home.html' %}
+    <section class="search-home">
+        {% include 'components/search_home.html' %}
+    </section>
+    <section class="list-home">
+        {% include 'components/list_home.html' %}
+    </section>
+
+    <section class="card-home__container-section">
+        <div class="card-home__container">
+            {% for product in productos %}
+                {% include 'productos/components/card-home.html' with product=product %}
+            {% empty %}
+                <p class="card-home__empty">Aún no hay productos publicados.</p>
+            {% endfor %}
+        </div>
+    </section>
+
     <div class="govco-container__two">
         {% include 'components/gov-co__one.html' %}
     </div>
+    <script src="{% static 'js/components/login_customer_user.js' %}" defer></script>
 </body>
 </html> 

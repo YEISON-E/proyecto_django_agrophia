@@ -118,6 +118,15 @@
   margin-top: 12px;
   padding-left: 20px;
   border-left: 3px solid var(--primary-700);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.client-messages__reply-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .client-messages__reply-content {
@@ -125,6 +134,11 @@
   padding: 10px;
   border-radius: 8px;
   color: var(--primary-700);
+}
+
+.client-messages__reply-time {
+  font-size: var(--fs-xxxs);
+  color: var(--gray-600);
 }
 
 .client-messages__status {
@@ -137,4 +151,8 @@
 
 .client-messages__status--pending {
   color: var(--secundary-500);
+}
+
+.client-messages__status--rejected {
+  color: var(--gray-600);
 }

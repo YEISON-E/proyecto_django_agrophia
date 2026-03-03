@@ -1,0 +1,67 @@
+<div class="product-form__content">
+  {% if product_success %}
+  <div id="flash-product-created" class="flash-product-created" data-redirect-url="{{ flash_redirect_url }}">
+    Producto creado exitosamente
+  </div>
+  {% endif %}
+
+  <div class="product-form__container">
+    <h2 class="product-form__subtitle">Subir producto</h2>
+  </div> 
+
+  <div class="product-form2">
+    <form id="create-product-step2-form" class="product-form__body2" method="POST" action="{% url 'productos:create_product2' %}">
+      {% csrf_token %}
+
+      {% if errores.fotos %}
+        <div class="input-error" style="display: block;">{{ errores.fotos }}</div>
+      {% endif %}
+      
+      <div class="product-form__group">
+        <label for="precio" class="product-form__label">Precio</label>
+        <input id="precio-producto" name="precio" type="number" min="0.01" step="0.01" class="product-form__input" placeholder="Ej: 20.00" value="{{ valores.precio|default:'' }}" required>
+        <div id="error-precio-producto" class="input-error"{% if not errores.precio %} style="display: none;"{% endif %}>{{ errores.precio }}</div>
+      </div>
+
+      <div class="product-form__group">
+        <label for="descripcion" class="product-form__label">Descripción</label>
+        <input id="descripcion-producto" name="descripcion" type="text" class="product-form__input" placeholder="Breve descripción del producto" value="{{ valores.descripcion|default:'' }}" required>
+        <div id="error-descripcion-producto" class="input-error"{% if not errores.descripcion %} style="display: none;"{% endif %}>{{ errores.descripcion }}</div>
+      </div>
+
+      <div class="product-form__group">
+        <label for="garantia" class="product-form__label">Garantía</label>
+        <input id="garantia-producto" name="garantia" type="text" class="product-form__input" placeholder="Garantía que ofreces del producto" value="{{ valores.garantia|default:'' }}" required>
+        <div id="error-garantia-producto" class="input-error"{% if not errores.garantia %} style="display: none;"{% endif %}>{{ errores.garantia }}</div>
+      </div>
+      
+      <div class="product-form__group">
+        <label for="metodo-pago" class="product-form__label">Método de pago</label>
+        <select id="metodo-pago" name="metodo-pago" class="product-form__input" required>
+          <option value="" {% if not valores.metodo_pago %}selected{% endif %}>-- Selecciona --</option>
+          <option value="contado" {% if valores.metodo_pago == 'contado' %}selected{% endif %}>Pago de contado</option>
+          <option value="entrega" {% if valores.metodo_pago == 'entrega' %}selected{% endif %}>Pago contra entrega</option>
+          <option value="transferencia" {% if valores.metodo_pago == 'transferencia' %}selected{% endif %}>Transferencia</option>
+        </select>
+        <div id="error-metodo-pago" class="input-error"{% if not errores.metodo_pago %} style="display: none;"{% endif %}>{{ errores.metodo_pago }}</div>
+      </div>
+
+      <div class="product-form__group">
+        <label for="metodo-entrega" class="product-form__label">Método de entrega</label>
+        <select id="metodo-entrega" name="metodo-entrega" class="product-form__input" required>
+          <option value="" {% if not valores.metodo_entrega %}selected{% endif %}>-- Selecciona --</option>
+          <option value="domicilio" {% if valores.metodo_entrega == 'domicilio' %}selected{% endif %}>Envío a domicilio</option>
+          <option value="tienda" {% if valores.metodo_entrega == 'tienda' %}selected{% endif %}>Recogido en tienda</option>
+          <option value="cita" {% if valores.metodo_entrega == 'cita' %}selected{% endif %}>Entrega bajo cita</option>
+        </select>
+        <div id="error-metodo-entrega" class="input-error"{% if not errores.metodo_entrega %} style="display: none;"{% endif %}>{{ errores.metodo_entrega }}</div>
+      </div>
+
+    </form>
+  </div>
+      <!-- Botones -->
+      <div class="product-form__row">
+        <a href="{% url 'productos:create_product' %}" class="product-form__row--back">Volver</a>
+        <button id="btn-publicar-producto" type="submit" form="create-product-step2-form" class="product-form__row--next">Publicar Producto</button>
+      </div>
+</div>

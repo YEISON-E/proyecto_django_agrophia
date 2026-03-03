@@ -39,6 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'usuarios',
+    'Tiendas',
+    'Productos',
+    'carrito_compras',
+    'Mensajes',
+    'Pedidos',
     # 'widget_tweaks',
 ]
 

@@ -1,0 +1,60 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+<div class="form-shop__content">
+    <div class="form-shop__container">
+        <div class="shop">
+            <h2 class="form-shop__subtitle">Crea tu tienda</h2>
+            <div class="form-shop">
+                <form id="create-shop-form" method="POST" action="{% url 'tiendas:create_shop_step1' %}" class="form-shop__body">
+                    {% csrf_token %}
+
+                    <div class="form-shop__group">
+                        <label for="nombre" class="form-shop__label">Nombre de la tienda</label>
+                        <input type="text" id="nombre" name="nombre" class="form-shop__input" placeholder="Nombre tienda" required>
+                        <div id="error-nombre" class="input-error" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-shop__group">
+                        <label for="telefono" class="form-shop__label">Teléfono</label>
+                        <input type="tel" id="telefono" name="telefono" class="form-shop__input" placeholder="Teléfono" required>
+                        <div id="error-telefono" class="input-error" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-shop__group">
+                        <label for="email" class="form-shop__label">Correo Electrónico</label>
+                        <input type="email" id="email" name="email" class="form-shop__input" placeholder="Correo" required>
+                        <div id="error-email" class="input-error" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-shop__group">
+                        <label class="form-shop__label" for="departamento">Departamento</label>
+                        <select id="departamento" name="departamento" class="form-shop__option">
+                            <option value="">Selecciona el Departamento</option>
+                            <option value="Risaralda">Risaralda</option>
+                            <option value="Caldas">Caldas</option>
+                            <option value="Quindio">Quindio</option>
+                        </select>
+                        <div id="error-departamento" class="input-error" style="display: none;"></div>
+                    </div>
+
+                    <div class="form-shop__group">
+                        <label class="form-shop__label" for="municipio">Municipio</label>
+                        <select id="municipio" name="municipio" class="form-shop__option">
+                            <option value="">Selecciona el Municipio</option>
+                        </select>
+                        <div id="error-municipio" class="input-error" style="display: none;"></div>
+                    </div>
+                </form>
+                <div class="form-content__register--row-buttons">
+                    <a href="{% url 'usuarios:login_customer_user' %}" class="form-content__register--row-buttons__back">Volver</a>
+                    <button type="submit" form="create-shop-form" class="form-shop__button">Siguiente</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/components/location-utils.js' %}" defer></script>
+<script src="{% static 'js/components/create-shop.js' %}" defer></script>

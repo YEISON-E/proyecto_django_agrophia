@@ -2,9 +2,10 @@
 from django.http import HttpResponse
 
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 
 from django.views.generic.edit import CreateView,  UpdateView, DeleteView, FormView
+from django.views.decorators.cache import never_cache
 
 from django.contrib.auth.views import LoginView
 
@@ -25,23 +26,324 @@ import re
 import os
 from django.conf import settings
 
-from .models import Shop
 from .models import Register
+from Tiendas.views import user_has_shop, resolve_legacy_tienda_route
+from Productos.models import Product
 from django.core.files.storage import FileSystemStorage
 # from django.contrib.auth.decorators import login_required
 
-def profile(request):
-    return render(request, "profile.html")
 
-def login_customer_user(request):
+def _get_register_user(request):
+    register_user = Register.objects.filter(id_usuario=request.user.id).first()
+    if not register_user:
+        register_user = Register.objects.filter(numero_documento=request.user.username).first()
+    return register_user
+
+@never_cache
+def profile(request):
+    """Renderiza la vista de perfil con datos del usuario autenticado."""
     if not request.user.is_authenticated:
         return redirect("usuarios:login")
-    return render(request, "login_customer_user.html")
+
+    register_user = _get_register_user(request)
+
+    return render(request, "profile.html", {
+        "register_user": register_user,
+    })
+
+@never_cache
+def update_perfil(request):
+    """Renderiza el paso 1 de edición de perfil."""
+    if not request.user.is_authenticated:
+        return redirect("usuarios:login")
+
+    register_user = _get_register_user(request)
+    if not register_user:
+        return redirect("usuarios:profile")
+
+    errores = {}
+    valores = {
+        "tdocumento": register_user.tipo_documento,
+        "identificacion": register_user.numero_documento,
+        "nombres": register_user.nombres,
+        "apellidos": register_user.apellidos,
+    }
+
+    step1_session = request.session.get("update_perfil_step1")
+    if step1_session:
+        valores.update(step1_session)
+
+    if request.method == "POST":
+        tipo_documento = register_user.tipo_documento
+        identificacion = register_user.numero_documento
+        nombres = register_user.nombres
+        apellidos = request.POST.get("apellidos", "").strip()
+
+        valores = {
+            "tdocumento": tipo_documento,
+            "identificacion": identificacion,
+            "nombres": nombres,
+            "apellidos": apellidos,
+        }
+
+        if not apellidos:
+            errores["apellidos"] = "El apellido es obligatorio."
+
+        foto_file = request.FILES.get("foto")
+        foto_temp_path = None
+        if foto_file:
+            temp_dir = os.path.join(settings.MEDIA_ROOT, 'temp_registros')
+            os.makedirs(temp_dir, exist_ok=True)
+
+            ext = os.path.splitext(foto_file.name)[1]
+            temp_filename = f"update_{request.user.id}_{identificacion or register_user.numero_documento}{ext}"
+            foto_temp_path = os.path.join(temp_dir, temp_filename)
+
+            with open(foto_temp_path, 'wb') as temp_file:
+                for chunk in foto_file.chunks():
+                    temp_file.write(chunk)
+
+        if errores:
+            return render(request, "update_perfil.html", {
+                "register_user": register_user,
+                "errores": errores,
+                "valores": valores,
+            })
+
+        request.session["update_perfil_step1"] = {
+            "tdocumento": tipo_documento,
+            "identificacion": identificacion,
+            "nombres": nombres,
+            "apellidos": apellidos,
+        }
+
+        if foto_temp_path:
+            request.session["update_foto_temp_path"] = foto_temp_path
+
+        return redirect("usuarios:update_perfil2")
+
+    return render(request, "update_perfil.html", {
+        "register_user": register_user,
+        "valores": valores,
+        "errores": errores,
+    })
+
+@never_cache
+def update_perfil2(request):
+    """Renderiza el paso 2 de edición de perfil."""
+    if not request.user.is_authenticated:
+        return redirect("usuarios:login")
+
+    register_user = _get_register_user(request)
+    if not register_user:
+        return redirect("usuarios:profile")
+
+    step1 = request.session.get("update_perfil_step1", {})
+
+    errores = {}
+    valores = {
+        "telefono": register_user.telefono,
+        "email": register_user.correo_electronico,
+        "departamento": register_user.departamento,
+        "municipio": register_user.municipio,
+        "direccion": register_user.direccion_completa,
+        "descripcion": register_user.descripcion_perfil or "",
+    }
+
+    if request.method == "POST":
+        telefono = request.POST.get("telefono", "").strip()
+        email = register_user.correo_electronico
+        departamento = request.POST.get("departamento", "").strip()
+        municipio = request.POST.get("municipio", "").strip()
+        direccion = request.POST.get("direccion", "").strip()
+        descripcion = request.POST.get("descripcion", "").strip()
+        current_password = request.POST.get("current_password", "").strip()
+        new_password = request.POST.get("new_password", "").strip()
+
+        valores = {
+            "telefono": telefono,
+            "email": email,
+            "departamento": departamento,
+            "municipio": municipio,
+            "direccion": direccion,
+            "descripcion": descripcion,
+        }
+
+        if not telefono:
+            errores["telefono"] = "El teléfono es obligatorio."
+        elif not telefono.isdigit() or len(telefono) < 7 or len(telefono) > 15:
+            errores["telefono"] = "Número de teléfono inválido."
+        elif Register.objects.exclude(pk=register_user.pk).filter(telefono=telefono).exists():
+            errores["telefono"] = "Este teléfono ya está registrado."
+
+        if not departamento:
+            errores["departamento"] = "El departamento es obligatorio."
+        if not municipio:
+            errores["municipio"] = "El municipio es obligatorio."
+        if not direccion:
+            errores["direccion"] = "La dirección es obligatoria."
+
+        if len(descripcion) > 120:
+            errores["descripcion"] = "La descripción no debe superar 120 caracteres."
+
+        if current_password or new_password:
+            if not current_password:
+                errores["current_password"] = "Debes ingresar tu contraseña actual."
+            if not new_password:
+                errores["new_password"] = "Debes ingresar una nueva contraseña."
+
+            if current_password and not request.user.check_password(current_password):
+                errores["current_password"] = "La contraseña actual es incorrecta."
+
+            if new_password:
+                if len(new_password) < 8:
+                    errores["new_password"] = "Debe tener al menos 8 caracteres."
+                elif not re.search(r'[A-Z]', new_password):
+                    errores["new_password"] = "Debe contener al menos una mayúscula."
+                elif not re.search(r'[a-z]', new_password):
+                    errores["new_password"] = "Debe contener al menos una minúscula."
+                elif not re.search(r'[0-9]', new_password):
+                    errores["new_password"] = "Debe contener al menos un número."
+                elif not re.search(r'[!@#$%^&*(),.?\":{}|<>]', new_password):
+                    errores["new_password"] = "Debe contener al menos un carácter especial (!@#$%^&*)."
+                elif current_password and new_password == current_password:
+                    errores["new_password"] = "La nueva contraseña debe ser diferente a la actual."
+
+        if errores:
+            return render(request, "update-perfil2.html", {
+                "register_user": register_user,
+                "errores": errores,
+                "valores": valores,
+            })
+
+        tipo_documento = step1.get("tdocumento", register_user.tipo_documento)
+        identificacion = step1.get("identificacion", register_user.numero_documento)
+        nombres = step1.get("nombres", register_user.nombres)
+        apellidos = step1.get("apellidos", register_user.apellidos)
+
+        register_user.tipo_documento = tipo_documento
+        register_user.numero_documento = identificacion
+        register_user.nombres = nombres
+        register_user.apellidos = apellidos
+        register_user.telefono = telefono
+        register_user.correo_electronico = email
+        register_user.departamento = departamento
+        register_user.municipio = municipio
+        register_user.direccion_completa = direccion
+        register_user.descripcion_perfil = descripcion
+
+        if new_password:
+            register_user.contrasena = new_password
+
+        foto_temp_path = request.session.get("update_foto_temp_path")
+        if foto_temp_path and os.path.exists(foto_temp_path):
+            from django.core.files.base import ContentFile
+            with open(foto_temp_path, 'rb') as photo_file:
+                photo_bytes = photo_file.read()
+            foto_filename = os.path.basename(foto_temp_path)
+            register_user.foto.save(foto_filename, ContentFile(photo_bytes), save=False)
+            os.remove(foto_temp_path)
+
+        register_user.save()
+
+        request.user.username = identificacion
+        request.user.email = email
+        request.user.first_name = nombres
+        request.user.last_name = apellidos
+        if new_password:
+            request.user.set_password(new_password)
+        request.user.save()
+        if new_password:
+            update_session_auth_hash(request, request.user)
+
+        request.session.pop("update_perfil_step1", None)
+        request.session.pop("update_foto_temp_path", None)
+
+        return redirect("usuarios:profile")
+
+    return render(request, "update-perfil2.html", {
+        "register_user": register_user,
+        "valores": valores,
+        "errores": errores,
+    })
+
+@never_cache
+def login_customer_user(request):
+    """
+    Home de usuario autenticado.
+    Si el usuario ya tiene una tienda creada, redirige al panel de agricultor.
+    """
+    if not request.user.is_authenticated:
+        return redirect("usuarios:login")
+    if user_has_shop(request.user):
+        return redirect("tiendas:interface_farmer")
+
+    productos = Product.objects.prefetch_related("images").order_by("-created_at")
+
+    return render(request, "login_customer_user.html", {
+        "productos": productos,
+    })
+
+
+@never_cache
+def mensajes_sends(request):
+    if not request.user.is_authenticated:
+        return redirect("usuarios:login")
+
+    return redirect("mensajes:sent_messages")
 
 def index(request):
+    """Página pública principal. Si está autenticado, redirige al home interno."""
     if request.user.is_authenticated:
         return redirect("usuarios:login_customer_user")
     return render(request, "index.html")
+
+def legacy_frontend_view(request, page):
+    """
+    Compatibilidad con rutas legacy del frontend estático.
+    Mapea URLs antiguas a vistas/plantillas Django actuales.
+    """
+    tienda_action = resolve_legacy_tienda_route(page)
+    if tienda_action:
+        mode, target = tienda_action
+        if mode == "template":
+            return render(request, target)
+        return redirect(target)
+
+    legacy_routes = {
+        "p_login-customer.html": ("redirect", "usuarios:login_customer_user"),
+        "p_login-customer-vegetables.html": ("redirect", "usuarios:login_customer_user"),
+        "p_login-customer-dairy.html": ("redirect", "usuarios:login_customer_user"),
+        "shopping.html": ("redirect", "carrito_compras:shopping_cart"),
+        "mensajes_sends.html": ("redirect", "mensajes:sent_messages"),
+        "my_orders.html": ("redirect", "pedidos:orders_client"),
+        "contact.html": ("template", "contact.html"),
+        "profile.html": ("redirect", "usuarios:profile"),
+        "update_perfil.html": ("redirect", "usuarios:update_perfil"),
+        "update-perfil2.html": ("redirect", "usuarios:update_perfil2"),
+        "index.html": ("redirect", "usuarios:index"),
+    }
+
+    action = legacy_routes.get(page)
+    if not action:
+        return redirect("usuarios:index")
+
+    mode, target = action
+    if mode == "template":
+        return render(request, target)
+
+    return redirect(target)
+
+def logout_user(request):
+    """
+    Cierra sesión y aplica cabeceras no-cache para evitar volver a vistas protegidas con botón atrás.
+    """
+    logout(request)
+    response = redirect("usuarios:index")
+    response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response["Pragma"] = "no-cache"
+    response["Expires"] = "0"
+    return response
 
 class Logueo(LoginView):
     template_name = "login.html"
@@ -213,6 +515,10 @@ def register_step_2(request):
         # Validar que el teléfono no esté registrado
         if Register.objects.filter(telefono=telefono).exists():
             errores["telefono"] = "Este teléfono ya está registrado."
+
+        # Validar descripción de perfil
+        if len(descripcion) > 120:
+            errores["descripcion"] = "La descripción no debe superar 120 caracteres."
 
         # Si hay errores, retornar a la plantilla con los mensajes
         if errores:
@@ -433,40 +739,3 @@ def restablecer_contrasena(request):
         "reset_success": reset_success,
     })
 
-def create_shop_step1(request):
-    if request.method == "POST":
-        request.session["shop_step1"] = {
-            "nombre": request.POST.get("nombre"),
-            "telefono": request.POST.get("telefono"),
-            "email": request.POST.get("email"),
-            "departamento": request.POST.get("departamento"),
-            "municipio": request.POST.get("municipio"),
-        }
-        return redirect("usuarios:create_shop_step2")
-
-    return render(request, "create-shop.html")
-
-
-# PASO 2
-def create_shop_step2(request):
-    if request.method == "POST":
-        step1 = request.session.get("shop_step1")
-
-        Shop.objects.create(
-            owner=request.user if request.user.is_authenticated else None,
-            nombre=step1["nombre"],
-            telefono=step1["telefono"],
-            email=step1["email"],
-            departamento=step1["departamento"],
-            municipio=step1["municipio"],
-            horario=request.POST.get("horario"),
-            sitio_web=request.POST.get("sitio_web"),
-            descripcion=request.POST.get("descripcion"),
-        )
-
-        # borrar sesión
-        del request.session["shop_step1"]
-
-        return redirect("index")
-
-    return render(request, "create-shop2.html")

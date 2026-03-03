@@ -1,0 +1,54 @@
+<div class="messages">
+  <div class="messages__header">
+    <h2 class="messages__title">Bandeja de Mensajes</h2>
+    <p class="messages__subtitle">Mensajes recibidos de tus clientes</p>
+  </div>
+
+  <div class="messages__list">
+    {% for message in messages_received %}
+    <div class="messages__item">
+      <div class="messages__info">
+        <span class="messages__client">Cliente: {{ message.sender.first_name|default:message.sender.username }}</span>
+        <span class="messages__date">{{ message.created_at|date:"d \d\e F \d\e Y" }}</span>
+      </div>
+      <div class="messages__meta">
+        <span class="messages__status messages__status--{{ message.status }}">{{ message.get_status_display }}</span>
+      </div>
+
+      <div class="messages__conversation">
+        <div class="messages__bubble-wrap messages__bubble-wrap--client">
+          <span class="messages__bubble-label">Cliente</span>
+          <p class="messages__content messages__content--client">{{ message.content }}</p>
+          <span class="messages__bubble-time">{{ message.created_at|date:"d/m/Y H:i" }}</span>
+        </div>
+
+        {% for reply in message.farmer_replies.all %}
+        <div class="messages__bubble-wrap messages__bubble-wrap--farmer">
+          <span class="messages__bubble-label">Tu respuesta</span>
+          <p class="messages__content messages__content--farmer">{{ reply.content }}</p>
+          <span class="messages__bubble-time">{{ reply.created_at|date:"d/m/Y H:i" }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+      <form method="post" action="{% url 'mensajes:reply_message' message.id %}" class="messages__reply">
+        {% csrf_token %}
+        <textarea
+          name="reply"
+          class="messages__reply-text"
+          placeholder="Escribe tu respuesta..."
+          {% if message.status != 'rejected' %}required{% endif %}
+        ></textarea>
+        <div class="messages__row-buttons">
+          <button type="submit" name="action" value="reject" formnovalidate class="messages__row-buttons--back">Rechazar</button>
+          <button type="submit" name="action" value="reply" class="messages__row-buttons--next">Responder</button>
+        </div>
+      </form>
+    </div>
+    {% empty %}
+    <div class="messages__item">
+      <p class="messages__content">No tienes mensajes recibidos.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>

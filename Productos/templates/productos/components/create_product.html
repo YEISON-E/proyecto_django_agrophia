@@ -1,0 +1,74 @@
+{% load static %}
+
+<div class="product-form__content">
+  <div class="product-form__container">
+    <h2 class="product-form__subtitle">Subir producto</h2>
+  </div> 
+  <form id="create-product-step1-form" class="product-form" method="POST" enctype="multipart/form-data" action="{% url 'productos:create_product' %}">
+    {% csrf_token %}
+
+    <div class="product-form__upload">
+      <label for="input-fotos-producto" class="product-form__dropzone" id="dropzone-fotos-producto">
+        <strong>Arrastra imágenes aquí o haz clic para seleccionar</strong>
+        <span id="fotos-counter" class="product-form__counter">0/8 fotos cargadas</span>
+      </label>
+      <input id="input-fotos-producto" class="product-form_input--file" type="file" name="fotos" accept="image/*" multiple />
+      <div id="error-fotos-producto" class="input-error"{% if not errores.fotos %} style="display: none;"{% endif %}>{{ errores.fotos }}</div>
+      <div id="fotos-preview" class="product-form__preview-grid"></div>
+    </div>
+
+    <div class="product-form__fields">
+      <div class="product-form__body">
+        
+        <div class="product-form__group">
+          <label for="nombre-producto" class="product-form__label">Nombre del producto</label>
+          <input id="nombre-producto" name="nombre" type="text" class="product-form__input" placeholder="Ej: Tomates frescos" value="{{ valores.nombre|default:'' }}" required>
+          <div id="error-nombre-producto" class="input-error"{% if not errores.nombre %} style="display: none;"{% endif %}>{{ errores.nombre }}</div>
+        </div>
+
+        <div class="product-form__group">
+          <label for="tipo-producto" class="product-form__label">Tipo de producto</label>
+          <select id="tipo-producto" name="tipo" class="product-form__input" required>
+            <option value="" {% if not valores.tipo %}selected{% endif %}>-- Selecciona --</option>
+            <option value="Frutas" {% if valores.tipo == 'Frutas' %}selected{% endif %}>Frutas</option>
+            <option value="Vegetales" {% if valores.tipo == 'Vegetales' %}selected{% endif %}>Vegetales</option>
+            <option value="Lácteos" {% if valores.tipo == 'Lácteos' %}selected{% endif %}>Lácteos</option>
+            <option value="Carne" {% if valores.tipo == 'Carne' %}selected{% endif %}>Carne</option>
+            <option value="Granos" {% if valores.tipo == 'Granos' %}selected{% endif %}>Granos</option>
+            <option value="Otros" {% if valores.tipo == 'Otros' %}selected{% endif %}>Otros</option>
+          </select>
+          <div id="error-tipo-producto" class="input-error"{% if not errores.tipo %} style="display: none;"{% endif %}>{{ errores.tipo }}</div>
+        </div>
+
+        <div id="group-tipo-producto-otro" class="product-form__group"{% if valores.tipo != 'Otros' %} style="display: none;"{% endif %}>
+          <label for="tipo-producto-otro" class="product-form__label">Especifica el tipo</label>
+          <input id="tipo-producto-otro" name="tipo_otro" type="text" class="product-form__input" placeholder="Ej: Hierbas aromáticas" value="{{ valores.tipo_otro|default:'' }}">
+          <div id="error-tipo-producto-otro" class="input-error"{% if not errores.tipo_otro %} style="display: none;"{% endif %}>{{ errores.tipo_otro }}</div>
+        </div>
+
+        <div class="product-form__group">
+          <label for="unidad-producto" class="product-form__label">Unidad de medida</label>
+          <select id="unidad-producto" name="unidad" class="product-form__input" required>
+            <option value="" {% if not valores.unidad %}selected{% endif %}>-- Selecciona --</option>
+            <option value="Libra" {% if valores.unidad == 'Libra' %}selected{% endif %}>Libra</option>
+            <option value="Kilo" {% if valores.unidad == 'Kilo' %}selected{% endif %}>Kilo</option>
+            <option value="Arroba" {% if valores.unidad == 'Arroba' %}selected{% endif %}>Arroba</option>
+            <option value="Litro" {% if valores.unidad == 'Litro' %}selected{% endif %}>Litro</option>
+          </select>
+          <div id="error-unidad-producto" class="input-error"{% if not errores.unidad %} style="display: none;"{% endif %}>{{ errores.unidad }}</div>
+        </div>
+
+        
+
+        
+      </div>
+    </div>
+    </form>
+
+  <div class="product-form__row ">
+    <a href="{% url 'tiendas:interface_farmer' %}" class="product-form__row--back">Volver</a>
+    <button id="btn-next-step-producto" type="submit" form="create-product-step1-form" class="product-form__row--next">Siguiente</button>
+
+  </div>
+
+</div>

@@ -74,9 +74,9 @@ def update_perfil(request):
         valores.update(step1_session)
 
     if request.method == "POST":
-        tipo_documento = request.POST.get("tdocumento", "").strip()
-        identificacion = request.POST.get("identificacion", "").strip()
-        nombres = request.POST.get("nombres", "").strip()
+        tipo_documento = register_user.tipo_documento
+        identificacion = register_user.numero_documento
+        nombres = register_user.nombres
         apellidos = request.POST.get("apellidos", "").strip()
 
         valores = {
@@ -85,21 +85,6 @@ def update_perfil(request):
             "nombres": nombres,
             "apellidos": apellidos,
         }
-
-        if not tipo_documento:
-            errores["tdocumento"] = "El tipo de documento es obligatorio."
-
-        if not identificacion:
-            errores["identificacion"] = "El número de identificación es obligatorio."
-        elif not identificacion.isdigit() or len(identificacion) < 8 or len(identificacion) > 10:
-            errores["identificacion"] = "Número de documento incorrecto."
-        elif Register.objects.exclude(pk=register_user.pk).filter(numero_documento=identificacion).exists():
-            errores["identificacion"] = "Este número de documento ya está registrado."
-        elif User.objects.exclude(pk=request.user.pk).filter(username=identificacion).exists():
-            errores["identificacion"] = "Este número de documento ya está en uso."
-
-        if not nombres:
-            errores["nombres"] = "El nombre es obligatorio."
 
         if not apellidos:
             errores["apellidos"] = "El apellido es obligatorio."
@@ -167,7 +152,7 @@ def update_perfil2(request):
 
     if request.method == "POST":
         telefono = request.POST.get("telefono", "").strip()
-        email = request.POST.get("email", "").strip()
+        email = register_user.correo_electronico
         departamento = request.POST.get("departamento", "").strip()
         municipio = request.POST.get("municipio", "").strip()
         direccion = request.POST.get("direccion", "").strip()
@@ -190,19 +175,6 @@ def update_perfil2(request):
             errores["telefono"] = "Número de teléfono inválido."
         elif Register.objects.exclude(pk=register_user.pk).filter(telefono=telefono).exists():
             errores["telefono"] = "Este teléfono ya está registrado."
-
-        if not email:
-            errores["email"] = "El correo es obligatorio."
-        else:
-            try:
-                validate_email(email)
-            except ValidationError:
-                errores["email"] = "Correo electrónico inválido."
-
-        if email and Register.objects.exclude(pk=register_user.pk).filter(correo_electronico=email).exists():
-            errores["email"] = "Este correo ya está registrado."
-        elif email and User.objects.exclude(pk=request.user.pk).filter(email=email).exists():
-            errores["email"] = "Este correo ya está en uso."
 
         if not departamento:
             errores["departamento"] = "El departamento es obligatorio."

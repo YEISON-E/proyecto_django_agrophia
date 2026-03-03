@@ -4,15 +4,16 @@
     <div class="profile-update__row-informartion">
 
      
-      <form class="profile-update__form2" method="post" action="{% url 'usuarios:update_perfil2' %}" novalidate>
+      <form class="formulario2updateperfil" method="post" action="{% url 'usuarios:update_perfil2' %}" novalidate>
         {% csrf_token %}
+        <div class="profile-update__form2">
 
-         <div class="profile-update__group">
-             <label class="profile-update__label" for="input-telefono">Teléfono</label>
-             <input id="input-telefono" class="profile-update__input" type="tel" name="telefono" value="{{ valores.telefono }}" placeholder="315678934" autocomplete="tel" pattern="[0-9]{7,15}" required />
-           {% if errores.telefono %}<div class="input-error">{{ errores.telefono }}</div>{% endif %}
-         </div>
-        
+          <div class="profile-update__group">
+            <label class="profile-update__label" for="input-telefono">Teléfono</label>
+            <input id="input-telefono" class="profile-update__input" type="tel" name="telefono" value="{{ valores.telefono }}" placeholder="315678934" autocomplete="tel" pattern="[0-9]{7,15}" required />
+            {% if errores.telefono %}<div class="input-error">{{ errores.telefono }}</div>{% endif %}
+          </div>
+          
         <div class="profile-update__group">
           <label class="profile-update__label" for="input-email">Correo Electrónico</label>
           <input id="input-email" class="profile-update__input" type="email" name="email" value="{{ valores.email }}" placeholder="breinermorales@agrophia.com" autocomplete="email" required />
@@ -71,10 +72,13 @@
           {% if errores.new_password %}<div class="input-error">{{ errores.new_password }}</div>{% endif %}
           
         </div>
-
-        <a href="{% url 'usuarios:update_perfil' %}" class="profile-update__row-buttons__back">Volver</a>
+      </div>
         <div class="profile-update__row-buttons">
-          <button id="btn-save" class="profile-update__row-buttons__save" type="submit">Guardar Cambios</button>
+          
+          <a href="{% url 'usuarios:update_perfil' %}" class="profile-update__row-buttons__back">Volver</a>
+          <div class="profile-update__row-buttons">
+            <button id="btn-save" class="profile-update__row-buttons__save" type="submit">Guardar Cambios</button>
+          </div>
         </div>
       </form>
       
@@ -89,4 +93,3 @@
 <div class="profile-update__message" id="success-message">
   ✅ Cambios guardados exitosamente
 </div>
-

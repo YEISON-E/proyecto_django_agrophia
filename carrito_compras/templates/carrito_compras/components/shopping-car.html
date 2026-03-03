@@ -3,22 +3,36 @@
 <div class="cart">
   <h2 class="cart__title">Carrito de Compras - Productos Agrícolas</h2>
 
+  {% if cart_items %}
   <div class="cart__container">
     <div class="cart__table">
 
-      <!-- FILA 1 -->
+      {% for item in cart_items %}
       <div class="cart__content">
+        <form method="post" action="{% url 'carrito_compras:remove_from_cart' item.product.id %}" class="cart__remove-form">
+          {% csrf_token %}
+          <button type="submit" class="cart__remove-btn" aria-label="Eliminar producto" title="Eliminar producto">×</button>
+        </form>
+        <div class="cart__image-container">
+          {% if item.image_url %}
+            <img src="{{ item.image_url }}" alt="{{ item.product.nombre }}" class="cart__image" />
+          {% else %}
+            <div class="cart__image cart__image--empty">Sin imagen</div>
+          {% endif %}
+        </div>
+
+        <div class="cart__info">
         <div class="cart__row">
 
           <div class="cart__row--1">
             <div class="cart__cell" data-label="Producto">
               <label class="cart__label">Producto</label>
-              <div class="cart__value">Tomates</div>
+              <div class="cart__value">{{ item.product.nombre }}</div>
             </div>
             
             <div class="cart__cell" data-label="Precio Unidad">
               <label class="cart__label">Precio Unidad</label>
-              <div class="cart__value">$2.500</div>
+              <div class="cart__value">$ {{ item.product.precio }}</div>
             </div>
           </div>
           
@@ -26,102 +40,29 @@
             
             <div class="cart__cell" data-label="Tipo">
               <label class="cart__label">Tipo</label>
-              <div class="cart__value">Verdura</div>
+              <div class="cart__value">{{ item.product.tipo }}</div>
             </div>
             
             <div class="cart__cell" data-label="Cantidad">
               <label class="cart__label">Cantidad</label>
-              <input type="number" class="cart__input" min="1" value="2" />
+              <input type="number" class="cart__input" min="1" value="{{ item.quantity }}" readonly />
             </div>
           </div>
           
         </div>
-          <div class="cart__cell cart__actions" data-label="Acciones">
-            <div class="cart__actions--row">
-              <button class="cart__btn cart__btn--edit">Confirmar</button>
-              <button class="cart__btn cart__btn--cancel">Cancelar</button>
-            </div>
+          <div class="cart__cell" data-label="Subtotal">
+            <label class="cart__label">Subtotal</label>
+            <div class="cart__value">$ {{ item.subtotal }}</div>
           </div>
+        </div>
       </div>
-      <div class="cart__content">
-        <div class="cart__row">
+      {% endfor %}
 
-          <div class="cart__row--1">
-            <div class="cart__cell" data-label="Producto">
-              <label class="cart__label">Producto</label>
-              <div class="cart__value">Tomates</div>
-            </div>
-            
-            <div class="cart__cell" data-label="Precio Unidad">
-              <label class="cart__label">Precio Unidad</label>
-              <div class="cart__value">$2.500</div>
-            </div>
-          </div>
-          
-          <div class="cart__row--2">
-            
-            <div class="cart__cell" data-label="Tipo">
-              <label class="cart__label">Tipo</label>
-              <div class="cart__value">Verdura</div>
-            </div>
-            
-            <div class="cart__cell" data-label="Cantidad">
-              <label class="cart__label">Cantidad</label>
-              <input type="number" class="cart__input" min="1" value="2" />
-            </div>
-          </div>
-          
-        </div>
-          <div class="cart__cell cart__actions" data-label="Acciones">
-            <div class="cart__actions--row">
-              <button class="cart__btn cart__btn--edit">Confirmar</button>
-              <button class="cart__btn cart__btn--cancel">Cancelar</button>
-            </div>
-          </div>
-      </div>
-
-      <div class="cart__content">
-        <div class="cart__row">
-
-          <div class="cart__row--1">
-            <div class="cart__cell" data-label="Producto">
-              <label class="cart__label">Producto</label>
-              <div class="cart__value">Café</div>
-            </div>
-            
-            <div class="cart__cell" data-label="Precio Unidad">
-              <label class="cart__label">Precio Unidad</label>
-              <div class="cart__value">$8.000</div>
-            </div>
-          </div>
-          
-          <div class="cart__row--2">
-            <div class="cart__cell" data-label="Tipo">
-              <label class="cart__label">Tipo</label>
-              <div class="cart__value">Grano</div>
-            </div>
-            
-            <div class="cart__cell" data-label="Cantidad">
-              <label class="cart__label">Cantidad</label>
-              <input type="number" class="cart__input" min="1" value="1" />
-            </div>
-          </div>
-        </div>
-
-        <div class="cart__cell cart__actions" data-label="Acciones">
-          <div class="cart__actions--row">
-            <button class="cart__btn cart__btn--edit">Confirmar</button>
-            <button class="cart__btn cart__btn--cancel">Cancelar</button>
-          </div>
-        </div>
-
-      </div>
-      
     </div>
 
     <!-- TOTAL -->
     <div class="cart__summary">
-      <p class="cart__total">Total: <span class="cart__total-value">$13.000</span></p>
+      <p class="cart__total">Total: <span class="cart__total-value">$ {{ cart_total }}</span></p>
       <div class="cart__summary--options">
 
         <select name="payment-method" class="cart__summary--options__method-pay" required>
@@ -141,10 +82,17 @@
     </div>
   </div>
 
-
   <!-- BOTONES FINALES -->
   <div class="cart__actions-global">
     <a href="{% url 'usuarios:login_customer_user' %}" class="cart__btn cart__btn--back">Volver</a>
     <a href="{% url 'usuarios:login_customer_user' %}" class="cart__btn cart__btn--pay" id="cart-pay-btn">Pagar</a>
   </div>
+  {% else %}
+  <div class="cart__container">
+    <p class="cart__empty">No tienes productos en el carrito todavía.</p>
+    <div class="cart__actions-global">
+      <a href="{% url 'usuarios:login_customer_user' %}" class="cart__btn cart__btn--back">Ver productos</a>
+    </div>
+  </div>
+  {% endif %}
 </div>

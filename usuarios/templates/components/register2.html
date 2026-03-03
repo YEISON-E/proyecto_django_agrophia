@@ -53,7 +53,7 @@
     
     <div class="register__group-textarea">
           <label class="profile-update__label" for="input-descripcion">Descripción de perfil (opcional)</label>
-          <textarea id="input-direccion" class="register__textarea" type="text" name="descripcion" placeholder="Maximo 40 Caracteres" autocomplete="street-address">{{ valores.descripcion }}</textarea>
+          <textarea id="input-direccion" class="register__textarea" type="text" name="descripcion" placeholder="Máximo 120 caracteres" maxlength="120" autocomplete="street-address">{{ valores.descripcion }}</textarea>
           {% if errores.descripcion %}
           <div class="input-error">{{ errores.descripcion }}</div>
           {% endif %}

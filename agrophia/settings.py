@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'Tiendas',
     'Productos',
     'carrito_compras',
+    'Mensajes',
+    'Pedidos',
     # 'widget_tweaks',
 ]
 

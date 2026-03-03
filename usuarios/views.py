@@ -183,8 +183,8 @@ def update_perfil2(request):
         if not direccion:
             errores["direccion"] = "La dirección es obligatoria."
 
-        if len(descripcion) > 40:
-            errores["descripcion"] = "La descripción no debe superar 40 caracteres."
+        if len(descripcion) > 120:
+            errores["descripcion"] = "La descripción no debe superar 120 caracteres."
 
         if current_password or new_password:
             if not current_password:
@@ -284,6 +284,14 @@ def login_customer_user(request):
         "productos": productos,
     })
 
+
+@never_cache
+def mensajes_sends(request):
+    if not request.user.is_authenticated:
+        return redirect("usuarios:login")
+
+    return redirect("mensajes:sent_messages")
+
 def index(request):
     """Página pública principal. Si está autenticado, redirige al home interno."""
     if request.user.is_authenticated:
@@ -307,8 +315,8 @@ def legacy_frontend_view(request, page):
         "p_login-customer-vegetables.html": ("redirect", "usuarios:login_customer_user"),
         "p_login-customer-dairy.html": ("redirect", "usuarios:login_customer_user"),
         "shopping.html": ("redirect", "carrito_compras:shopping_cart"),
-        "mensajes_sends.html": ("redirect", "usuarios:login_customer_user"),
-        "my_orders.html": ("redirect", "usuarios:login_customer_user"),
+        "mensajes_sends.html": ("redirect", "mensajes:sent_messages"),
+        "my_orders.html": ("redirect", "pedidos:orders_client"),
         "contact.html": ("template", "contact.html"),
         "profile.html": ("redirect", "usuarios:profile"),
         "update_perfil.html": ("redirect", "usuarios:update_perfil"),
@@ -507,6 +515,10 @@ def register_step_2(request):
         # Validar que el teléfono no esté registrado
         if Register.objects.filter(telefono=telefono).exists():
             errores["telefono"] = "Este teléfono ya está registrado."
+
+        # Validar descripción de perfil
+        if len(descripcion) > 120:
+            errores["descripcion"] = "La descripción no debe superar 120 caracteres."
 
         # Si hay errores, retornar a la plantilla con los mensajes
         if errores:

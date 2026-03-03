@@ -15,7 +15,7 @@
           <a href="contact.html" class="navbar__link">Contacto</a>
         </li>
         <li class="navbar__item">
-          <a href="mensajes_farmer.html" class="navbar__link">Mensajes</a>
+          <a href="{% url 'mensajes:farmer_messages' %}" class="navbar__link">Mensajes</a>
         </li>
         <li class="navbar__item">
           <a href="{% url 'usuarios:logout' %}" class="navbar__link">Cerrar sesión</a>

@@ -42,6 +42,14 @@ def interface_farmer(request):
 
 
 @never_cache
+def mensajes_farmer(request):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	return redirect("mensajes:farmer_messages")
+
+
+@never_cache
 def create_product(request):
 	return redirect("productos:create_product")
 

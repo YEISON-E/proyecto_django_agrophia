@@ -28,8 +28,8 @@
     <p class="product-view__guarantee">Garantía: {{ product.garantia }}</p>
 
     <div class="product-view__buttons">
-      <a href="#" class="product-view__btn product-view__btn--add">Agregar al carrito</a>
-      <a href="#" class="product-view__btn product-view__btn--message">Enviar mensaje al vendedor</a>
+      <a href="{% url 'carrito_compras:add_to_cart' %}" class="product-view__btn product-view__btn--add" id="add-to-cart-from-description" data-product-id="{{ product.id }}">Agregar al carrito</a>
+      <button type="button" class="product-view__btn product-view__btn--message" id="open-seller-message-modal">Enviar mensaje al vendedor</button>
     </div>
 
     <div class="product-view__description">
@@ -52,5 +52,20 @@
         <li><strong>Entrega:</strong> {{ product.get_metodo_entrega_display }}</li>
       </ul>
     </div>
+  </div>
+</div>
+
+<div class="seller-message-modal" id="seller-message-modal" aria-hidden="true">
+  <div class="seller-message-modal__backdrop" id="seller-message-backdrop"></div>
+  <div class="seller-message-modal__content" role="dialog" aria-modal="true" aria-labelledby="seller-message-title">
+    <h2 class="seller-message-modal__title" id="seller-message-title">Mensaje al vendedor</h2>
+    <form id="seller-message-form" class="seller-message-modal__form" data-endpoint="{% url 'mensajes:send_message' %}" data-product-id="{{ product.id }}">
+      <label for="seller-message-text" class="seller-message-modal__label">Escribe tu mensaje</label>
+      <textarea id="seller-message-text" class="seller-message-modal__textarea" name="message" maxlength="500" placeholder="Hola, me interesa este producto..." required></textarea>
+      <div class="seller-message-modal__actions">
+        <button type="button" class="seller-message-modal__btn seller-message-modal__btn--secondary" id="close-seller-message-modal">Cancelar</button>
+        <button type="submit" class="seller-message-modal__btn seller-message-modal__btn--primary">Enviar</button>
+      </div>
+    </form>
   </div>
 </div>

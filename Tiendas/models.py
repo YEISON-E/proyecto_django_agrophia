@@ -17,6 +17,8 @@ class Shop(models.Model):
 
 	departamento = models.CharField(max_length=50)
 	municipio = models.CharField(max_length=50)
+	punto_fisico = models.BooleanField(default=True)
+	is_active = models.BooleanField(default=True)
 
 	horario = models.CharField(max_length=100)
 	direccion = models.CharField(max_length=255, blank=True, null=True)

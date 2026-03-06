@@ -22,7 +22,11 @@ def shopping_cart(request):
 		except (TypeError, ValueError):
 			continue
 
-	products = Product.objects.filter(id__in=product_ids).prefetch_related("images")
+	products = Product.objects.filter(
+		id__in=product_ids,
+		is_active=True,
+		shop__is_active=True,
+	).prefetch_related("images")
 	products_by_id = {product.id: product for product in products}
 
 	cart_items = []
@@ -73,7 +77,7 @@ def add_to_cart(request):
 		return JsonResponse({"ok": False, "message": "Producto inválido."}, status=400)
 
 	try:
-		product = Product.objects.get(pk=int(product_id))
+		product = Product.objects.get(pk=int(product_id), is_active=True, shop__is_active=True)
 	except (ValueError, Product.DoesNotExist):
 		return JsonResponse({"ok": False, "message": "Producto no encontrado."}, status=404)
 

@@ -84,14 +84,14 @@
 
   <!-- BOTONES FINALES -->
   <div class="cart__actions-global">
-    <a href="{% url 'usuarios:login_customer_user' %}" class="cart__btn cart__btn--back">Volver</a>
-    <a href="{% url 'usuarios:login_customer_user' %}" class="cart__btn cart__btn--pay" id="cart-pay-btn">Pagar</a>
+    <a href="{% url 'usuarios:home_customer' %}" class="cart__btn cart__btn--back">Volver</a>
+    <a href="{% url 'usuarios:home_customer' %}" class="cart__btn cart__btn--pay" id="cart-pay-btn">Pagar</a>
   </div>
   {% else %}
   <div class="cart__container">
     <p class="cart__empty">No tienes productos en el carrito todavía.</p>
     <div class="cart__actions-global">
-      <a href="{% url 'usuarios:login_customer_user' %}" class="cart__btn cart__btn--back">Ver productos</a>
+      <a href="{% url 'usuarios:home_customer' %}" class="cart__btn cart__btn--back">Ver productos</a>
     </div>
   </div>
   {% endif %}

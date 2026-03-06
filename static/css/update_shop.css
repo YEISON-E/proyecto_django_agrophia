@@ -24,11 +24,11 @@
 } */
 
 .shop-update__container {
-  padding: 0;
+  padding: 24px;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: auto;
   flex: 1; /* ocupa todo el espacio vertical restante */
 }
 
@@ -68,6 +68,33 @@
   flex-direction:column;
   gap:24px;
 
+}
+
+/* Paso 2 editar tienda: flujo compacto por defecto */
+#update-shop-step2-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+#update-shop-step2-form #update-shop-physical-fields {
+  display: none;
+}
+
+/* Si tiene punto fisico, usar 2 columnas y descripcion a ancho completo */
+#update-shop-step2-form.update-shop-step2--grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  align-items: start;
+}
+
+#update-shop-step2-form.update-shop-step2--grid #update-shop-physical-fields {
+  display: contents;
+}
+
+#update-shop-step2-form.update-shop-step2--grid .shop-update__textarea {
+  grid-column: 1 / -1;
 }
 
 .shop-update__group{

@@ -1,0 +1,14 @@
+{% load static %}
+
+<div class="card-disable">
+  {% with first_image=product.images.first %}
+    <img src="{% if first_image %}{{ first_image.image.url }}{% else %}{% static 'icons/planta.png' %}{% endif %}" alt="{{ product.nombre }}" class="card-disable__img">
+  {% endwith %}
+  <div class="card-disable__info">
+    <p class="card-disable__price">$ {{ product.precio }}</p>
+    <p class="card-disable__name">{{ product.nombre }}</p>
+  </div>
+  <div class="card-disable__button">
+    <a href="{% url 'productos:descripcion_product' product.id %}" class="card-disable__button-one">Ver detalle</a>
+  </div>
+</div>

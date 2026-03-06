@@ -8,7 +8,7 @@
 
     <div class="board__item">
         <img src="{% static 'icons/productos_deshabilitados.png' %}" alt="Productos deshabilitados" class="board__icon">
-        <button class="board__button">Productos deshabilitados</button>
+        <a href="{% url 'productos:disabled_products' %}" class="board__button">Productos deshabilitados</a>
     </div>
 
     <div class="board__item">

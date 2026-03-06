@@ -21,7 +21,7 @@
           <a href="{% url 'usuarios:logout' %}" class="navbar__link">Cerrar sesión</a>
         </li>
         <li class="navbar__item navbar__item--icon">
-          <a href="/frontend/public/views/profile_shop.html" class="navbar__link navbar__link--icon">
+          <a href="{% url 'tiendas:profile_shop' %}" class="navbar__link navbar__link--icon">
             <img src="{% static 'icons/user.svg' %}"
                   alt="Perfil de usuario"
                   class="navbar__icon"

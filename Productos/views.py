@@ -248,6 +248,24 @@ def descripcion_product(request, product_id):
 		pk=product_id,
 	)
 
+	if (not product.is_active or (product.shop and not product.shop.is_active)) and product.owner_id != request.user.id:
+		return redirect("usuarios:home_customer")
+
 	return render(request, "productos/descripcion_product.html", {
 		"product": product,
+	})
+
+
+@never_cache
+def disabled_products(request):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	productos = Product.objects.filter(
+		owner=request.user,
+		is_active=False,
+	).prefetch_related("images").order_by("-created_at")
+
+	return render(request, "productos/p-card_disable.html", {
+		"productos": productos,
 	})

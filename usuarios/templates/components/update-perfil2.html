@@ -8,6 +8,7 @@
      
       <form class="formulario2updateperfil" method="post" action="{% url 'usuarios:update_perfil2' %}" novalidate>
         {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url|default:'' }}" />
         <div class="profile-update__form2">
 
           <div class="profile-update__group">
@@ -77,7 +78,7 @@
       </div>
         <div class="profile-update__row-buttons">
           
-          <a href="{% url 'usuarios:update_perfil' %}" class="profile-update__row-buttons__back">Volver</a>
+          <a href="{% url 'usuarios:update_perfil' %}?next={{ next_url|urlencode }}" class="profile-update__row-buttons__back">Volver</a>
           <div class="profile-update__row-buttons">
             <button id="btn-save" class="profile-update__row-buttons__save" type="submit">Guardar Cambios</button>
           </div>

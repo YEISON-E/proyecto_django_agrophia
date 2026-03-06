@@ -106,6 +106,19 @@
   background: var(--gray-100, #f0f0f0);
 }
 
+.nav-menu__action-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: var(--black);
+  font: inherit;
+  cursor: pointer;
+}
+
+.nav-menu__action-button:hover {
+  text-decoration: underline;
+}
 .header-home__link {
   color: var(--primary-700);
   text-decoration: none;

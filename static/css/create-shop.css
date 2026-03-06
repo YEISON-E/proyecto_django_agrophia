@@ -69,6 +69,41 @@
 
 }
 
+/* Paso 2: mantener flujo vertical para evitar huecos cuando aparecen campos condicionales */
+#create-shop-step2-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+#create-shop-step2-form #shop-physical-fields {
+    display: none;
+}
+
+#create-shop-step2-form .form-shop__textarea {
+    width: 100%;
+}
+
+/* Cuando hay punto fisico, usar grid de 2 columnas para select + campos */
+#create-shop-step2-form.create-shop-step2--grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+}
+
+#create-shop-step2-form.create-shop-step2--grid #shop-physical-fields {
+    display: contents;
+}
+
+#create-shop-step2-form.create-shop-step2--grid .form-shop__textarea {
+    grid-column: 1 / -1;
+}
+
+#create-shop-step2-form.create-shop-step2--grid .input-error {
+    grid-column: 1 / -1;
+}
+
 .form-shop__group{
     margin: 0;
     display:flex;

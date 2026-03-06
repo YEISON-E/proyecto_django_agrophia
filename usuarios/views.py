@@ -12,6 +12,7 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import User
 
 from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -39,6 +40,26 @@ def _get_register_user(request):
         register_user = Register.objects.filter(numero_documento=request.user.username).first()
     return register_user
 
+
+def _resolve_safe_next_url(request, default_name="usuarios:profile"):
+    candidate = (
+        request.POST.get("next")
+        or request.GET.get("next")
+        or request.session.get("update_perfil_next")
+    )
+
+    if candidate and url_has_allowed_host_and_scheme(
+        url=candidate,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        request.session["update_perfil_next"] = candidate
+        return candidate
+
+    fallback = reverse(default_name)
+    request.session["update_perfil_next"] = fallback
+    return fallback
+
 @never_cache
 def profile(request):
     """Renderiza la vista de perfil con datos del usuario autenticado."""
@@ -60,6 +81,8 @@ def update_perfil(request):
     register_user = _get_register_user(request)
     if not register_user:
         return redirect("usuarios:profile")
+
+    next_url = _resolve_safe_next_url(request)
 
     errores = {}
     valores = {
@@ -108,6 +131,7 @@ def update_perfil(request):
                 "register_user": register_user,
                 "errores": errores,
                 "valores": valores,
+                "next_url": next_url,
             })
 
         request.session["update_perfil_step1"] = {
@@ -126,6 +150,7 @@ def update_perfil(request):
         "register_user": register_user,
         "valores": valores,
         "errores": errores,
+        "next_url": next_url,
     })
 
 @never_cache
@@ -137,6 +162,8 @@ def update_perfil2(request):
     register_user = _get_register_user(request)
     if not register_user:
         return redirect("usuarios:profile")
+
+    next_url = _resolve_safe_next_url(request)
 
     step1 = request.session.get("update_perfil_step1", {})
 
@@ -214,6 +241,7 @@ def update_perfil2(request):
                 "register_user": register_user,
                 "errores": errores,
                 "valores": valores,
+                "next_url": next_url,
             })
 
         tipo_documento = step1.get("tdocumento", register_user.tipo_documento)
@@ -259,12 +287,13 @@ def update_perfil2(request):
         request.session.pop("update_perfil_step1", None)
         request.session.pop("update_foto_temp_path", None)
 
-        return redirect("usuarios:profile")
+        return redirect(next_url)
 
     return render(request, "update-perfil2.html", {
         "register_user": register_user,
         "valores": valores,
         "errores": errores,
+        "next_url": next_url,
     })
 
 @never_cache
@@ -275,13 +304,21 @@ def login_customer_user(request):
     """
     if not request.user.is_authenticated:
         return redirect("usuarios:login")
-    if user_has_shop(request.user):
+
+    force_customer_home = request.session.pop("force_customer_home", False)
+    if user_has_shop(request.user) and not force_customer_home:
         return redirect("tiendas:interface_farmer")
 
-    productos = Product.objects.prefetch_related("images").order_by("-created_at")
+    productos = Product.objects.filter(
+        is_active=True,
+        shop__is_active=True,
+    ).prefetch_related("images").order_by("-created_at")
+
+    customer_home_notice = request.session.pop("customer_home_notice", "")
 
     return render(request, "login_customer_user.html", {
         "productos": productos,
+        "customer_home_notice": customer_home_notice,
     })
 
 
@@ -295,7 +332,7 @@ def mensajes_sends(request):
 def index(request):
     """Página pública principal. Si está autenticado, redirige al home interno."""
     if request.user.is_authenticated:
-        return redirect("usuarios:login_customer_user")
+        return redirect("usuarios:home_customer")
     return render(request, "index.html")
 
 def legacy_frontend_view(request, page):
@@ -311,9 +348,9 @@ def legacy_frontend_view(request, page):
         return redirect(target)
 
     legacy_routes = {
-        "p_login-customer.html": ("redirect", "usuarios:login_customer_user"),
-        "p_login-customer-vegetables.html": ("redirect", "usuarios:login_customer_user"),
-        "p_login-customer-dairy.html": ("redirect", "usuarios:login_customer_user"),
+        "p_login-customer.html": ("redirect", "usuarios:home_customer"),
+        "p_login-customer-vegetables.html": ("redirect", "usuarios:home_customer"),
+        "p_login-customer-dairy.html": ("redirect", "usuarios:home_customer"),
         "shopping.html": ("redirect", "carrito_compras:shopping_cart"),
         "mensajes_sends.html": ("redirect", "mensajes:sent_messages"),
         "my_orders.html": ("redirect", "pedidos:orders_client"),
@@ -410,7 +447,7 @@ class Logueo(LoginView):
 
         # LOGIN OK
         login(request, user)
-        return redirect("usuarios:login_customer_user")
+        return redirect("usuarios:home_customer")
 
 
 def register_step_1(request):

@@ -13,8 +13,39 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
+    const puntoFisicoSelect = document.getElementById("tiene_punto_fisico");
+    const physicalFields = document.getElementById("shop-physical-fields");
     const horaAperturaInput = document.getElementById("hora_apertura");
     const horaCierreInput = document.getElementById("hora_cierre");
+    const direccionInput = document.getElementById("direccion");
+
+    const usaPuntoFisico = () => puntoFisicoSelect?.value !== "no";
+
+    const togglePhysicalFields = () => {
+        const mostrar = usaPuntoFisico();
+
+        form.classList.toggle("create-shop-step2--grid", mostrar);
+        form.classList.toggle("show-physical-fields", mostrar);
+
+        if (physicalFields) {
+            physicalFields.style.display = "";
+        }
+
+        if (horaAperturaInput) {
+            horaAperturaInput.required = mostrar;
+        }
+        if (horaCierreInput) {
+            horaCierreInput.required = mostrar;
+        }
+        if (direccionInput) {
+            direccionInput.required = mostrar;
+        }
+
+        if (!mostrar) {
+            setError("error-hora-apertura", "");
+            setError("error-hora-cierre", "");
+        }
+    };
 
     // Helper para pintar errores inline
     const setError = (id, message) => {
@@ -33,6 +64,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Reglas de validación para el rango horario
     const validateHorario = () => {
+        if (!usaPuntoFisico()) {
+            setError("error-hora-apertura", "");
+            setError("error-hora-cierre", "");
+            return true;
+        }
+
         let hasErrors = false;
 
         const apertura = horaAperturaInput?.value || "";
@@ -61,8 +98,11 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // Validación en tiempo real al cambiar horas
+    puntoFisicoSelect?.addEventListener("change", togglePhysicalFields);
     horaAperturaInput?.addEventListener("input", validateHorario);
     horaCierreInput?.addEventListener("input", validateHorario);
+
+    togglePhysicalFields();
 
     // Previene submit si el horario es inválido
     form.addEventListener("submit", function (event) {

@@ -9,6 +9,19 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  const customerHomeNotice = document.getElementById("customer-home-notice");
+  if (customerHomeNotice) {
+    const noticeTotalDurationMs = 1500;
+    const noticeFadeDurationMs = 250;
+
+    window.setTimeout(() => {
+      customerHomeNotice.classList.add("flash-product-created--hide");
+      window.setTimeout(() => {
+        customerHomeNotice.remove();
+      }, noticeFadeDurationMs);
+    }, noticeTotalDurationMs - noticeFadeDurationMs);
+  }
+
   document.addEventListener("click", function (event) {
     const menuDetails = document.querySelector(".nav-menu details");
     if (!menuDetails) {

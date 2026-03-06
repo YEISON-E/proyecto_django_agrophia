@@ -28,7 +28,7 @@ def farmer_messages(request):
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 	if not user_has_shop(request.user):
-		return redirect("usuarios:login_customer_user")
+		return redirect("usuarios:home_customer")
 
 	messages_received = CustomerMessage.objects.select_related("product", "sender").filter(receiver=request.user)
 	messages_received = messages_received.prefetch_related("farmer_replies")
@@ -52,7 +52,11 @@ def send_message(request):
 		return JsonResponse({"ok": False, "message": "El mensaje no debe superar 500 caracteres."}, status=400)
 
 	try:
-		product = Product.objects.select_related("owner").get(pk=int(product_id))
+		product = Product.objects.select_related("owner", "shop").get(
+			pk=int(product_id),
+			is_active=True,
+			shop__is_active=True,
+		)
 	except (ValueError, Product.DoesNotExist):
 		return JsonResponse({"ok": False, "message": "Producto no encontrado."}, status=404)
 

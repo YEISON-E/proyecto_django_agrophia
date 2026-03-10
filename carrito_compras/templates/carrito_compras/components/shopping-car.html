@@ -1,98 +1,240 @@
 {% load static %}
 
 <div class="cart">
-  <h2 class="cart__title">Carrito de Compras - Productos Agrícolas</h2>
+  <h2 class="cart__title">Carrito de Compras</h2>
 
   {% if cart_items %}
-  <div class="cart__container">
-    <div class="cart__table">
+  <form method="post" action="{% url 'carrito_compras:checkout' %}" class="cart__checkout-form" id="cart-checkout-form">
+    {% csrf_token %}
 
-      {% for item in cart_items %}
-      <div class="cart__content">
-        <form method="post" action="{% url 'carrito_compras:remove_from_cart' item.product.id %}" class="cart__remove-form">
-          {% csrf_token %}
-          <button type="submit" class="cart__remove-btn" aria-label="Eliminar producto" title="Eliminar producto">×</button>
-        </form>
-        <div class="cart__image-container">
-          {% if item.image_url %}
-            <img src="{{ item.image_url }}" alt="{{ item.product.nombre }}" class="cart__image" />
-          {% else %}
-            <div class="cart__image cart__image--empty">Sin imagen</div>
+    <div class="cart__layout">
+
+      <!-- ══ COLUMNA IZQUIERDA: productos ══ -->
+      <div class="cart__items-col">
+        <h3 class="cart__col-title">Productos</h3>
+        <div class="cart__table">
+          {% for item in cart_items %}
+          <div class="cart__content">
+            <button
+              type="submit"
+              class="cart__remove-btn cart__remove-form"
+              aria-label="Eliminar producto"
+              title="Eliminar"
+              formaction="{% url 'carrito_compras:remove_from_cart' item.product.id %}"
+              formmethod="post"
+              formnovalidate
+            >×</button>
+
+            <div class="cart__image-container">
+              {% if item.image_url %}
+                <img src="{{ item.image_url }}" alt="{{ item.product.nombre }}" class="cart__image" />
+              {% else %}
+                <div class="cart__image cart__image--empty">Sin imagen</div>
+              {% endif %}
+            </div>
+
+            <div class="cart__info">
+              <div class="cart__row">
+                <div class="cart__cell">
+                  <span class="cart__label">Producto</span>
+                  <span class="cart__value">{{ item.product.nombre }}</span>
+                </div>
+                <div class="cart__cell">
+                  <span class="cart__label">Tipo</span>
+                  <span class="cart__value">{{ item.product.tipo }}</span>
+                </div>
+                <div class="cart__cell">
+                  <span class="cart__label">Precio / {{ item.product.get_unidad_display }}</span>
+                  <span class="cart__value">$ {{ item.product.precio }}</span>
+                </div>
+                <div class="cart__cell">
+                  <span class="cart__label">Cantidad</span>
+                  <div class="cart__quantity-display">
+                    <span class="cart__value">{{ item.quantity }} {{ item.product.get_unidad_display }}</span>
+                    <button
+                      type="button"
+                      class="cart__quantity-change"
+                      data-quantity-trigger
+                      data-product-id="{{ item.product.id }}"
+                      data-product-name="{{ item.product.nombre }}"
+                      data-current-quantity="{{ item.quantity }}"
+                      data-update-endpoint="{% url 'carrito_compras:update_cart_quantity' item.product.id %}"
+                    >Cambiar cantidad</button>
+                  </div>
+                </div>
+              </div>
+              <div class="cart__subtotal">
+                <span class="cart__label">Subtotal</span>
+                <span class="cart__value cart__value--price">$ {{ item.subtotal }}</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ══ COLUMNA DERECHA: checkout ══ -->
+      <div class="cart__checkout-col">
+
+        <!-- Total -->
+        <div class="cart__total-box">
+          <span class="cart__total-label">Total del pedido</span>
+          <span class="cart__total-value">$ {{ cart_total }}</span>
+        </div>
+
+        <!-- ─── Método de pago ─── -->
+        <div class="checkout__section">
+          <h3 class="checkout__section-title">Método de pago</h3>
+          <div class="checkout__options">
+
+            <label class="checkout__option-label" for="pay-card">
+              <input class="checkout__radio" type="radio" name="payment_method" value="Tarjeta" id="pay-card" required>
+              <div class="checkout__option-card">
+                <svg class="checkout__option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+                <span>Tarjeta</span>
+              </div>
+            </label>
+
+            <label class="checkout__option-label" for="pay-nequi">
+              <input class="checkout__radio" type="radio" name="payment_method" value="Nequi" id="pay-nequi" required>
+              <div class="checkout__option-card">
+                <svg class="checkout__option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <rect x="5" y="2" width="14" height="20" rx="2"/>
+                  <line x1="12" y1="18" x2="12" y2="18.5" stroke-linecap="round" stroke-width="2.5"/>
+                </svg>
+                <span>Nequi</span>
+              </div>
+            </label>
+
+          </div>
+
+          <!-- Detalle tarjeta (solo visual) -->
+          <div class="checkout__pay-detail" id="detail-card" hidden>
+            <div class="checkout__card-preview" id="card-preview">
+              <div class="checkout__card-chip"></div>
+              <div class="checkout__card-number" id="card-display-number">•••• •••• •••• ••••</div>
+              <div class="checkout__card-footer">
+                <span id="card-display-name">TITULAR</span>
+                <span id="card-display-expiry">MM/AA</span>
+              </div>
+            </div>
+            <div class="checkout__fields">
+              <div class="checkout__field-group">
+                <label class="checkout__field-label">Número de tarjeta</label>
+                <input class="checkout__field-input" id="card-number" type="text" inputmode="numeric"
+                  placeholder="1234 5678 9012 3456" maxlength="19" autocomplete="cc-number">
+              </div>
+              <div class="checkout__field-group">
+                <label class="checkout__field-label">Titular de la tarjeta</label>
+                <input class="checkout__field-input" id="card-name" type="text"
+                  placeholder="NOMBRE APELLIDO" autocomplete="cc-name">
+              </div>
+              <div class="checkout__fields-row">
+                <div class="checkout__field-group">
+                  <label class="checkout__field-label">Fecha de expiración</label>
+                  <input class="checkout__field-input" id="card-expiry" type="text" inputmode="numeric"
+                    placeholder="MM/AA" maxlength="5" autocomplete="cc-exp">
+                </div>
+                <div class="checkout__field-group">
+                  <label class="checkout__field-label">CVC</label>
+                  <input class="checkout__field-input checkout__field-input--cvc" id="card-cvc" type="password"
+                    placeholder="•••" maxlength="4" autocomplete="cc-csc">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Detalle Nequi (solo visual) -->
+          <div class="checkout__pay-detail" id="detail-nequi" hidden>
+            <div class="checkout__nequi-box">
+              <div class="checkout__nequi-logo">Nequi</div>
+              <p class="checkout__nequi-text">Ingresa el número de celular vinculado a tu cuenta Nequi</p>
+              <div class="checkout__field-group">
+                <label class="checkout__field-label">Número de celular</label>
+                <input class="checkout__field-input" id="nequi-phone" type="tel" inputmode="numeric"
+                  placeholder="300 000 0000" maxlength="12">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Método de entrega ─── -->
+        <div class="checkout__section">
+          <h3 class="checkout__section-title">Método de entrega</h3>
+          <div class="checkout__options">
+
+            <label class="checkout__option-label {% if not can_pickup_in_store %}checkout__option-label--disabled{% endif %}" for="del-store">
+              <input class="checkout__radio" type="radio" name="delivery_method" value="Recogido en tienda" id="del-store" required {% if not can_pickup_in_store %}disabled{% endif %}>
+              <div class="checkout__option-card">
+                <svg class="checkout__option-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                <span>Recoger en tienda</span>
+              </div>
+            </label>
+
+            <label class="checkout__option-label" for="del-home">
+              <input class="checkout__radio" type="radio" name="delivery_method" value="Envío a domicilio" id="del-home" required>
+              <div class="checkout__option-card">
+                <img src="{% static 'icons/truck.svg' %}" class="checkout__option-icon" alt="Domicilio">
+                <span>Domicilio</span>
+              </div>
+            </label>
+
+          </div>
+
+          {% if not can_pickup_in_store %}
+          <p class="checkout__helper-text">La recogida en tienda solo está disponible cuando todos los productos pertenecen a tiendas con punto físico.</p>
           {% endif %}
-        </div>
 
-        <div class="cart__info">
-        <div class="cart__row">
-
-          <div class="cart__row--1">
-            <div class="cart__cell" data-label="Producto">
-              <label class="cart__label">Producto</label>
-              <div class="cart__value">{{ item.product.nombre }}</div>
-            </div>
-            
-            <div class="cart__cell" data-label="Precio Unidad">
-              <label class="cart__label">Precio Unidad</label>
-              <div class="cart__value">$ {{ item.product.precio }}</div>
+          <!-- Detalle recogida en tienda -->
+          <div class="checkout__delivery-detail" id="detail-store" hidden>
+            <div class="checkout__store-info">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="20" height="20">
+                <circle cx="12" cy="10" r="3"/>
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+              </svg>
+              <p>Pasarás por la tienda del vendedor a recoger tu pedido. El agricultor te informará la ubicación exacta.</p>
             </div>
           </div>
-          
-          <div class="cart__row--2">
-            
-            <div class="cart__cell" data-label="Tipo">
-              <label class="cart__label">Tipo</label>
-              <div class="cart__value">{{ item.product.tipo }}</div>
-            </div>
-            
-            <div class="cart__cell" data-label="Cantidad">
-              <label class="cart__label">Cantidad</label>
-              <input type="number" class="cart__input" min="1" value="{{ item.quantity }}" readonly />
+
+          <!-- Detalle domicilio -->
+          <div class="checkout__delivery-detail" id="detail-home" hidden>
+            <div class="checkout__field-group">
+              <label class="checkout__field-label">Dirección de entrega</label>
+              <input class="checkout__field-input" type="text" name="delivery_address"
+                placeholder="Ej: Calle 45 # 23-10, Bogotá"
+                value="{{ user_address }}" autocomplete="street-address">
+              {% if user_address %}
+              <small class="checkout__field-hint">Dirección de tu perfil. Puedes modificarla.</small>
+              {% endif %}
             </div>
           </div>
-          
+
         </div>
-          <div class="cart__cell" data-label="Subtotal">
-            <label class="cart__label">Subtotal</label>
-            <div class="cart__value">$ {{ item.subtotal }}</div>
-          </div>
+
+        <!-- ─── Botones ─── -->
+        <div class="cart__actions-global">
+          <a href="{% url 'usuarios:home_customer' %}" class="cart__btn cart__btn--back">Volver</a>
+          <button type="submit" class="cart__btn cart__btn--pay">Confirmar pedido</button>
         </div>
-      </div>
-      {% endfor %}
 
-    </div>
-
-    <!-- TOTAL -->
-    <div class="cart__summary">
-      <p class="cart__total">Total: <span class="cart__total-value">$ {{ cart_total }}</span></p>
-      <div class="cart__summary--options">
-
-        <select name="payment-method" class="cart__summary--options__method-pay" required>
-          <option value="">-- Método de pago --</option>
-          <option value="pago contra entrega">Pago contra entrega</option>
-          <option value="pago de contado">Pago de contado</option>
-          <option value="transferencia">Transferencia</option>
-        </select>
-        
-        <select  name="shipping-method" class="cart__summary--options__method-send" required>
-          <option value="">-- Método de envío --</option>
-          <option value="envio a domicilio">Envío a domicilio</option>
-          <option value="recogido en tienda">Recogido en tienda</option>
-          <option value="entrega bajo cita">Entrega bajo cita</option>
-        </select>
       </div>
     </div>
-  </div>
+  </form>
 
-  <!-- BOTONES FINALES -->
-  <div class="cart__actions-global">
-    <a href="{% url 'usuarios:home_customer' %}" class="cart__btn cart__btn--back">Volver</a>
-    <a href="{% url 'usuarios:home_customer' %}" class="cart__btn cart__btn--pay" id="cart-pay-btn">Pagar</a>
-  </div>
   {% else %}
-  <div class="cart__container">
+  <div class="cart__empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="56" height="56">
+      <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+      <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+    </svg>
     <p class="cart__empty">No tienes productos en el carrito todavía.</p>
-    <div class="cart__actions-global">
-      <a href="{% url 'usuarios:home_customer' %}" class="cart__btn cart__btn--back">Ver productos</a>
-    </div>
+    <a href="{% url 'usuarios:home_customer' %}" class="cart__btn cart__btn--back">Ver productos</a>
   </div>
   {% endif %}
 </div>

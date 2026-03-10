@@ -9,9 +9,7 @@
     <p class="card-farmer__name">{{ product.nombre }}</p>
   </div>
     <div class="card-homefarmer__button">
-      <a href="/frontend/public/views/update_product.html">
-      <button class="card-farmer__button-one">Editar producto</button>
-      </a>
-      <a href="/frontend/public/views/review_product_farmer.html" class="card-homefarmer__button-two">Ver reseñas</a>
+      <a href="{% url 'productos:update_product' product.id %}" class="card-farmer__button-one">Editar producto</a>
+      <a href="{% url 'productos:review_product_farmer' product.id %}" class="card-homefarmer__button-two">Visualizar</a>
     </div>
 </div>

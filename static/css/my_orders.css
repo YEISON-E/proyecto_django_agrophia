@@ -67,6 +67,10 @@
   color: var(--secundary-500);
 }
 
+.orders__status--cancelled {
+  color: #c0392b;
+}
+
 .orders__details {
   border-top: 1px solid #ddd;
   padding-top: 10px;
@@ -100,4 +104,108 @@
   font-weight: bold;
   color: var(--primary-700);
   margin-top: 8px;
+}
+
+.orders__farmer {
+  font-size: var(--fs-xxxs);
+  color: var(--gray-600);
+  margin-top: 8px;
+  text-align: right;
+}
+
+.orders__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.orders__meta-item {
+  font-size: var(--fs-xxxs);
+  color: var(--gray-600);
+  background-color: var(--gray-100);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+.orders__empty {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--gray-600);
+  font-size: var(--fs-xs);
+}
+
+.orders__address {
+  font-size: var(--fs-xxxs);
+  color: var(--gray-600);
+  margin-top: 4px;
+}
+
+/* ── Cancel window & actions ──────────────────── */
+.orders__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #eee;
+}
+
+.orders__cancel-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-right: auto;
+}
+
+.orders__countdown-label {
+  font-size: var(--fs-xxxs);
+  color: var(--gray-600);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.orders__countdown {
+  font-weight: 700;
+  color: var(--secundary-500, #e67e22);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
+.orders__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: var(--fs-xxxs);
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity 0.15s;
+  line-height: 1;
+}
+.orders__btn:hover { opacity: 0.8; }
+
+.orders__btn--cancel {
+  background: #fdecea;
+  color: #c0392b;
+  border: 1px solid #f5c6c3;
+}
+
+.orders__btn--receipt {
+  background: var(--primary-100, #e6f4e6);
+  color: var(--primary-700, #008000);
+  border: 1px solid var(--primary-300, #80c080);
+}
+
+/* ── Status: confirmed ────────────────────────── */
+.orders__status--confirmed {
+  color: #1a6da8;
 }

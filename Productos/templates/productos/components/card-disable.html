@@ -9,6 +9,10 @@
     <p class="card-disable__name">{{ product.nombre }}</p>
   </div>
   <div class="card-disable__button">
-    <a href="{% url 'productos:descripcion_product' product.id %}" class="card-disable__button-one">Ver detalle</a>
+    <a href="{% url 'productos:review_product_farmer' product.id %}" class="card-disable__button-one">Ver detalle</a>
+    <form method="post" action="{% url 'productos:activate_product' product.id %}" data-enable-product-form>
+      {% csrf_token %}
+      <button type="submit" class="card-disable__button-two">Habilitar</button>
+    </form>
   </div>
 </div>

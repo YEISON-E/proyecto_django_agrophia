@@ -13,11 +13,11 @@
 
     <div class="board__item">
         <img src="{% static 'icons/pedidos.png' %}" alt="pedidos" width="48px" height="48px" class="board__icon">
-        <button class="board__button">Pedidos</button>
+        <a href="{% url 'pedidos:orders_farmer' %}" class="board__button">Pedidos</a>
     </div>
 
    <div class="board__item">
         <img src="{% static 'icons/ver_productos.jpeg' %}" alt="Ver productos" class="board__icon">
-        <button class="board__button">Ver productos publicados</button>
+        <a href="{% url 'tiendas:interface_farmer' %}" class="board__button">Ver productos publicados</a>
     </div>
 </section>

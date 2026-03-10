@@ -3,6 +3,8 @@ from django.urls import path
 from .views import (
     create_farmer_perfil,
     interface_farmer,
+    review_product_farmer,
+    disable_product_farmer,
     profile_shop,
     disable_shop,
     activate_shop,
@@ -19,6 +21,8 @@ app_name = "tiendas"
 
 urlpatterns = [
     path("interface-farmer/", interface_farmer, name="interface_farmer"),
+    path("review-product-farmer/<int:product_id>/", review_product_farmer, name="review_product_farmer"),
+    path("review-product-farmer/<int:product_id>/disable/", disable_product_farmer, name="disable_product_farmer"),
     path("profile-shop/", profile_shop, name="profile_shop"),
     path("disable-shop/", disable_shop, name="disable_shop"),
     path("activate-shop/", activate_shop, name="activate_shop"),

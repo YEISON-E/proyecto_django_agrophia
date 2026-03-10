@@ -1,39 +1,30 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio Agricultor</title>
+    <title>Editar producto</title>
     <link rel="icon" href="{% static 'icons/planta.png' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/navbar-store.css' %}">
+    <script src="{% static 'js/components/update_product.js' %}" defer></script>
 </head>
 <body>
     <div class="govco-container__one">
         {% include 'components/gov-co__one.html' %}
     </div>
+
     {% include 'tiendas/components/navbar-store.html' %}
 
-    <div class="layout__interface-farmer">
-        <section class="board-container">
-            {% include 'tiendas/components/interface-farmer_options.html' %}
-        </section>
-        <section class="search__container-index"></section>
-        <section class="card-farmer__container-section">
-            <div class="card-farmer__container">
-                {% for product in productos %}
-                    {% include 'productos/components/card-home-farmer.html' with product=product %}
-                {% empty %}
-                    <p class="card-farmer__empty">Aún no tienes productos publicados.</p>
-                {% endfor %}
-            </div>
-        </section>
+    <div class="producto-form__body">
+        {% include 'productos/components/update_product.html' %}
     </div>
 
     <footer class="footer-container">
         {% include 'components/footer.html' %}
     </footer>
+
     <div class="govco-container__two">
         {% include 'components/gov-co__one.html' %}
     </div>

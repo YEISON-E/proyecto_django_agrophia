@@ -188,17 +188,26 @@
   gap: 12px;
 }
 
+.profile__subcontainer-actions form {
+  width: 100%;
+}
+
 .profile__actions--back{
   display: flex;
+  width: 100%;
+  box-sizing: border-box;
   background-color: var(--gray-700);
   color: var(--white);
   padding: 12px 24px;
   font-size: var(--fs-xs);
+  font-family: inherit;
   text-decoration: none;
+  border: none;
   border-radius: 12px;
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 .profile__actions--back:hover{
   opacity: 60%;

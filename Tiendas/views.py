@@ -63,6 +63,24 @@ def interface_farmer(request):
 
 
 @never_cache
+def review_product_farmer(request, product_id):
+	return redirect("productos:review_product_farmer", product_id=product_id)
+
+
+@require_POST
+@never_cache
+def disable_product_farmer(request, product_id):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	product = get_object_or_404(Product, pk=product_id, owner=request.user)
+	product.is_active = False
+	product.save(update_fields=["is_active"])
+
+	return redirect("tiendas:interface_farmer")
+
+
+@never_cache
 def profile_shop(request):
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")

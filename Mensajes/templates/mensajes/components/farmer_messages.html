@@ -4,51 +4,77 @@
     <p class="messages__subtitle">Mensajes recibidos de tus clientes</p>
   </div>
 
-  <div class="messages__list">
-    {% for message in messages_received %}
-    <div class="messages__item">
-      <div class="messages__info">
-        <span class="messages__client">Cliente: {{ message.sender.first_name|default:message.sender.username }}</span>
-        <span class="messages__date">{{ message.created_at|date:"d \d\e F \d\e Y" }}</span>
+  <div class="messages__layout {% if selected_conversation %}messages__layout--chat-open{% endif %}">
+    <aside class="messages__contacts">
+      <div class="messages__contacts-head">Conversaciones</div>
+      <div class="messages__contacts-list">
+        {% for chat in conversations %}
+        <a href="{% url 'mensajes:farmer_messages' %}?chat={{ chat.sender.id }}" class="messages__contact {% if selected_chat_id == chat.sender.id %}messages__contact--active{% endif %}">
+          <div class="messages__contact-main">
+            <span class="messages__contact-name">{{ chat.sender.first_name|default:chat.sender.username }}</span>
+            <span class="messages__contact-date">{{ chat.last_message_at|date:"d/m/Y" }}</span>
+          </div>
+          <div class="messages__contact-meta">
+            <span class="messages__contact-preview">{{ chat.last_preview|default:"Sin mensajes" }}</span>
+            {% if chat.unread_count > 0 %}
+            <span class="messages__contact-badge" title="Mensajes pendientes">{{ chat.unread_count }}</span>
+            {% endif %}
+          </div>
+        </a>
+        {% empty %}
+        <div class="messages__empty-chatlist">Aún no tienes conversaciones.</div>
+        {% endfor %}
       </div>
-      <div class="messages__meta">
-        <span class="messages__status messages__status--{{ message.status }}">{{ message.get_status_display }}</span>
-      </div>
+    </aside>
+
+    <section class="messages__chat-panel">
+      {% if selected_conversation %}
+      <header class="messages__chat-header">
+        <a href="{% url 'mensajes:farmer_messages' %}" class="messages__chat-back" aria-label="Volver a conversaciones">Volver</a>
+        <div>
+          <h3 class="messages__chat-title">{{ selected_conversation.sender.first_name|default:selected_conversation.sender.username }}</h3>
+          <p class="messages__chat-subtitle">{{ selected_messages|length }} mensaje{{ selected_messages|length|pluralize }}</p>
+        </div>
+      </header>
 
       <div class="messages__conversation">
-        <div class="messages__bubble-wrap messages__bubble-wrap--client">
-          <span class="messages__bubble-label">Cliente</span>
-          <p class="messages__content messages__content--client">{{ message.content }}</p>
-          <span class="messages__bubble-time">{{ message.created_at|date:"d/m/Y H:i" }}</span>
-        </div>
+        {% for message in selected_messages %}
+        <article class="messages__thread">
+          <div class="messages__info">
+            <span class="messages__date">{{ message.created_at|date:"d \d\e F \d\e Y" }}</span>
+            <span class="messages__status messages__status--{{ message.status }}">{{ message.get_status_display }}</span>
+          </div>
 
-        {% for reply in message.farmer_replies.all %}
-        <div class="messages__bubble-wrap messages__bubble-wrap--farmer">
-          <span class="messages__bubble-label">Tu respuesta</span>
-          <p class="messages__content messages__content--farmer">{{ reply.content }}</p>
-          <span class="messages__bubble-time">{{ reply.created_at|date:"d/m/Y H:i" }}</span>
-        </div>
+          <div class="messages__bubble-wrap messages__bubble-wrap--client">
+            <span class="messages__bubble-label">Cliente</span>
+            <p class="messages__content messages__content--client">{{ message.content }}</p>
+            <span class="messages__bubble-time">{{ message.created_at|date:"d/m/Y H:i" }}</span>
+          </div>
+
+          {% for reply in message.farmer_replies.all %}
+          <div class="messages__bubble-wrap messages__bubble-wrap--farmer">
+            <span class="messages__bubble-label">Tu respuesta</span>
+            <p class="messages__content messages__content--farmer">{{ reply.content }}</p>
+            <span class="messages__bubble-time">{{ reply.created_at|date:"d/m/Y H:i" }}</span>
+          </div>
+          {% endfor %}
+        </article>
         {% endfor %}
       </div>
 
-      <form method="post" action="{% url 'mensajes:reply_message' message.id %}" class="messages__reply">
+      <form method="post" action="{% url 'mensajes:reply_conversation' selected_conversation.sender.id %}" class="messages__reply messages__reply--composer">
         {% csrf_token %}
-        <textarea
-          name="reply"
-          class="messages__reply-text"
-          placeholder="Escribe tu respuesta..."
-          {% if message.status != 'rejected' %}required{% endif %}
-        ></textarea>
+        <textarea name="reply" class="messages__reply-text" placeholder="Escribe tu respuesta para este chat..." required></textarea>
         <div class="messages__row-buttons">
-          <button type="submit" name="action" value="reject" formnovalidate class="messages__row-buttons--back">Rechazar</button>
-          <button type="submit" name="action" value="reply" class="messages__row-buttons--next">Responder</button>
+          <button type="submit" name="action" value="reject" formnovalidate class="messages__row-buttons--back">Rechazar pendientes</button>
+          <button type="submit" name="action" value="reply" class="messages__row-buttons--next">Responder chat</button>
         </div>
       </form>
-    </div>
-    {% empty %}
-    <div class="messages__item">
-      <p class="messages__content">No tienes mensajes recibidos.</p>
-    </div>
-    {% endfor %}
+      {% else %}
+      <div class="messages__empty-state">
+        <p>Selecciona una conversación para ver el chat.</p>
+      </div>
+      {% endif %}
+    </section>
   </div>
 </div>

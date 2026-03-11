@@ -91,6 +91,11 @@ tr:nth-child(even) {
     color: #166534;
 }
 
+.tableorder__status--confirmed {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
 .tableorder__status--cancelled {
     background-color: #fee4e2;
     color: #b42318;
@@ -120,6 +125,16 @@ tr:nth-child(even) {
     color: var(--white);
     font-size: var(--fs-xxxs);
     font-weight: 600;
+}
+
+.tableorder__action--view {
+    width: 34px;
+    min-width: 34px;
+    padding: 0;
+    background-color: #eef2ff;
+    color: #1d4ed8;
+    border: 1px solid #c7d2fe;
+    text-decoration: none;
 }
 
 .tableorder__action-form {

@@ -13,33 +13,20 @@
                     <th>Cliente</th>
                     <th>Fecha</th>
                     <th>Pedido</th>
-                    <th>Producto</th>
-                    <th>Tipo</th>
-                    <th>Cantidad</th>
-                    <th>Subtotal</th>
-                    <th>Pago</th>
-                    <th>Envío</th>
-                    <th>Dirección</th>
+                    <th>Total</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for order in orders %}
-                {% for item in order.my_items %}
                 <tr>
                     <td class="tableorder__user">{{ order.customer.get_full_name|default:order.customer.username }}</td>
                     <td>{{ order.created_at|date:"d/m/Y" }}</td>
                     <td>#{{ order.id }}</td>
-                    <td>{{ item.product.nombre }}</td>
-                    <td>{% if item.product.tipo == 'Otros' and item.product.tipo_otro %}{{ item.product.tipo_otro }}{% else %}{{ item.product.get_tipo_display }}{% endif %}</td>
-                    <td>{{ item.quantity }} {{ item.product.get_unidad_display }}</td>
-                    <td class="tableorder__amount">${{ item.subtotal }}</td>
-                    <td>{{ order.payment_method|default:"-" }}</td>
-                    <td>{{ order.delivery_method|default:"-" }}</td>
-                    <td>{{ order.delivery_address|default:"-" }}</td>
+                    <td class="tableorder__amount">${{ order.total_amount }}</td>
                     <td>
-                        <span class="tableorder__status {% if order.status == 'completed' %}tableorder__status--done{% elif order.status == 'cancelled' %}tableorder__status--cancelled{% else %}tableorder__status--pending{% endif %}">
+                        <span class="tableorder__status {% if order.status == 'completed' %}tableorder__status--done{% elif order.status == 'cancelled' %}tableorder__status--cancelled{% elif order.status == 'confirmed' %}tableorder__status--confirmed{% else %}tableorder__status--pending{% endif %}">
                             {{ order.get_status_display }}
                         </span>
                     </td>
@@ -55,13 +42,15 @@
                             <button class="tableorder__action tableorder__action--save" type="submit" title="Actualizar estado">
                                 Guardar
                             </button>
+                            <a href="{% url 'pedidos:order_farmer_detail' order.id %}" class="tableorder__action tableorder__action--view" title="Visualizar detalles del pedido {{ order.id }}" aria-label="Visualizar pedido {{ order.id }}">
+                                <img src="{% static 'icons/list-details.svg' %}" alt="" class="tableorder__icon" aria-hidden="true">
+                            </a>
                         </form>
                     </td>
                 </tr>
-                {% endfor %}
                 {% empty %}
                 <tr>
-                    <td colspan="12" class="tableorder__empty">Aun no tienes pedidos para gestionar.</td>
+                    <td colspan="6" class="tableorder__empty">Aun no tienes pedidos para gestionar.</td>
                 </tr>
                 {% endfor %}
             </tbody>

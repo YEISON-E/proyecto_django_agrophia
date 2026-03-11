@@ -1,0 +1,94 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del pedido #{{ order.id }}</title>
+    <link rel="icon" href="{% static 'icons/planta.png' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/navbar-store.css' %}">
+    <link rel="stylesheet" href="{% static 'css/order_farmer_detail.css' %}">
+    <script src="{% static 'js/components/order_farmer_detail.js' %}" defer></script>
+</head>
+<body>
+    <div class="govco-container__one">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+
+    {% include 'tiendas/components/navbar-store.html' %}
+
+    <main class="order-detail">
+        <section class="order-detail__card" data-order-number="#{{ order.id }}">
+            <header class="order-detail__header">
+                <div>
+                    <p class="order-detail__eyebrow">Detalle de pedido</p>
+                    <h1 class="order-detail__title">Pedido #{{ order.id }}</h1>
+                    <p class="order-detail__meta">{{ order.created_at|date:"d/m/Y H:i" }} | Cliente: {{ order.customer.get_full_name|default:order.customer.username }}</p>
+                </div>
+                <span class="order-detail__status {% if order.status == 'completed' %}order-detail__status--done{% elif order.status == 'cancelled' %}order-detail__status--cancelled{% elif order.status == 'confirmed' %}order-detail__status--confirmed{% else %}order-detail__status--pending{% endif %}">{{ order.get_status_display }}</span>
+            </header>
+
+            <div class="order-detail__grid">
+                <article class="order-detail__panel">
+                    <h2 class="order-detail__panel-title">Datos del pedido</h2>
+                    <dl class="order-detail__list">
+                        <div><dt>Pago</dt><dd>{{ order.payment_method|default:"-" }}</dd></div>
+                        <div><dt>Entrega</dt><dd>{{ order.delivery_method|default:"-" }}</dd></div>
+                        <div><dt>Direccion</dt><dd>{{ order.delivery_address|default:"-" }}</dd></div>
+                    </dl>
+                </article>
+                <article class="order-detail__panel">
+                    <h2 class="order-detail__panel-title">Resumen</h2>
+                    <dl class="order-detail__list">
+                        <div><dt>Total pedido</dt><dd>${{ order.total_amount }}</dd></div>
+                        <div><dt>Total de tus productos</dt><dd>${{ farmer_total }}</dd></div>
+                        <div><dt>Items tuyos</dt><dd>{{ items|length }}</dd></div>
+                    </dl>
+                </article>
+            </div>
+
+            <div class="order-detail__table-wrap">
+                <table class="order-detail__table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Tipo</th>
+                            <th>Cantidad</th>
+                            <th>Precio unitario</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.product.nombre }}</td>
+                            <td>{% if item.product.tipo == 'Otros' and item.product.tipo_otro %}{{ item.product.tipo_otro }}{% else %}{{ item.product.get_tipo_display }}{% endif %}</td>
+                            <td>{{ item.quantity }} {{ item.product.get_unidad_display }}</td>
+                            <td>${{ item.product.precio }}</td>
+                            <td class="order-detail__amount">${{ item.subtotal }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="order-detail__actions">
+                <a class="order-detail__btn order-detail__btn--back" href="{% url 'pedidos:orders_farmer' %}">Volver</a>
+                <button type="button" class="order-detail__btn order-detail__btn--copy" id="copy-order-id">Copiar numero</button>
+                <button type="button" class="order-detail__btn order-detail__btn--print" id="print-order">Imprimir</button>
+            </div>
+        </section>
+    </main>
+
+    <p class="order-detail__toast" id="order-detail-toast" role="status" aria-live="polite"></p>
+
+    <footer class="footer-container">
+        {% include 'components/footer.html' %}
+    </footer>
+
+    <div class="govco-container__two">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+</body>
+</html>

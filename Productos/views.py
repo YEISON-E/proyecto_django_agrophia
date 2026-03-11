@@ -83,8 +83,6 @@ def _validate_step2(data):
 	precio_raw = (data.get("precio") or "").strip()
 	descripcion = (data.get("descripcion") or "").strip()
 	garantia = (data.get("garantia") or "").strip()
-	metodo_pago = (data.get("metodo-pago") or "").strip()
-	metodo_entrega = (data.get("metodo-entrega") or "").strip()
 
 	precio_value = None
 	if not precio_raw:
@@ -104,17 +102,9 @@ def _validate_step2(data):
 		errors["descripcion"] = "La descripción debe tener al menos 10 caracteres."
 
 	if not garantia:
-		errors["garantia"] = "La garantía es obligatoria."
+		errors["garantia"] = "El tiempo de durabilidad es obligatorio."
 	elif len(garantia) < 3:
-		errors["garantia"] = "La garantía debe tener al menos 3 caracteres."
-
-	pagos_validos = {choice[0] for choice in Product.METODO_PAGO_CHOICES}
-	if metodo_pago not in pagos_validos:
-		errors["metodo_pago"] = "Selecciona un método de pago válido."
-
-	entregas_validas = {choice[0] for choice in Product.METODO_ENTREGA_CHOICES}
-	if metodo_entrega not in entregas_validas:
-		errors["metodo_entrega"] = "Selecciona un método de entrega válido."
+		errors["garantia"] = "El tiempo de durabilidad debe tener al menos 3 caracteres."
 
 	return errors, precio_value
 
@@ -192,8 +182,6 @@ def create_product2(request):
 			"precio": (request.POST.get("precio") or "").strip(),
 			"descripcion": (request.POST.get("descripcion") or "").strip(),
 			"garantia": (request.POST.get("garantia") or "").strip(),
-			"metodo_pago": (request.POST.get("metodo-pago") or "").strip(),
-			"metodo_entrega": (request.POST.get("metodo-entrega") or "").strip(),
 		}
 
 		if not temp_paths:
@@ -217,8 +205,8 @@ def create_product2(request):
 			precio=precio_value,
 			descripcion=valores["descripcion"],
 			garantia=valores["garantia"],
-			metodo_pago=valores["metodo_pago"],
-			metodo_entrega=valores["metodo_entrega"],
+			metodo_pago=Product.METODO_PAGO_CONTADO,
+			metodo_entrega=Product.METODO_ENTREGA_DOMICILIO,
 		)
 
 		for temp_path in temp_paths:

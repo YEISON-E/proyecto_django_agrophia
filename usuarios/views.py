@@ -333,7 +333,15 @@ def index(request):
     """Página pública principal. Si está autenticado, redirige al home interno."""
     if request.user.is_authenticated:
         return redirect("usuarios:home_customer")
-    return render(request, "index.html")
+
+    productos = Product.objects.filter(
+        is_active=True,
+        shop__is_active=True,
+    ).prefetch_related("images").order_by("-created_at")
+
+    return render(request, "index.html", {
+        "productos": productos,
+    })
 
 def legacy_frontend_view(request, page):
     """

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos</title>
+    {% load static %}
+
+    <link rel="icon" href="{% static 'icons/planta.png' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  </head>
+  <body data-login-url="{% url 'usuarios:login' %}">
+    <div class="govco-container__one">
+      {% include 'components/gov-co__one.html' %}
+    </div>
+
+    <header class="navbar-container">
+      {% include 'components/navbar.html' %}
+    </header>
+
+    <main>
+      <section class="search-home" style="margin: 32px 0 0 0;">
+        {% include 'components/search_home.html' %}
+      </section>
+      <section class="card-home__container-section">
+        <div class="card-home__container card-home__container--single-row" id="products-public-container">
+          {% for product in productos %}
+            {% include 'productos/components/card-home.html' with product=product %}
+          {% empty %}
+            <p class="card-home__empty">Aun no hay productos publicados.</p>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const loginUrl = document.body.dataset.loginUrl;
+        const cardsContainer = document.querySelector('.card-home__container');
+        if (!loginUrl || !cardsContainer) {
+          return;
+        }
+        cardsContainer.addEventListener('click', function (event) {
+          const clickable = event.target.closest('.card-home, .card-available__button-two');
+          if (!clickable) {
+            return;
+          }
+          event.preventDefault();
+          window.location.href = loginUrl;
+        });
+      });
+    </script>
+
+    <footer class="footer">
+      <div class="footer-container">
+        {% include 'components/footer.html' %}
+      </div>
+    </footer>
+
+    <div class="govco-container__two">
+      {% include 'components/gov-co__one.html' %}
+    </div>
+  </body>
+</html>

@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        showTemporaryAlert("Producto agregado exitosamente");
+        showTemporaryAlert(data.message || "Producto agregado exitosamente");
       } catch (error) {
         showTemporaryAlert("Ocurrió un error al agregar al carrito.", true);
       }

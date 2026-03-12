@@ -107,8 +107,17 @@ def add_to_cart(request):
 		return JsonResponse({"ok": False, "message": "Cantidad inválida."}, status=400)
 
 	cart = request.session.get("shopping_cart", {})
-	current_qty = int(cart.get(str(product.id), 0))
-	cart[str(product.id)] = current_qty + quantity
+	product_key = str(product.id)
+	if product_key in cart:
+		items_count = sum(int(qty) for qty in cart.values())
+		return JsonResponse({
+			"ok": True,
+			"already_in_cart": True,
+			"message": "Este producto ya esta en el carrito.",
+			"items_count": items_count,
+		})
+
+	cart[product_key] = quantity
 
 	request.session["shopping_cart"] = cart
 	request.session.modified = True
@@ -117,6 +126,7 @@ def add_to_cart(request):
 
 	return JsonResponse({
 		"ok": True,
+		"already_in_cart": False,
 		"message": "Producto agregado al carrito.",
 		"items_count": items_count,
 	})

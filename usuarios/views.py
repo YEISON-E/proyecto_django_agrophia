@@ -343,6 +343,21 @@ def index(request):
         "productos": productos,
     })
 
+
+def public_products(request):
+    """Pagina publica de productos sin hero ni seccion informativa."""
+    if request.user.is_authenticated:
+        return redirect("usuarios:home_customer")
+
+    productos = Product.objects.filter(
+        is_active=True,
+        shop__is_active=True,
+    ).prefetch_related("images").order_by("-created_at")
+
+    return render(request, "products_public.html", {
+        "productos": productos,
+    })
+
 def legacy_frontend_view(request, page):
     """
     Compatibilidad con rutas legacy del frontend estático.
@@ -359,6 +374,7 @@ def legacy_frontend_view(request, page):
         "p_login-customer.html": ("redirect", "usuarios:home_customer"),
         "p_login-customer-vegetables.html": ("redirect", "usuarios:home_customer"),
         "p_login-customer-dairy.html": ("redirect", "usuarios:home_customer"),
+        "p_card-available.html": ("redirect", "usuarios:public_products"),
         "shopping.html": ("redirect", "carrito_compras:shopping_cart"),
         "mensajes_sends.html": ("redirect", "mensajes:sent_messages"),
         "my_orders.html": ("redirect", "pedidos:orders_client"),
@@ -783,4 +799,20 @@ def restablecer_contrasena(request):
         "valores": valores,
         "reset_success": reset_success,
     })
+
+
+# === VISTAS LEGALES Y FAQ ===
+from django.views.decorators.http import require_GET
+
+@require_GET
+def aviso_privacidad(request):
+    return render(request, "aviso_privacidad.html")
+
+@require_GET
+def terminos_uso(request):
+    return render(request, "terminos_uso.html")
+
+@require_GET
+def preguntas_frecuentes(request):
+    return render(request, "preguntas_frecuentes.html")
 

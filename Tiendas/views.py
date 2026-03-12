@@ -141,8 +141,6 @@ def activate_shop(request):
 	shop.is_active = True
 	shop.save(update_fields=["is_active"])
 
-	Product.objects.filter(shop=shop).update(is_active=True)
-
 	return redirect("tiendas:interface_farmer")
 
 

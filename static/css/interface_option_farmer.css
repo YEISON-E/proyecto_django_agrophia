@@ -1,22 +1,32 @@
-.board{
-  display: grid;
-  justify-items: center;       
-  justify-content: center;     
-  gap: 5px;
+/* ── Layout envolvente ─────────────────────────────────── */
+.layout__interface-farmer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.board-container {
+  width: 100%;
+}
+
+/* ── Board base (≥ 1024 px): fila con iconos visibles ─── */
+.board {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
   padding: 10px;
   width: 100%;
   box-sizing: border-box;
-  /* margin-right: 50px; */
-}
-.board-container{
-  width: 100%x  ;
 }
 
 .board__item {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; 
-  align-items: center;  
+  align-items: center;
   text-align: center;
 }
 
@@ -52,42 +62,16 @@
   color: var(--white);
 }
 
-@media(width < 640px){
-  .board__icon{
-    display: none;
-  }
-  
-  .board{
-    gap: 12px;
-  }
-}
-
-@media (width > 640px) {
-  .board-container {
-    display: flex;
-    align-items: center;
-    justify-self: center;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
+/* ── < 1024 px: sin iconos, botones en fila centrada ─── */
+@media (width < 1024px) {
   .board {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    align-items: center;      
-    margin: 0;  
-    margin-left: auto;
-    margin-right: 60%;             
-  }
-}
-
-@media (width > 1024px) {
-  .board {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 32px;
     flex-direction: row;
-    margin: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .board__icon {
+    display: none;
   }
 }

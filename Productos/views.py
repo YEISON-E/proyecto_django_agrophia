@@ -2,10 +2,12 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_POST
 from django.conf import settings
 from django.core.files import File
 from django.urls import reverse
 from decimal import Decimal, InvalidOperation
+from django.core.exceptions import ValidationError
 
 import os
 
@@ -81,8 +83,6 @@ def _validate_step2(data):
 	precio_raw = (data.get("precio") or "").strip()
 	descripcion = (data.get("descripcion") or "").strip()
 	garantia = (data.get("garantia") or "").strip()
-	metodo_pago = (data.get("metodo-pago") or "").strip()
-	metodo_entrega = (data.get("metodo-entrega") or "").strip()
 
 	precio_value = None
 	if not precio_raw:
@@ -102,17 +102,9 @@ def _validate_step2(data):
 		errors["descripcion"] = "La descripción debe tener al menos 10 caracteres."
 
 	if not garantia:
-		errors["garantia"] = "La garantía es obligatoria."
+		errors["garantia"] = "El tiempo de durabilidad es obligatorio."
 	elif len(garantia) < 3:
-		errors["garantia"] = "La garantía debe tener al menos 3 caracteres."
-
-	pagos_validos = {choice[0] for choice in Product.METODO_PAGO_CHOICES}
-	if metodo_pago not in pagos_validos:
-		errors["metodo_pago"] = "Selecciona un método de pago válido."
-
-	entregas_validas = {choice[0] for choice in Product.METODO_ENTREGA_CHOICES}
-	if metodo_entrega not in entregas_validas:
-		errors["metodo_entrega"] = "Selecciona un método de entrega válido."
+		errors["garantia"] = "El tiempo de durabilidad debe tener al menos 3 caracteres."
 
 	return errors, precio_value
 
@@ -190,8 +182,6 @@ def create_product2(request):
 			"precio": (request.POST.get("precio") or "").strip(),
 			"descripcion": (request.POST.get("descripcion") or "").strip(),
 			"garantia": (request.POST.get("garantia") or "").strip(),
-			"metodo_pago": (request.POST.get("metodo-pago") or "").strip(),
-			"metodo_entrega": (request.POST.get("metodo-entrega") or "").strip(),
 		}
 
 		if not temp_paths:
@@ -215,8 +205,8 @@ def create_product2(request):
 			precio=precio_value,
 			descripcion=valores["descripcion"],
 			garantia=valores["garantia"],
-			metodo_pago=valores["metodo_pago"],
-			metodo_entrega=valores["metodo_entrega"],
+			metodo_pago=Product.METODO_PAGO_CONTADO,
+			metodo_entrega=Product.METODO_ENTREGA_DOMICILIO,
 		)
 
 		for temp_path in temp_paths:
@@ -248,6 +238,168 @@ def descripcion_product(request, product_id):
 		pk=product_id,
 	)
 
+	if (not product.is_active or (product.shop and not product.shop.is_active)) and product.owner_id != request.user.id:
+		return redirect("usuarios:home_customer")
+
 	return render(request, "productos/descripcion_product.html", {
 		"product": product,
+	})
+
+
+@never_cache
+def review_product_farmer(request, product_id):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	if not Shop.objects.filter(owner=request.user, is_active=True).exists():
+		return redirect("usuarios:home_customer")
+
+	product = get_object_or_404(
+		Product.objects.filter(owner=request.user).prefetch_related("images"),
+		pk=product_id,
+	)
+
+	return render(request, "productos/review_product_farmer.html", {
+		"product": product,
+	})
+
+
+@require_POST
+@never_cache
+def disable_product(request, product_id):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	product = get_object_or_404(Product, pk=product_id, owner=request.user)
+	product.is_active = False
+	product.save(update_fields=["is_active"])
+
+	return redirect("tiendas:interface_farmer")
+
+
+@never_cache
+def disabled_products(request):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	productos = Product.objects.filter(
+		owner=request.user,
+		is_active=False,
+	).prefetch_related("images").order_by("-created_at")
+
+	return render(request, "productos/p-card_disable.html", {
+		"productos": productos,
+	})
+
+
+@require_POST
+@never_cache
+def activate_product(request, product_id):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	product = get_object_or_404(Product, pk=product_id, owner=request.user, is_active=False)
+	product.is_active = True
+	product.save(update_fields=["is_active"])
+
+	return redirect("productos:disabled_products")
+
+
+@never_cache
+def update_product(request, product_id):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	product = get_object_or_404(Product, pk=product_id, owner=request.user)
+	existing_images = product.images.all().order_by("-created_at")
+	existing_count = existing_images.count()
+	errores = {}
+
+	valores = {
+		"nombre": product.nombre,
+		"tipo": product.tipo,
+		"tipo_otro": product.tipo_otro or "",
+		"unidad": product.unidad,
+		"precio": str(product.precio),
+		"descripcion": product.descripcion,
+		"garantia": product.garantia,
+		"metodo_pago": product.metodo_pago,
+		"metodo_entrega": product.metodo_entrega,
+	}
+
+	if request.method == "POST":
+		delete_image_ids = request.POST.getlist("delete_images")
+		new_images = request.FILES.getlist("new_images")
+
+		valores = {
+			"nombre": (request.POST.get("nombre") or "").strip(),
+			"tipo": (request.POST.get("tipo") or "").strip(),
+			"tipo_otro": (request.POST.get("tipo_otro") or "").strip(),
+			"unidad": (request.POST.get("unidad") or "").strip(),
+			"precio": (request.POST.get("precio") or "").strip(),
+			"descripcion": (request.POST.get("descripcion") or "").strip(),
+			"garantia": (request.POST.get("garantia") or "").strip(),
+			"metodo_pago": (request.POST.get("metodo_pago") or "").strip(),
+			"metodo_entrega": (request.POST.get("metodo_entrega") or "").strip(),
+		}
+
+		try:
+			precio_value = Decimal(valores["precio"])
+		except (InvalidOperation, ValueError):
+			errores["precio"] = "Ingresa un precio valido mayor que 0."
+			precio_value = None
+
+		for photo in new_images:
+			if not (photo.content_type or "").startswith("image/"):
+				errores["fotos"] = "Solo se permiten archivos de imagen."
+				break
+
+		delete_qs = product.images.filter(id__in=delete_image_ids)
+		remaining_count = existing_count - delete_qs.count()
+		total_after_update = remaining_count + len(new_images)
+
+		if existing_count >= 8 and len(new_images) > 0 and delete_qs.count() == 0:
+			errores["fotos"] = "Ya tienes 8 imagenes. Elimina alguna para poder subir nuevas."
+		elif total_after_update <= 0:
+			errores["fotos"] = "El producto debe tener al menos una imagen."
+		elif total_after_update > 8:
+			errores["fotos"] = "Solo puedes mantener máximo 8 imágenes por producto."
+
+		if not errores:
+			product.nombre = valores["nombre"]
+			product.tipo = valores["tipo"]
+			product.tipo_otro = valores["tipo_otro"]
+			product.unidad = valores["unidad"]
+			product.precio = precio_value
+			product.descripcion = valores["descripcion"]
+			product.garantia = valores["garantia"]
+			product.metodo_pago = valores["metodo_pago"]
+			product.metodo_entrega = valores["metodo_entrega"]
+
+			try:
+				product.full_clean()
+			except ValidationError as exc:
+				for field, messages in exc.message_dict.items():
+					errores[field] = messages[0] if messages else "Valor invalido."
+			else:
+				product.save()
+				if delete_qs.exists():
+					delete_qs.delete()
+
+				for image_file in new_images:
+					ProductImage.objects.create(product=product, image=image_file)
+
+				return redirect("productos:review_product_farmer", product_id=product.id)
+
+	return render(request, "productos/update_product.html", {
+		"product": product,
+		"existing_images": existing_images,
+		"existing_images_count": existing_count,
+		"can_upload_more_images": existing_count < 8,
+		"valores": valores,
+		"errores": errores,
+		"tipo_choices": Product.TIPO_CHOICES,
+		"unidad_choices": Product.UNIDAD_CHOICES,
+		"metodo_pago_choices": Product.METODO_PAGO_CHOICES,
+		"metodo_entrega_choices": Product.METODO_ENTREGA_CHOICES,
 	})

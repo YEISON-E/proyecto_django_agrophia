@@ -1,0 +1,224 @@
+.order-detail {
+    width: min(100%, 1100px);
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+}
+
+.order-detail__card {
+    background: var(--white);
+    color: var(--gray-900);
+    border: 1px solid var(--gray-300);
+    border-radius: 16px;
+    box-shadow: 0 10px 24px rgba(16, 24, 40, 0.08);
+    padding: clamp(16px, 2vw, 28px);
+}
+
+.order-detail__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.order-detail__eyebrow {
+    color: var(--primary-700);
+    font-size: var(--fs-xxxs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 4px;
+}
+
+.order-detail__title {
+    margin: 0;
+    font-size: var(--fs-md);
+    color: var(--gray-900);
+}
+
+.order-detail__meta {
+    margin: 6px 0 0;
+    font-size: var(--fs-xs);
+    color: var(--gray-700);
+}
+
+.order-detail__status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 118px;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: var(--fs-xxxs);
+    font-weight: 700;
+}
+
+.order-detail__status--pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.order-detail__status--confirmed {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.order-detail__status--done {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.order-detail__status--cancelled {
+    background: #fee4e2;
+    color: #b42318;
+}
+
+.order-detail__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.order-detail__panel {
+    border: 1px solid var(--gray-300);
+    border-radius: 12px;
+    padding: 14px;
+    background: #fbfdfb;
+}
+
+.order-detail__panel-title {
+    margin: 0 0 10px;
+    font-size: var(--fs-xs);
+    color: var(--gray-900);
+}
+
+.order-detail__list {
+    margin: 0;
+    display: grid;
+    gap: 8px;
+}
+
+.order-detail__list div {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.order-detail__list dt {
+    color: var(--gray-600);
+    font-size: var(--fs-xxxs);
+}
+
+.order-detail__list dd {
+    margin: 0;
+    color: var(--gray-900);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    text-align: right;
+}
+
+.order-detail__table-wrap {
+    border: 1px solid var(--gray-300);
+    border-radius: 12px;
+    overflow-x: auto;
+}
+
+.order-detail__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.order-detail__table th,
+.order-detail__table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--gray-300);
+    font-size: var(--fs-xs);
+    text-align: left;
+    color: var(--gray-900) !important;
+}
+
+.order-detail__table th {
+    background: #f3f8f4;
+    color: var(--gray-900);
+    white-space: nowrap;
+}
+
+.order-detail__table tbody tr {
+    background: var(--white);
+}
+
+.order-detail__table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.order-detail__amount {
+    color: var(--primary-700);
+    font-weight: 700;
+}
+
+.order-detail__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.order-detail__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    padding: 0 14px;
+    font-size: var(--fs-xxxs);
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.order-detail__btn--back {
+    background: var(--gray-700);
+    color: var(--white);
+}
+
+.order-detail__btn--copy {
+    background: var(--white);
+    color: var(--gray-900);
+    border-color: var(--gray-400);
+}
+
+.order-detail__btn--print {
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+    color: var(--white);
+}
+
+.order-detail__toast {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    background: #111827;
+    color: var(--white);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: var(--fs-xxxs);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.order-detail__toast--show {
+    opacity: 1;
+}
+
+@media (max-width: 760px) {
+    .order-detail__header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .order-detail__grid {
+        grid-template-columns: 1fr;
+    }
+}

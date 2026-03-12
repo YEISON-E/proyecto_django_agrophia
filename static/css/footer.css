@@ -34,6 +34,12 @@
   gap: 8px;
 }
 
+.footer__social a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .footer__social-text {
   font-size: var(--fs-xxxs);
   padding: 4px;
@@ -41,10 +47,19 @@
 }
 
 .footer__social-icon {
-  text-decoration: none;
-  color: var(--black);
-  font-size: var(--fs-xs);
+  width: 24px;
+  height: 24px;
+  display: block;
+  object-fit: contain;
   position: relative;
+}
+
+.footer__social-icon--sena {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  transform-origin: center;
+  filter: brightness(0) saturate(100%) invert(49%) sepia(97%) saturate(541%) hue-rotate(77deg) brightness(96%) contrast(101%);
 }
 
 .footer__social-icon:not(:last-child)::after {
@@ -79,6 +94,11 @@
     order: 1;
     flex-direction: row;
     gap: 8px;
+  }
+
+  .footer__social-icon--sena {
+    width: 30px;
+    height: 30px;
   }
 
   .footer__social-icon:not(:last-child)::after {

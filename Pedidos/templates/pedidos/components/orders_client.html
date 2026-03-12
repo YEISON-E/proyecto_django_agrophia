@@ -5,80 +5,93 @@
   </div>
 
   <div class="orders__list">
-    <!-- Pedido 1 -->
+    {% for order in orders %}
     <div class="orders__item">
       <div class="orders__info">
-        <span class="orders__number">Pedido 1</span>
-        <span class="orders__date">24 de octubre de 2025</span>
-        <span class="orders__status orders__status--delivered">Entregado</span>
+        <span class="orders__number">Pedido #{{ order.id }}</span>
+        <span class="orders__date">{{ order.created_at|date:"d \d\e F \d\e Y" }}</span>
+        <span class="orders__status {% if order.status == 'completed' %}orders__status--delivered{% elif order.status == 'cancelled' %}orders__status--cancelled{% elif order.status == 'confirmed' %}orders__status--confirmed{% else %}orders__status--pending{% endif %}">
+          {{ order.get_status_display }}
+        </span>
       </div>
 
       <div class="orders__details">
         <h3 class="orders__details-title">Productos</h3>
         <ul class="orders__product-list">
+          {% for item in order.items.all %}
           <li class="orders__product-item">
-            <span class="orders__product-name">Tomates (10 kg)</span>
-            <span class="orders__product-price">$25.000</span>
+            <span class="orders__product-name">
+              {{ item.product.nombre }}
+              ({{ item.quantity }} {{ item.product.get_unidad_display }})
+            </span>
+            <span class="orders__product-price">${{ item.subtotal }}</span>
           </li>
-          <li class="orders__product-item">
-            <span class="orders__product-name">Cebolla cabezona (5 kg)</span>
-            <span class="orders__product-price">$10.000</span>
-          </li>
+          {% endfor %}
         </ul>
         <div class="orders__total">
           <span class="orders__total-label">Total:</span>
-          <span class="orders__total-value">$35.000</span>
+          <span class="orders__total-value">${{ order.total_amount }}</span>
         </div>
-      </div>
-    </div>
-
-    <!-- Pedido 2 -->
-    <div class="orders__item">
-      <div class="orders__info">
-        <span class="orders__number">Pedido 2</span>
-        <span class="orders__date">20 de octubre de 2025</span>
-        <span class="orders__status orders__status--pending">En proceso</span>
-      </div>
-
-      <div class="orders__details">
-        <h3 class="orders__details-title">Productos</h3>
-        <ul class="orders__product-list">
-          <li class="orders__product-item">
-            <span class="orders__product-name">Yuca (8 kg)</span>
-            <span class="orders__product-price">$16.000</span>
-          </li>
-        </ul>
-        <div class="orders__total">
-          <span class="orders__total-label">Total:</span>
-          <span class="orders__total-value">$16.000</span>
+        {% if order.payment_method or order.delivery_method %}
+        <div class="orders__meta">
+          {% if order.payment_method %}<span class="orders__meta-item">💳 {{ order.payment_method }}</span>{% endif %}
+          {% if order.delivery_method %}<span class="orders__meta-item">🚚 {{ order.delivery_method }}</span>{% endif %}
         </div>
-      </div>
-    </div>
-    <div class="orders__item">
-      <div class="orders__info">
-        <span class="orders__number">Pedido 3</span>
-        <span class="orders__date">24 de octubre de 2025</span>
-        <span class="orders__status orders__status--delivered">Entregado</span>
+        {% endif %}
+          {% if order.delivery_address %}
+          <p class="orders__address">📍 {{ order.delivery_address }}</p>
+          {% endif %}
       </div>
 
-      <div class="orders__details">
-        <h3 class="orders__details-title">Productos</h3>
-        <ul class="orders__product-list">
-          <li class="orders__product-item">
-            <span class="orders__product-name">Tomates (10 kg)</span>
-            <span class="orders__product-price">$25.000</span>
-          </li>
-          <li class="orders__product-item">
-            <span class="orders__product-name">Cebolla cabezona (5 kg)</span>
-            <span class="orders__product-price">$10.000</span>
-          </li>
-        </ul>
-        <div class="orders__total">
-          <span class="orders__total-label">Total:</span>
-          <span class="orders__total-value">$35.000</span>
+      {% if order.status != 'cancelled' %}
+      <div class="orders__actions">
+        {% if order.can_cancel %}
+        <div class="orders__cancel-row">
+          <p class="orders__countdown-label">
+            Puedes cancelar durante:
+            <span class="orders__countdown" data-deadline="{{ order.cancel_deadline_iso }}"></span>
+          </p>
+          <form method="post" action="{% url 'pedidos:cancel_order' order.id %}">
+            {% csrf_token %}
+            <button type="submit" class="orders__btn orders__btn--cancel">✕ Cancelar pedido</button>
+          </form>
         </div>
+        {% endif %}
+        <a href="{% url 'pedidos:order_receipt' order.id %}" target="_blank" class="orders__btn orders__btn--receipt">
+          📄 Ver comprobante
+        </a>
       </div>
+      {% endif %}
     </div>
+    {% empty %}
+    <div class="orders__empty">
+      <p>Aún no tienes pedidos registrados.</p>
+    </div>
+    {% endfor %}
   </div>
-  
 </div>
+
+<script>
+(function () {
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function updateCountdown(el) {
+    const deadline = new Date(el.dataset.deadline);
+    const diff = deadline - Date.now();
+    if (diff <= 0) {
+      el.closest('.orders__cancel-row')?.remove();
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    el.textContent = pad(h) + ':' + pad(m) + ':' + pad(s);
+  }
+
+  const countdowns = document.querySelectorAll('.orders__countdown[data-deadline]');
+  if (countdowns.length) {
+    countdowns.forEach(updateCountdown);
+    setInterval(() => countdowns.forEach(updateCountdown), 1000);
+  }
+})();
+</script>

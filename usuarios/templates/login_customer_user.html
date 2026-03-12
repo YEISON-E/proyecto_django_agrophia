@@ -10,6 +10,10 @@
     <script src="{% static 'js/components/gov-co__two.js' %}"></script>
 </head>
 <body data-login-url="{% url 'usuarios:login' %}">
+    {% if customer_home_notice %}
+    <div id="customer-home-notice" class="flash-product-created">{{ customer_home_notice }}</div>
+    {% endif %}
+
     <div class="govco-container__one">
         {% include 'components/gov-co__one.html' %}
     </div>

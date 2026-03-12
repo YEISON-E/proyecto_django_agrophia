@@ -1,0 +1,124 @@
+{% load static %}
+
+<!-- Toolbar -->
+<div class="receipt-toolbar">
+  <span class="receipt-toolbar__brand">🌱 Agrophia</span>
+  <a href="{% url 'pedidos:orders_client' %}" class="receipt-toolbar__back">← Mis pedidos</a>
+  <button
+    class="receipt-btn receipt-btn--share"
+    id="shareBtn"
+    data-title="Comprobante Pedido #{{ order.id }} — Agrophia"
+  >⬆ Compartir</button>
+  <button class="receipt-btn receipt-btn--print" id="printBtn">🖨 Descargar / Imprimir</button>
+</div>
+
+<!-- Invoice -->
+<div class="invoice-wrap">
+  <div class="invoice">
+
+    <!-- Head -->
+    <div class="invoice__head">
+      <div class="invoice__brand">
+        <div class="invoice__brand-logo">🌱</div>
+        <div>
+          <div class="invoice__brand-name">Agrophia</div>
+          <div class="invoice__brand-tag">Mercado agrícola local</div>
+        </div>
+      </div>
+      <div class="invoice__ref">
+        <div class="invoice__ref-label">Comprobante</div>
+        <div class="invoice__ref-number">#{{ order.id|stringformat:"06d" }}</div>
+        <div class="invoice__ref-date">{{ order.created_at|date:"d \d\e F \d\e Y, H:i" }}</div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="invoice__status-bar invoice__status-bar--{{ order.status }}">
+      {% if order.status == 'pending' %}⏳ Pendiente de confirmación
+      {% elif order.status == 'confirmed' %}✅ Pedido confirmado — en preparación
+      {% elif order.status == 'completed' %}🎉 Pedido entregado
+      {% elif order.status == 'cancelled' %}✕ Pedido cancelado
+      {% endif %}
+    </div>
+
+    <div class="invoice__body">
+
+      <!-- Customer & delivery info -->
+      <div class="invoice__section">
+        <h3 class="invoice__section-title">Información del pedido</h3>
+        <div class="invoice__info-grid">
+          <div class="invoice__info-item">
+            <div class="invoice__info-label">Cliente</div>
+            <div class="invoice__info-value">{{ order.customer.get_full_name|default:order.customer.username }}</div>
+          </div>
+          <div class="invoice__info-item">
+            <div class="invoice__info-label">Fecha</div>
+            <div class="invoice__info-value">{{ order.created_at|date:"d/m/Y H:i" }}</div>
+          </div>
+          {% if order.delivery_address %}
+          <div class="invoice__info-item" style="grid-column: 1 / -1;">
+            <div class="invoice__info-label">Dirección de entrega</div>
+            <div class="invoice__info-value">{{ order.delivery_address }}</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div class="invoice__section">
+        <h3 class="invoice__section-title">Productos</h3>
+        <table class="invoice__table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Precio unit.</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in items %}
+            <tr>
+              <td>
+                <div class="invoice__product-name">{{ item.product.nombre }}</div>
+                <div class="invoice__product-farmer">Vendedor: {{ item.farmer.get_full_name|default:item.farmer.username }}</div>
+              </td>
+              <td>{{ item.quantity }} {{ item.product.get_unidad_display }}</td>
+              <td>${{ item.product.precio }}</td>
+              <td>${{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="invoice__table-total-label">Total del pedido</td>
+              <td>${{ order.total_amount }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+
+      <!-- Payment & delivery method -->
+      <div class="invoice__section">
+        <h3 class="invoice__section-title">Método de pago y entrega</h3>
+        <div class="invoice__chips">
+          {% if order.payment_method %}
+          <span class="invoice__chip">💳 {{ order.payment_method }}</span>
+          {% endif %}
+          {% if order.delivery_method %}
+          <span class="invoice__chip">🚚 {{ order.delivery_method }}</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <p class="invoice__footer-note">
+        Este documento es un comprobante de tu pedido en Agrophia.<br>
+        Guarda este comprobante como referencia de tu compra.<br>
+        Número de pedido: <strong>#{{ order.id }}</strong>
+      </p>
+
+    </div><!-- /.invoice__body -->
+  </div><!-- /.invoice -->
+</div><!-- /.invoice-wrap -->
+
+<div id="shareToast"></div>

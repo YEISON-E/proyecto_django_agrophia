@@ -19,11 +19,10 @@ from django.urls import path, include
 from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import home
-from usuarios.views import legacy_frontend_view
+from usuarios.views import index, legacy_frontend_view
 
 urlpatterns = [
-    path('', home, name='home'),
+    path('', index, name='home'),
     path('admin/', admin.site.urls),
     path('usuarios/', include('usuarios.urls')),
     path('tiendas/', include('Tiendas.urls')),

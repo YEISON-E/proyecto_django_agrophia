@@ -1,0 +1,61 @@
+{% load static %}
+
+<div class="tableorder-content">
+    <div class="tableorder__header">
+        <h2 class="tableorder__title">Solicitudes de pedidos</h2>
+        <p class="tableorder__subtitle">Gestiona el estado de los pedidos recibidos de tus clientes.</p>
+    </div>
+
+    <div class="tableorder__table-wrap">
+        <table class="tableorder__table">
+            <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Pedido</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td class="tableorder__user">{{ order.customer.get_full_name|default:order.customer.username }}</td>
+                    <td>{{ order.created_at|date:"d/m/Y" }}</td>
+                    <td>#{{ order.id }}</td>
+                    <td class="tableorder__amount">${{ order.total_amount }}</td>
+                    <td>
+                        <span class="tableorder__status {% if order.status == 'completed' %}tableorder__status--done{% elif order.status == 'cancelled' %}tableorder__status--cancelled{% elif order.status == 'confirmed' %}tableorder__status--confirmed{% else %}tableorder__status--pending{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <form method="post" action="{% url 'pedidos:update_order_status' order.id %}" class="tableorder__action-form">
+                            {% csrf_token %}
+                            <select name="status" class="tableorder__status-select" aria-label="Estado del pedido {{ order.id }}">
+                                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pendiente</option>
+                                <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Confirmado</option>
+                                <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completado</option>
+                                <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelado</option>
+                            </select>
+                            <button class="tableorder__action tableorder__action--save" type="submit" title="Actualizar estado">
+                                Guardar
+                            </button>
+                            <a href="{% url 'pedidos:order_farmer_detail' order.id %}" class="tableorder__action tableorder__action--view" title="Visualizar detalles del pedido {{ order.id }}" aria-label="Visualizar pedido {{ order.id }}">
+                                <img src="{% static 'icons/list-details.svg' %}" alt="" class="tableorder__icon" aria-hidden="true">
+                            </a>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="tableorder__empty">Aun no tienes pedidos para gestionar.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a href="{% url 'tiendas:interface_farmer' %}" class="tableorder__link tableorder__link--home">Volver al inicio</a>
+</div>

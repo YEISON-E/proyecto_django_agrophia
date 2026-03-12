@@ -1,0 +1,86 @@
+<div class="shop-update__content">
+    <!-- <h1 class="form-shop__title">Agrophia</h1> -->
+
+    <div class="shop-update__container">
+
+        <div class="shop">
+            <h2 class="shop-update__subtitle">Editar Tienda</h2>
+            <div class="shop-update">
+                <form id="update-shop-step2-form" class="shop-update__body" method="post" action="{% url 'tiendas:update_shop_step2' %}">
+                    {% csrf_token %}
+
+                    <div class="shop-update__group">
+                        <label for="tiene_punto_fisico" class="shop-update__label">La tienda cuenta con punto fisico?</label>
+                        <select id="tiene_punto_fisico" name="tiene_punto_fisico" class="shop-update__option" required>
+                            <option value="si" {% if valores.tiene_punto_fisico != 'no' %}selected{% endif %}>Si</option>
+                            <option value="no" {% if valores.tiene_punto_fisico == 'no' %}selected{% endif %}>No</option>
+                        </select>
+                    </div>
+
+                    <div id="update-shop-physical-fields">
+
+                    <div class="shop-update__group">
+                        <label for="horario" class="shop-update__label">Horario de atención</label>
+                        <input id="horario" name="horario" type="text" class="shop-update__input" placeholder="Ej: Lunes a viernes 8AM a 6PM" value="{{ valores.horario|default:'' }}">
+                        {% if errores.horario %}<small class="form-error">{{ errores.horario }}</small>{% endif %}
+                    </div>
+
+                    <div class="shop-update__group">
+                        <label for="url" class="shop-update__label">URL de tu sitio web (opcional)</label>
+                        <input id="url" name="url" type="url" class="shop-update__input" placeholder="https://www.tutienda.com" value="{{ valores.url|default:'' }}">
+                    </div>
+
+                    <div class="shop-update__textarea">
+                        <label for="direccion" class="shop-update__label">Direccion de la tienda</label>
+                        <textarea id="direccion" name="direccion" class="shop-update__description" placeholder="Direccion de la tienda">{{ valores.direccion|default:'' }}</textarea>
+                        {% if errores.direccion %}<small class="form-error">{{ errores.direccion }}</small>{% endif %}
+                    </div>
+
+                    </div>
+
+                    <div class="shop-update__textarea">
+                        <label for="descripcion" class="shop-update__label">Descripcion breve de la tienda (opcional)</label>
+                        <textarea id="descripcion" name="descripcion" class="shop-update__description" placeholder="Descripcion breve de la tienda">{{ valores.descripcion|default:'' }}</textarea>
+                    </div>
+
+                </form>
+
+                <div class="form-content__register--row-buttons">
+                    <a href="{% url 'tiendas:update_shop_step1' %}" class="form-content__register--row-buttons__back">Volver</a>
+                    <button type="submit" form="update-shop-step2-form" class="form-shop__button">Guardar cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("update-shop-step2-form");
+    const puntoFisicoSelect = document.getElementById("tiene_punto_fisico");
+    const physicalFields = document.getElementById("update-shop-physical-fields");
+    const horarioInput = document.getElementById("horario");
+    const direccionInput = document.getElementById("direccion");
+
+    const togglePhysicalFields = () => {
+        const mostrar = !puntoFisicoSelect || puntoFisicoSelect.value !== "no";
+
+        if (form) {
+            form.classList.toggle("update-shop-step2--grid", mostrar);
+        }
+
+        if (physicalFields) {
+            physicalFields.style.display = "";
+        }
+        if (horarioInput) {
+            horarioInput.required = mostrar;
+        }
+        if (direccionInput) {
+            direccionInput.required = mostrar;
+        }
+    };
+
+    puntoFisicoSelect?.addEventListener("change", togglePhysicalFields);
+    togglePhysicalFields();
+});
+</script>

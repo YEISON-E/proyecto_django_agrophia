@@ -2,12 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const precioInput = document.getElementById("precio-producto");
     const descripcionInput = document.getElementById("descripcion-producto");
     const garantiaInput = document.getElementById("garantia-producto");
-    const metodoPagoSelect = document.getElementById("metodo-pago");
-    const metodoEntregaSelect = document.getElementById("metodo-entrega");
     const publicarButton = document.getElementById("btn-publicar-producto");
     const step2Form = document.getElementById("create-product-step2-form");
 
-    if (!precioInput || !descripcionInput || !garantiaInput || !metodoPagoSelect || !metodoEntregaSelect || !publicarButton) {
+    if (!precioInput || !descripcionInput || !garantiaInput || !publicarButton) {
         return;
     }
 
@@ -53,35 +51,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const garantia = (garantiaInput.value || "").trim();
         if (!garantia) {
-            setError("error-garantia-producto", "La garantía es obligatoria.");
+            setError("error-garantia-producto", "El tiempo de durabilidad es obligatorio.");
             hasErrors = true;
         } else if (garantia.length < 3) {
-            setError("error-garantia-producto", "La garantía debe tener al menos 3 caracteres.");
+            setError("error-garantia-producto", "El tiempo de durabilidad debe tener al menos 3 caracteres.");
             hasErrors = true;
         } else {
             setError("error-garantia-producto", "");
         }
 
-        const metodoPago = (metodoPagoSelect.value || "").trim();
-        if (!metodoPago) {
-            setError("error-metodo-pago", "Selecciona un método de pago.");
-            hasErrors = true;
-        } else {
-            setError("error-metodo-pago", "");
-        }
-
-        const metodoEntrega = (metodoEntregaSelect.value || "").trim();
-        if (!metodoEntrega) {
-            setError("error-metodo-entrega", "Selecciona un método de entrega.");
-            hasErrors = true;
-        } else {
-            setError("error-metodo-entrega", "");
-        }
-
         return !hasErrors;
     };
 
-    [precioInput, descripcionInput, garantiaInput, metodoPagoSelect, metodoEntregaSelect].forEach((field) => {
+    [precioInput, descripcionInput, garantiaInput].forEach((field) => {
         field.addEventListener("input", validateStep2);
         field.addEventListener("change", validateStep2);
     });

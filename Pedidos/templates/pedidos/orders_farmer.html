@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitudes de pedidos</title>
+    <link rel="icon" href="{% static 'icons/planta.png' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/navbar-store.css' %}">
+</head>
+<body>
+    <div class="govco-container__one">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+
+    {% include 'tiendas/components/navbar-store.html' %}
+
+    <main class="layout__interface-farmer">
+        <section class="board-container">
+            {% include 'tiendas/components/interface-farmer_options.html' %}
+        </section>
+
+        <section class="tableorder-container">
+            {% include 'pedidos/components/tableOrder.html' %}
+        </section>
+    </main>
+
+    <footer class="footer-container">
+        {% include 'components/footer.html' %}
+    </footer>
+
+    <div class="govco-container__two">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+</body>
+</html>

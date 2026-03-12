@@ -67,8 +67,11 @@ def farmer_messages(request):
 	)
 
 	requested_chat = (request.GET.get("chat") or "").strip()
+	list_mode = (request.GET.get("view") or "").strip().lower() == "list"
 	selected_chat_id = None
-	if requested_chat.isdigit() and int(requested_chat) in conversations_by_sender:
+	if list_mode:
+		selected_chat_id = None
+	elif requested_chat.isdigit() and int(requested_chat) in conversations_by_sender:
 		selected_chat_id = int(requested_chat)
 	elif conversations:
 		selected_chat_id = conversations[0]["sender"].id

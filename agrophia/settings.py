@@ -70,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'Tiendas.context_processors.shop_nav_context',
+                'carrito_compras.context_processors.cart_nav_context',
             ],
         },
     },
@@ -77,12 +78,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'agrophia.wsgi.application'
 
-# Sesiones basadas en archivos (sin tocar la BD)
-SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-SESSION_FILE_PATH = os.path.join(BASE_DIR, 'session_files')
-
-# Crear carpeta de sesiones si no existe
-os.makedirs(SESSION_FILE_PATH, exist_ok=True)
+# Sesiones en base de datos
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 
 # Database

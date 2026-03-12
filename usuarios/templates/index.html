@@ -37,14 +37,16 @@
         </div>
         
         <section class="card-home__container-section">
-            <div class="card-home__container">
-                {% for product in productos %}
+            <div class="card-home__container card-home__container--single-row">
+                {% for product in productos|slice:":8" %}
                     {% include 'productos/components/card-home.html' with product=product %}
                 {% empty %}
                     <p class="card-home__empty">Aún no hay productos publicados.</p>
                 {% endfor %}
             </div>
         </section>
+
+        {% include 'components/services_public.html' %}
     </main>
 
 

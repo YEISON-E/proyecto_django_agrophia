@@ -43,7 +43,16 @@ def orders_farmer(request):
 	if not Shop.objects.filter(owner=request.user, is_active=True).exists():
 		return redirect("usuarios:home_customer")
 
-	orders = Order.objects.filter(items__farmer=request.user).distinct().prefetch_related(
+	cutoff = timezone.now() - timedelta(hours=Order.CANCEL_WINDOW_HOURS)
+	Order.objects.filter(
+		status=Order.STATUS_PENDING,
+		created_at__lt=cutoff,
+	).update(status=Order.STATUS_CONFIRMED)
+
+	orders = Order.objects.filter(
+		items__farmer=request.user,
+		created_at__lt=cutoff,
+	).distinct().prefetch_related(
 		Prefetch(
 			"items",
 			queryset=OrderItem.objects.filter(farmer=request.user).select_related("product"),
@@ -64,9 +73,18 @@ def order_farmer_detail(request, order_id):
 	if not Shop.objects.filter(owner=request.user, is_active=True).exists():
 		return redirect("usuarios:home_customer")
 
+	cutoff = timezone.now() - timedelta(hours=Order.CANCEL_WINDOW_HOURS)
+	Order.objects.filter(
+		status=Order.STATUS_PENDING,
+		created_at__lt=cutoff,
+	).update(status=Order.STATUS_CONFIRMED)
+
 	order = get_object_or_404(Order.objects.select_related("customer"), pk=order_id)
 	items = list(order.items.filter(farmer=request.user).select_related("product", "farmer"))
 	if not items:
+		return redirect("pedidos:orders_farmer")
+
+	if order.created_at >= cutoff:
 		return redirect("pedidos:orders_farmer")
 
 	farmer_total = sum((item.subtotal for item in items), 0)
@@ -88,10 +106,26 @@ def update_order_status(request, order_id):
 	if not order.items.filter(farmer=request.user).exists():
 		return redirect("pedidos:orders_farmer")
 
+	cutoff = timezone.now() - timedelta(hours=Order.CANCEL_WINDOW_HOURS)
+	if order.status == Order.STATUS_PENDING and order.created_at < cutoff:
+		order.status = Order.STATUS_CONFIRMED
+		order.save(update_fields=["status"])
+
+	if order.status == Order.STATUS_CANCELLED:
+		return redirect("pedidos:orders_farmer")
+
+	if order.created_at >= cutoff:
+		return redirect("pedidos:orders_farmer")
+
 	new_status = (request.POST.get("status") or "").strip()
 	valid_statuses = {choice[0] for choice in Order.STATUS_CHOICES}
 
-	if new_status in valid_statuses:
+	if new_status in valid_statuses and new_status != Order.STATUS_PENDING:
+		if new_status == Order.STATUS_CANCELLED:
+			order.status = Order.STATUS_CANCELLED
+			order.save(update_fields=["status"])
+			return redirect("pedidos:orders_farmer")
+
 		order.status = new_status
 		order.save(update_fields=["status"])
 

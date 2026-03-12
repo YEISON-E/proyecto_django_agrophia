@@ -25,19 +25,96 @@
 
 .header-home__navbar {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: space-between;
   align-items: center;
   background-color: var(--gray-100);
-  padding: 10px 20px;
+  padding: 10px 12px;
   width: 100%;
-  gap: 24px;
+  gap: 8px;
 }
 
 .header-home__group {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.header-home__mobile-controls {
+  width: auto;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.header-home__mobile-select {
+  width: auto;
+  position: relative;
+}
+
+.header-home__mobile-trigger {
+  list-style: none;
+  cursor: pointer;
+  border: 1px solid #dbe9dd;
+  background: #ffffff;
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-home__mobile-trigger::-webkit-details-marker {
+  display: none;
+}
+
+.header-home__mobile-options {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  border-radius: 10px;
+  border: 1px solid #dbe9dd;
+  background: #ffffff;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  min-width: 210px;
+  z-index: 120;
+}
+
+.header-home__mobile-options li a {
+  display: block;
+  padding: 9px 12px;
+  text-decoration: none;
+  color: #1f5130;
+  font-size: var(--fs-xs);
+}
+
+.header-home__mobile-options li a:hover {
+  background: #ebf7ee;
+}
+
+.header-home__cart-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-home__cart-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 600;
+  color: var(--white);
+  background-color: var(--primary-600);
 }
 
 .navbar__sena-logo {
@@ -57,6 +134,18 @@
   gap: 15px;
   gap: 20px;
   font-size: var(--fs-xs);
+}
+
+.header-home__list {
+  display: none;
+}
+
+.header-home__group--left {
+  width: auto;
+}
+
+.header-home__group--right {
+  width: auto;
 }
 .nav-menu {
   position: relative;
@@ -135,6 +224,7 @@
 .nav-menu__action-button:hover {
   background: var(--gray-100, #f0f0f0);
 }
+
 .header-home__link {
   color: var(--primary-700);
   text-decoration: none;
@@ -142,6 +232,18 @@
   font-size: var(--fs-xs);
   align-items: center;
   position: relative;
+}
+
+@media (max-width: 767px) {
+  .header-home__list,
+  .header-home__group--right > .nav-menu,
+  .header-home__group--right > .header-home__item {
+    display: none !important;
+  }
+
+  .header-home__mobile-controls {
+    display: flex !important;
+  }
 }
 
 .header-home__link::after {
@@ -178,7 +280,11 @@
   }
 } */
 
-@media (width > 768px) {
+@media (min-width: 768px) {
+  .header-home__mobile-controls {
+    display: none;
+  }
+
   .header-home__navbar {
     flex-direction: row;
     justify-content: space-between;
@@ -189,6 +295,7 @@
   }
 
   .header-home__list {
+    display: flex;
     margin: 0;
     display: flex;
     flex-direction: row;
@@ -202,5 +309,61 @@
     /* justify-content: center; */
     text-align: center;
     align-items: center;
+  }
+}
+
+/* Customer navbar hardening to keep same style as farmer navbar */
+.header-home__navbar--customer {
+    background-color: var(--white);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  width: 100%;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.06);
+}
+
+.header-home__navbar--customer .header-home__group--left {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.header-home__navbar--customer .header-home__group--right {
+  width: auto;
+  margin-left: auto;
+}
+
+.header-home__navbar--customer .header-home__list {
+  display: none;
+}
+
+.header-home__navbar--customer .header-home__mobile-controls {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .header-home__navbar--customer {
+    min-height: 56px;
+    height: auto;
+    padding: 8px 16px;
+    gap: 16px;
+  }
+
+  .header-home__navbar--customer .header-home__mobile-controls {
+    display: none;
+  }
+
+  .header-home__navbar--customer .header-home__list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+    flex-grow: 0;
   }
 }

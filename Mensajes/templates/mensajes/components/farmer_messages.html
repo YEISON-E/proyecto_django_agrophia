@@ -10,15 +10,18 @@
       <div class="messages__contacts-list">
         {% for chat in conversations %}
         <a href="{% url 'mensajes:farmer_messages' %}?chat={{ chat.sender.id }}" class="messages__contact {% if selected_chat_id == chat.sender.id %}messages__contact--active{% endif %}">
-          <div class="messages__contact-main">
-            <span class="messages__contact-name">{{ chat.sender.first_name|default:chat.sender.username }}</span>
-            <span class="messages__contact-date">{{ chat.last_message_at|date:"d/m/Y" }}</span>
-          </div>
-          <div class="messages__contact-meta">
-            <span class="messages__contact-preview">{{ chat.last_preview|default:"Sin mensajes" }}</span>
-            {% if chat.unread_count > 0 %}
-            <span class="messages__contact-badge" title="Mensajes pendientes">{{ chat.unread_count }}</span>
-            {% endif %}
+          <div class="messages__contact-avatar">{{ chat.sender.first_name|default:chat.sender.username|slice:":1"|upper }}</div>
+          <div class="messages__contact-body">
+            <div class="messages__contact-main">
+              <span class="messages__contact-name">{{ chat.sender.first_name|default:chat.sender.username }}</span>
+              <span class="messages__contact-date">{{ chat.last_message_at|date:"d/m/Y" }}</span>
+            </div>
+            <div class="messages__contact-meta">
+              <span class="messages__contact-preview">{{ chat.last_preview|default:"Sin mensajes" }}</span>
+              {% if chat.unread_count > 0 %}
+              <span class="messages__contact-badge" title="Mensajes pendientes">{{ chat.unread_count }}</span>
+              {% endif %}
+            </div>
           </div>
         </a>
         {% empty %}
@@ -30,8 +33,9 @@
     <section class="messages__chat-panel">
       {% if selected_conversation %}
       <header class="messages__chat-header">
-        <a href="{% url 'mensajes:farmer_messages' %}" class="messages__chat-back" aria-label="Volver a conversaciones">Volver</a>
-        <div>
+        <a href="{% url 'mensajes:farmer_messages' %}?view=list" class="messages__chat-back" aria-label="Volver a conversaciones">← Volver</a>
+        <div class="messages__chat-avatar">{{ selected_conversation.sender.first_name|default:selected_conversation.sender.username|slice:":1"|upper }}</div>
+        <div class="messages__chat-user">
           <h3 class="messages__chat-title">{{ selected_conversation.sender.first_name|default:selected_conversation.sender.username }}</h3>
           <p class="messages__chat-subtitle">{{ selected_messages|length }} mensaje{{ selected_messages|length|pluralize }}</p>
         </div>

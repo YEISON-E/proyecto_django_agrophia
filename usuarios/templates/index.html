@@ -12,11 +12,11 @@
         <script src="/frontend/public/js/components/gov-co__one.js" defer></script>
     <script src="/frontend/public/js/components/gov-co__two.js" defer></script>
     <script src="/frontend/public/js/components/footer.js" defer></script>
-    <script src="/frontend/public/js/components/hero.js" defer></script>
+        <script src="{% static 'js/components/hero.js' %}" defer></script>
     <script src="/frontend/public/js/components/search.js" defer></script>
 
 </head>
-<body>
+<body data-login-url="{% url 'usuarios:login' %}">
     <div class="govco-container__one">
         {% include 'components/gov-co__one.html' %} 
     </div>
@@ -37,7 +37,13 @@
         </div>
         
         <section class="card-home__container-section">
-            <div class="card-home__container"></div>
+            <div class="card-home__container">
+                {% for product in productos %}
+                    {% include 'productos/components/card-home.html' with product=product %}
+                {% empty %}
+                    <p class="card-home__empty">Aún no hay productos publicados.</p>
+                {% endfor %}
+            </div>
         </section>
     </main>
 
@@ -46,10 +52,24 @@
     <script src="/frontend/public/js/components/footer.js" defer></script>
     <script src="/frontend/public/js/components/search.js" defer></script>
     <script src="/frontend/public/js/components/list-home.js"></script>
-    <script type="module">
-        import { loadCards } from "/frontend/public/js/components/card-home.js";
-        loadCards(".card-home__container");// Clase para cargar todas las cards
-    </script>
+        <script>
+            (function () {
+                const loginUrl = document.body.dataset.loginUrl;
+                const cardContainer = document.querySelector(".card-home__container");
+                if (!loginUrl || !cardContainer) {
+                    return;
+                }
+
+                cardContainer.addEventListener("click", function (event) {
+                    const clickable = event.target.closest("a, button, .card-home");
+                    if (!clickable) {
+                        return;
+                    }
+                    event.preventDefault();
+                    window.location.href = loginUrl;
+                });
+            })();
+        </script>
     
    <footer class="footer">  
          <div class="footer-container">

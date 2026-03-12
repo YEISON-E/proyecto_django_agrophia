@@ -7,6 +7,8 @@
   <div class="header__subtitle">Conectando el campo con tu mesa</div> --> 
 <nav class="header__navbar ">
   <div class="header-home__group header-home__group--left">
+    <img src="{% static 'icons/Logo SENA.svg' %}"
+     alt="SENA" class="navbar__sena-logo">
     <h1 class="header-home__title">Agrophia</h1>
     <img src="{% static 'icons/planta.png' %}"
      alt="Icon principal">
@@ -17,7 +19,6 @@
       <ul class="navbar__list">
           <li class="navbar__item"><a href="{% url 'usuarios:index' %}" class="navbar__link">Inicio</a></li>
         <li class="navbar__item"><a href="/frontend/public/views/p_card-available.html" class="navbar__link">Productos</a></li>
-        <li class="navbar__item"><a href="#" class="navbar__link">Contacto</a></li>
          <li class="navbar__item"><a href="{% url 'usuarios:login' %}" class="navbar__link">Iniciar sesión</a></li>
          <li class="navbar__item"><a href="{% url 'usuarios:register' %}" class="navbar__link">Registrarse</a></li>
       </ul>

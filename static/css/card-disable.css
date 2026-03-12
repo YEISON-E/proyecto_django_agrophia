@@ -90,6 +90,37 @@
   }
 
   .card-disable__container {
+/* New button styles */
+.card-disable__button {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.card-disable__button-two {
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+  color: var(--white);
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.card-disable__button-two:hover {
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-500));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
+}
+
+.card-disable__button-two:active {
+  transform: scale(0.98);
+}
     grid-template-columns: repeat(2, 1fr);
     width: auto;
     padding: 24px;
@@ -105,7 +136,7 @@
 
 @media (width > 1024px) {
   .card-disable__container {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     width: auto;
   }
 }

@@ -36,7 +36,15 @@
 
 .header-home__group {
   display: flex;
+  align-items: center;
   gap: 8px;
+}
+
+.navbar__sena-logo {
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(49%) sepia(97%) saturate(541%) hue-rotate(77deg) brightness(96%) contrast(101%);
 }
 
 .header-home__list {
@@ -93,6 +101,10 @@
   list-style: none;
 }
 
+.nav-menu__list form {
+  margin: 0;
+}
+
 .nav-menu__list a {
   text-align: left;
   display: block;
@@ -106,6 +118,23 @@
   background: var(--gray-100, #f0f0f0);
 }
 
+.nav-menu__action-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  margin: 0;
+  color: var(--black, #000);
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.nav-menu__action-button:hover {
+  background: var(--gray-100, #f0f0f0);
+}
 .header-home__link {
   color: var(--primary-700);
   text-decoration: none;

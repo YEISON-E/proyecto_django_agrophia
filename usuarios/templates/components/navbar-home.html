@@ -9,7 +9,7 @@
   </div>
   <div class="header-home__group header-home__group--right">
     <ul class="header-home__list">
-      <li class="header-home__item"><a href="{% url 'usuarios:login_customer_user' %}" class="header-home__link">Inicio</a></li>
+      <li class="header-home__item"><a href="{% url 'usuarios:home_customer' %}" class="header-home__link">Inicio</a></li>
       <li class="header-home__item"><a href="{% url 'carrito_compras:shopping_cart' %}" class="header-home__link">Carrito de compras</a></li>
       <li class="nav-menu">
       <details>
@@ -22,7 +22,16 @@
           <!-- <li><a href="/frontend/public/views/create-farmer-perfil.html">Ser Agricultor</a></li> -->
           <li><a href="{% url 'mensajes:sent_messages' %}">Mensajes Enviados</a></li>
           <li><a href="/frontend/public/views/my_orders.html">Tus pedidos</a></li>
+          {% if has_inactive_shop %}
+          <li>
+            <form method="post" action="{% url 'tiendas:activate_shop' %}">
+              {% csrf_token %}
+              <button type="submit" class="nav-menu__action-button">Activar Tienda</button>
+            </form>
+          </li>
+          {% elif not has_active_shop %}
           <li><a href="{% url 'tiendas:create_farmer_perfil' %}">Crear Tienda</a></li>
+          {% endif %}
           <li><a href="{% url 'usuarios:logout' %}">Cerrar Sesion</a></li>
         </ul>
       </details>

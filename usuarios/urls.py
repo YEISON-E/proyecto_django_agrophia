@@ -5,6 +5,7 @@ app_name = 'usuarios'
 urlpatterns = [
     path('', index, name='index'),
     path('login/', Logueo.as_view(), name='login'),
+    path('home/', login_customer_user, name='home_customer'),
     path('login-customer-user/', login_customer_user, name='login_customer_user'),
     path('mensajes-sends/', mensajes_sends, name='mensajes_sends'),
     path('profile/', profile, name='profile'),

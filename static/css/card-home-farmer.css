@@ -8,11 +8,12 @@
 /* Contenedor que organiza las cards en grilla */
 .card-farmer__container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 260px));
   gap: clamp(12px, 2vw, 24px);
-  width: 100%;
+  width: min(100%, 1200px);
   padding: 24px;
   align-items: stretch;
+  justify-content: center;
 }
 
 .card-farmer__empty {
@@ -84,6 +85,8 @@
 }
 
 .card-farmer__button-one {
+  
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;

@@ -30,31 +30,9 @@
       </div>
 
       <div class="product-form__group">
-        <label for="garantia" class="product-form__label">Garantía</label>
-        <input id="garantia-producto" name="garantia" type="text" class="product-form__input" placeholder="Garantía que ofreces del producto" value="{{ valores.garantia|default:'' }}" required>
+        <label for="garantia" class="product-form__label">Tiempo de durabilidad del producto</label>
+        <input id="garantia-producto" name="garantia" type="text" class="product-form__input" placeholder="Ej: 7 dias en refrigeracion" value="{{ valores.garantia|default:'' }}" required>
         <div id="error-garantia-producto" class="input-error"{% if not errores.garantia %} style="display: none;"{% endif %}>{{ errores.garantia }}</div>
-      </div>
-      
-      <div class="product-form__group">
-        <label for="metodo-pago" class="product-form__label">Método de pago</label>
-        <select id="metodo-pago" name="metodo-pago" class="product-form__input" required>
-          <option value="" {% if not valores.metodo_pago %}selected{% endif %}>-- Selecciona --</option>
-          <option value="contado" {% if valores.metodo_pago == 'contado' %}selected{% endif %}>Pago de contado</option>
-          <option value="entrega" {% if valores.metodo_pago == 'entrega' %}selected{% endif %}>Pago contra entrega</option>
-          <option value="transferencia" {% if valores.metodo_pago == 'transferencia' %}selected{% endif %}>Transferencia</option>
-        </select>
-        <div id="error-metodo-pago" class="input-error"{% if not errores.metodo_pago %} style="display: none;"{% endif %}>{{ errores.metodo_pago }}</div>
-      </div>
-
-      <div class="product-form__group">
-        <label for="metodo-entrega" class="product-form__label">Método de entrega</label>
-        <select id="metodo-entrega" name="metodo-entrega" class="product-form__input" required>
-          <option value="" {% if not valores.metodo_entrega %}selected{% endif %}>-- Selecciona --</option>
-          <option value="domicilio" {% if valores.metodo_entrega == 'domicilio' %}selected{% endif %}>Envío a domicilio</option>
-          <option value="tienda" {% if valores.metodo_entrega == 'tienda' %}selected{% endif %}>Recogido en tienda</option>
-          <option value="cita" {% if valores.metodo_entrega == 'cita' %}selected{% endif %}>Entrega bajo cita</option>
-        </select>
-        <div id="error-metodo-entrega" class="input-error"{% if not errores.metodo_entrega %} style="display: none;"{% endif %}>{{ errores.metodo_entrega }}</div>
       </div>
 
     </form>

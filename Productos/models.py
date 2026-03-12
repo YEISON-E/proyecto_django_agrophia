@@ -84,6 +84,7 @@ class Product(models.Model):
 	garantia = models.CharField(max_length=120)
 	metodo_pago = models.CharField(max_length=20, choices=METODO_PAGO_CHOICES)
 	metodo_entrega = models.CharField(max_length=20, choices=METODO_ENTREGA_CHOICES)
+	is_active = models.BooleanField(default=True)
 
 	created_at = models.DateTimeField(auto_now_add=True)
 

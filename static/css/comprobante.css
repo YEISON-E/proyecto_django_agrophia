@@ -1,0 +1,271 @@
+/* ── Variables ─────────────────────────────────────────────── */
+:root {
+  --receipt-green:   #008000;
+  --receipt-green-l: #e6f4e6;
+  --receipt-gray-1:  #f7f7f7;
+  --receipt-gray-2:  #e5e5e5;
+  --receipt-gray-6:  #666;
+  --receipt-gray-8:  #333;
+  --receipt-red:     #c0392b;
+  --receipt-blue:    #1a6da8;
+  --receipt-amber:   #b45309;
+}
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 14px;
+  color: var(--receipt-gray-8);
+  background: var(--receipt-gray-1);
+}
+
+/* ── Toolbar (screen only) ─────────────────────────────────── */
+.receipt-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  background: var(--receipt-green);
+  color: #fff;
+  flex-wrap: wrap;
+}
+.receipt-toolbar__brand {
+  font-weight: 700;
+  font-size: 1.1rem;
+  margin-right: auto;
+}
+.receipt-toolbar__back {
+  color: #fff;
+  text-decoration: none;
+  font-size: 13px;
+  opacity: 0.85;
+}
+.receipt-toolbar__back:hover { opacity: 1; text-decoration: underline; }
+
+.receipt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.receipt-btn:hover { opacity: 0.88; }
+.receipt-btn--print {
+  background: #fff;
+  color: var(--receipt-green);
+}
+.receipt-btn--share {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* ── Invoice card ──────────────────────────────────────────── */
+.invoice-wrap {
+  max-width: 680px;
+  margin: 30px auto 60px;
+  padding: 0 16px;
+}
+.invoice {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* Head band */
+.invoice__head {
+  background: var(--receipt-green);
+  color: #fff;
+  padding: 24px 28px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.invoice__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.invoice__brand-logo {
+  width: 38px;
+  height: 38px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+.invoice__brand-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+.invoice__brand-tag {
+  font-size: 11px;
+  opacity: 0.8;
+}
+.invoice__ref { text-align: right; }
+.invoice__ref-label {
+  font-size: 11px;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+.invoice__ref-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.invoice__ref-date {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+/* Status bar */
+.invoice__status-bar {
+  padding: 10px 28px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  letter-spacing: 0.3px;
+}
+.invoice__status-bar--pending   { background: #fff8e1; color: var(--receipt-amber); }
+.invoice__status-bar--confirmed { background: #e3f2fd; color: var(--receipt-blue); }
+.invoice__status-bar--completed { background: var(--receipt-green-l); color: var(--receipt-green); }
+.invoice__status-bar--cancelled { background: #fdecea; color: var(--receipt-red); }
+
+/* Body */
+.invoice__body { padding: 24px 28px; }
+
+/* Section */
+.invoice__section { margin-bottom: 22px; }
+.invoice__section-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--receipt-gray-6);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--receipt-gray-2);
+}
+
+/* Customer info */
+.invoice__info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 24px;
+}
+.invoice__info-item { font-size: 13px; }
+.invoice__info-label { color: var(--receipt-gray-6); font-size: 11px; margin-bottom: 1px; }
+.invoice__info-value { font-weight: 500; }
+
+/* Products table */
+.invoice__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.invoice__table thead th {
+  background: var(--receipt-gray-1);
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--receipt-gray-6);
+  border-bottom: 2px solid var(--receipt-gray-2);
+}
+.invoice__table thead th:last-child { text-align: right; }
+.invoice__table tbody td {
+  padding: 10px;
+  border-bottom: 1px solid var(--receipt-gray-2);
+  vertical-align: top;
+}
+.invoice__table tbody td:last-child { text-align: right; font-weight: 600; }
+.invoice__table tbody tr:last-child td { border-bottom: none; }
+.invoice__table tfoot td { padding: 10px; font-weight: 700; }
+.invoice__table tfoot td:last-child {
+  text-align: right;
+  font-size: 1.1rem;
+  color: var(--receipt-green);
+}
+.invoice__table tfoot tr:first-child td { border-top: 2px solid var(--receipt-gray-2); }
+.invoice__product-name { font-weight: 600; color: var(--receipt-gray-8); }
+.invoice__product-farmer { font-size: 11px; color: var(--receipt-gray-6); margin-top: 2px; }
+
+/* Payment / delivery chips */
+.invoice__chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.invoice__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--receipt-green-l);
+  color: var(--receipt-green);
+}
+
+/* Footer note */
+.invoice__footer-note {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--receipt-gray-2);
+  font-size: 11px;
+  color: var(--receipt-gray-6);
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* ── Share toast ───────────────────────────────────────────── */
+#shareToast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: #222;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+  z-index: 100;
+}
+#shareToast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Print styles ──────────────────────────────────────────── */
+@media print {
+  @page { margin: 1.2cm 1.5cm; }
+  body { background: #fff; font-size: 12px; }
+  .receipt-toolbar,
+  #shareToast { display: none !important; }
+  .invoice-wrap { margin: 0; padding: 0; max-width: 100%; }
+  .invoice { box-shadow: none; border-radius: 0; }
+  .invoice__head            { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .invoice__status-bar      { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .invoice__chip            { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}

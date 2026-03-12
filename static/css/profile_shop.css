@@ -43,10 +43,10 @@
 /* Información de la tienda */
 .profile-shop {
   background: #fff;
-  margin: 12px;
-  padding: 1.2rem;
+  /* margin: 12px; */
+  /* padding: 1.2rem; */
   border-radius: 12px;
-  border: 1px solid #e5e7eb;
+  border: none;
 }
 
 .profile-shop__title {
@@ -68,6 +68,95 @@
   color: #374151;
   grid-template-columns: repeat(2, 1fr);
   font-size: var(--fs-xxs);
+}
+
+.profile-shop-alert-overlay {
+  display: none;
+}
+
+.profile-shop-alert-overlay.profile-shop-alert-overlay--open {
+  display: flex;
+  animation: fadeIn 0.2s ease;
+}
+
+.profile-shop-alert-overlay.profile-shop-alert-overlay--closing {
+  display: flex;
+  animation: fadeOut 0.18s ease;
+}
+
+.profile-shop-alert {
+  max-width: 420px;
+  padding: 20px 24px;
+  animation: profile-shop-alert-in 0.22s ease;
+}
+
+.profile-shop-alert-overlay.profile-shop-alert-overlay--closing .profile-shop-alert {
+  animation: profile-shop-alert-out 0.18s ease;
+}
+
+.profile-shop-alert__title {
+  margin: 0 0 10px;
+  font-size: var(--fs-sm);
+  color: var(--black);
+}
+
+.profile-shop-alert__message {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--gray-800);
+}
+
+.profile-shop-alert__actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.profile-shop-alert__button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: var(--fs-xs);
+  cursor: pointer;
+}
+
+.profile-shop-alert__button--secondary {
+  background-color: var(--gray-600);
+  color: var(--white);
+}
+
+.profile-shop-alert__button--danger {
+  background-color: #b42318;
+  color: var(--white);
+}
+
+.profile-shop-alert__button:hover {
+  opacity: 0.85;
+}
+
+@keyframes profile-shop-alert-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes profile-shop-alert-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
 }
 
 /* --- Breakpoints --- */
@@ -97,12 +186,26 @@
         padding: 0 24px 24px 24px;
     }
     .profile__title--shop{
-        margin-top: 12px;
+        margin-top: 0;
+        padding: 0;
     }
     .profile__row2{
         display: grid;
         grid-template-columns: repeat(2, 1fr);
+      gap: 0;
+      align-items: stretch;
     }
+
+    .profile_group--personal {
+      padding-right: 24px;
+    }
+
+    .profile_group--shop {
+      border-radius: 0px;
+      padding-left: 24px;
+      border-left: 1px solid var(--gray-300);
+    }
+
     .profile__row{
         display: flex;
         flex-direction: column;

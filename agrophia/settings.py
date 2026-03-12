@@ -142,17 +142,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+#autenticación de usuarios
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/usuarios/login/'
+LOGOUT_REDIRECT_URL = 'login'
 
-# Configuración de Email - Consola (para testing)
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# Cuando quieras usar Gmail real, cambiar a:
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'tu-email@gmail.com'
-# EMAIL_HOST_PASSWORD = 'xxxx xxxx xxxx xxxx'
+PASSWORD_RESET_COMPLETE_URL = 'login'
+#Expiración del enlace para recuperar contraseña
+PASSWORD_RESET_TIMEOUT = 300
 
-DEFAULT_FROM_EMAIL = 'soporte@agrophia.com'
+#manejo del correo electronico para recuperar la contraseña
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+#cuenta desde donde se envian los correos
+EMAIL_HOST_USER = 'agrophiaproject@gmail.com'
+#contraseña para aplicaciones que se configura con gmail
+EMAIL_HOST_PASSWORD = 'rews xkby qhaz tfki'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

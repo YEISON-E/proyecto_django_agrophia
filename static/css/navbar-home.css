@@ -36,7 +36,15 @@
 
 .header-home__group {
   display: flex;
+  align-items: center;
   gap: 8px;
+}
+
+.navbar__sena-logo {
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(49%) sepia(97%) saturate(541%) hue-rotate(77deg) brightness(96%) contrast(101%);
 }
 
 .header-home__list {

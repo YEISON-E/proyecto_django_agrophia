@@ -2,17 +2,64 @@
 
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
-<section class="hero">
-    <div class="hero-content" style="
-    background-image: url('{% static 'img/hero__image.jpeg' %}');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: center;">
-      
-      <h1 class="hero-content__title">Manzana Golden Delicious</h1>
-      <p class="hero-content__information">Frutas de temporada con 20% de descuento. <br>
-        ¡Solo esta semana! <br>
-         Compra directamente al productor.</p>
+<div class="hero-carousel">
+
+    <div class="hero-carousel__track">
+
+      <div class="hero-carousel__slide" style="background-image: url('{% static 'img/hero__image.jpeg' %}');">
+        <div class="hero-carousel__overlay">
+          <h1 class="hero-content__title">Manzana Golden Delicious</h1>
+          <p class="hero-content__information">Frutas de temporada con 20% de descuento.<br>¡Solo esta semana! Compra directamente al productor.</p>
+        </div>
+      </div>
+
+      <div class="hero-carousel__slide" style="background-image: url('{% static 'img/huerto.jpg' %}');">
+        <div class="hero-carousel__overlay">
+          <h1 class="hero-content__title">Productos del Huerto</h1>
+          <p class="hero-content__information">Hortalizas frescas recién cosechadas.<br>Directo del campo a tu mesa.</p>
+        </div>
+      </div>
+
+      <div class="hero-carousel__slide" style="background-image: url('{% static 'img/farmer.jpg' %}');">
+        <div class="hero-carousel__overlay">
+          <h1 class="hero-content__title">Apoya al Agricultor</h1>
+          <p class="hero-content__information">Conectamos productores y consumidores.<br>Juntos construimos el campo.</p>
+        </div>
+      </div>
+
+      <div class="hero-carousel__slide" style="background-image: url('{% static 'img/lemons.jpg' %}');">
+        <div class="hero-carousel__overlay">
+          <h1 class="hero-content__title">Limones Premium</h1>
+          <p class="hero-content__information">Cítricos frescos de estación.<br>Descuentos por volumen disponibles.</p>
+        </div>
+      </div>
+
+      <div class="hero-carousel__slide" style="background-image: url('{% static 'img/papas-criollas.jpg' %}');">
+        <div class="hero-carousel__overlay">
+          <h1 class="hero-content__title">Papas Criollas</h1>
+          <p class="hero-content__information">Variedades nativas de la región.<br>Sabor auténtico garantizado.</p>
+        </div>
+      </div>
+
     </div>
-    
-</section>
+
+    <button class="hero-carousel__arrow hero-carousel__arrow--prev" aria-label="Anterior">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <button class="hero-carousel__arrow hero-carousel__arrow--next" aria-label="Siguiente">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+
+    <div class="hero-carousel__dots">
+      <button class="hero-carousel__dot hero-carousel__dot--active" aria-label="Diapositiva 1"></button>
+      <button class="hero-carousel__dot" aria-label="Diapositiva 2"></button>
+      <button class="hero-carousel__dot" aria-label="Diapositiva 3"></button>
+      <button class="hero-carousel__dot" aria-label="Diapositiva 4"></button>
+      <button class="hero-carousel__dot" aria-label="Diapositiva 5"></button>
+    </div>
+
+  </div>

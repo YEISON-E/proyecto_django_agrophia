@@ -5,6 +5,20 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from datetime import timedelta
 
+# Confirmar pedido por el cliente
+@require_POST
+@never_cache
+def confirm_order(request, order_id):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	order = get_object_or_404(Order, pk=order_id, customer=request.user)
+	if order.status == Order.STATUS_PENDING:
+		order.status = Order.STATUS_CONFIRMED
+		order.save(update_fields=["status"])
+
+	return redirect("pedidos:orders_client")
+
 from django.db.models import Prefetch
 from django.utils import timezone
 from Tiendas.models import Shop
@@ -49,9 +63,9 @@ def orders_farmer(request):
 		created_at__lt=cutoff,
 	).update(status=Order.STATUS_CONFIRMED)
 
+	# Mostrar todos los pedidos donde el agricultor tenga productos (sin filtrar por cutoff)
 	orders = Order.objects.filter(
-		items__farmer=request.user,
-		created_at__lt=cutoff,
+		items__farmer=request.user
 	).distinct().prefetch_related(
 		Prefetch(
 			"items",
@@ -73,18 +87,9 @@ def order_farmer_detail(request, order_id):
 	if not Shop.objects.filter(owner=request.user, is_active=True).exists():
 		return redirect("usuarios:home_customer")
 
-	cutoff = timezone.now() - timedelta(hours=Order.CANCEL_WINDOW_HOURS)
-	Order.objects.filter(
-		status=Order.STATUS_PENDING,
-		created_at__lt=cutoff,
-	).update(status=Order.STATUS_CONFIRMED)
-
 	order = get_object_or_404(Order.objects.select_related("customer"), pk=order_id)
 	items = list(order.items.filter(farmer=request.user).select_related("product", "farmer"))
 	if not items:
-		return redirect("pedidos:orders_farmer")
-
-	if order.created_at >= cutoff:
 		return redirect("pedidos:orders_farmer")
 
 	farmer_total = sum((item.subtotal for item in items), 0)
@@ -106,26 +111,13 @@ def update_order_status(request, order_id):
 	if not order.items.filter(farmer=request.user).exists():
 		return redirect("pedidos:orders_farmer")
 
-	cutoff = timezone.now() - timedelta(hours=Order.CANCEL_WINDOW_HOURS)
-	if order.status == Order.STATUS_PENDING and order.created_at < cutoff:
-		order.status = Order.STATUS_CONFIRMED
-		order.save(update_fields=["status"])
-
 	if order.status == Order.STATUS_CANCELLED:
 		return redirect("pedidos:orders_farmer")
 
-	if order.created_at >= cutoff:
-		return redirect("pedidos:orders_farmer")
-
 	new_status = (request.POST.get("status") or "").strip()
-	valid_statuses = {choice[0] for choice in Order.STATUS_CHOICES}
+	valid_statuses = {Order.STATUS_CONFIRMED, Order.STATUS_IN_PROGRESS, Order.STATUS_COMPLETED, Order.STATUS_CANCELLED}
 
-	if new_status in valid_statuses and new_status != Order.STATUS_PENDING:
-		if new_status == Order.STATUS_CANCELLED:
-			order.status = Order.STATUS_CANCELLED
-			order.save(update_fields=["status"])
-			return redirect("pedidos:orders_farmer")
-
+	if new_status in valid_statuses:
 		order.status = new_status
 		order.save(update_fields=["status"])
 

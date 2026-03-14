@@ -7,6 +7,7 @@ from .views import (
     cancel_order,
     order_receipt,
     order_farmer_detail,
+    confirm_order,
 )
 
 app_name = "pedidos"
@@ -18,4 +19,5 @@ urlpatterns = [
     path("pedidos-farmer/<int:order_id>/status/", update_order_status, name="update_order_status"),
     path("mis-pedidos/<int:order_id>/cancelar/", cancel_order, name="cancel_order"),
     path("mis-pedidos/<int:order_id>/comprobante/", order_receipt, name="order_receipt"),
+    path("mis-pedidos/<int:order_id>/confirmar/", confirm_order, name="confirm_order"),
 ]

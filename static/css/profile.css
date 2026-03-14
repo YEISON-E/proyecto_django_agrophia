@@ -194,7 +194,6 @@
 
 .profile__actions--back{
   display: flex;
-  width: 100%;
   box-sizing: border-box;
   background-color: var(--gray-700);
   color: var(--white);

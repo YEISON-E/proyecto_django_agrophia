@@ -1,0 +1,43 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/shop-edit-card.css' %}">
+<div class="shop-edit-main">
+  <form method="post" autocomplete="off">
+    {% csrf_token %}
+    <h2 style="text-align:center;color:#16a34a;margin-bottom:18px;">Editar Pedido</h2>
+    <div class="shop-edit-grid">
+      <div class="shop-edit-label">ID Pedido</div>
+      <div class="shop-edit-value">#{{ pedido.id }}</div>
+      <div class="shop-edit-label">Cliente</div>
+      <div class="shop-edit-value">{{ pedido.customer.get_full_name|default:pedido.customer.username }}</div>
+      <div class="shop-edit-label">Fecha</div>
+      <div class="shop-edit-value">{{ pedido.created_at|date:"d/m/Y H:i" }}</div>
+      <div class="shop-edit-label">Total</div>
+      <div class="shop-edit-value">${{ pedido.total_amount }}</div>
+      <div class="shop-edit-label">Estado</div>
+      <div class="shop-edit-value">
+        <select name="status" required {% if pedido.status == 'cancelled' %}disabled{% endif %}>
+          <option value="confirmed" {% if pedido.status == 'confirmed' %}selected{% endif %}>Confirmado</option>
+          <option value="in_progress" {% if pedido.status == 'in_progress' %}selected{% endif %}>En curso</option>
+          <option value="completed" {% if pedido.status == 'completed' %}selected{% endif %}>Completado</option>
+          <option value="cancelled" {% if pedido.status == 'cancelled' %}selected{% endif %}>Cancelado</option>
+        </select>
+      </div>
+      <div class="shop-edit-label">Dirección de entrega</div>
+      <div class="shop-edit-value">
+        <div style="color:#444;font-size:13px;margin-bottom:4px;">
+          Actual: {{ pedido.delivery_address|default:'Sin dirección registrada' }}
+        </div>
+        <input type="text" name="delivery_address" value="{{ pedido.delivery_address }}" required placeholder="Ingrese la dirección de entrega" {% if pedido.status == 'cancelled' %}disabled{% endif %}>
+      </div>
+    </div>
+    {% if errores %}
+      <div class="form-error" style="margin-top:12px;">
+        {% for campo, error in errores.items %}{{ error }}<br>{% endfor %}
+      </div>
+    {% endif %}
+    <div class="shop-edit-footer">
+      <button type="submit" class="shop-edit-btn" {% if pedido.status == 'cancelled' %}disabled{% endif %}>Actualizar pedido</button>
+      <a href="{% url 'administrador:orders_page' %}" class="shop-edit-cancel">&larr; Cancelar</a>
+    </div>
+  </form>
+</div>

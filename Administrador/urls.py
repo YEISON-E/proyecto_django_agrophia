@@ -32,4 +32,7 @@ urlpatterns = [
     path('productos/<int:product_id>/editar/', views.producto_admin_editar_view, name='producto_admin_editar'),
     path('productos/<int:product_id>/detalle/', views.producto_admin_detalle_view, name='producto_admin_detalle'),
     path('productos/reporte/', views.reporte_productos_view, name='reporte_productos'),
+    path('pedidos/<int:pedido_id>/', views.pedido_admin_detalle_view, name='pedido_admin_detalle'),
+    path('pedidos/<int:pedido_id>/editar/', views.pedido_admin_editar_view, name='pedido_admin_editar'),
+    path('pedidos/reporte/', views.reporte_pedidos_view, name='reporte_pedidos'),
 ]

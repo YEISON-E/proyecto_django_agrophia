@@ -31,19 +31,13 @@
               <img src="{% static 'icons/edit.svg' %}" alt="Editar" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;">Editar
             </a>
             {% if tienda.is_active %}
-              <form action="{% url 'administrador:tienda_admin_block' tienda.id %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="shops-table__button shops-table__button--block" title="Bloquear tienda">
-                  <img src="{% static 'icons/lock.svg' %}" alt="Bloquear" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;">Bloquear
-                </button>
-              </form>
+              <button type="button" onclick="bloquearTienda({{ tienda.id }})" class="shops-table__button shops-table__button--block" title="Bloquear tienda">
+                <img src="{% static 'icons/lock.svg' %}" alt="Bloquear" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;">Bloquear
+              </button>
             {% else %}
-              <form action="{% url 'administrador:tienda_admin_unblock' tienda.id %}" method="post" style="display:inline;">
-                {% csrf_token %}
-                <button type="submit" class="shops-table__button shops-table__button--unblock" title="Desbloquear tienda">
-                  <img src="{% static 'icons/unlock.svg' %}" alt="Desbloquear" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;">Desbloquear
-                </button>
-              </form>
+              <button type="button" onclick="desbloquearTienda({{ tienda.id }})" class="shops-table__button shops-table__button--unblock" title="Desbloquear tienda">
+                <img src="{% static 'icons/unlock.svg' %}" alt="Desbloquear" style="width:18px;height:18px;vertical-align:middle;margin-right:4px;">Desbloquear
+              </button>
             {% endif %}
           </td>
         </tr>

@@ -660,7 +660,9 @@ def usuarios_admin_view(request):
     return render(request, 'administrador/usuarios_admin.html', {'usuarios': usuarios})
 
 def orders_page_view(request):
-	return render(request, 'administrador/orders_page.html')
+    from Pedidos.models import Order
+    pedidos = Order.objects.select_related('customer').all()
+    return render(request, 'administrador/orders_page.html', {'pedidos': pedidos})
 
 def store_admin_view(request):
     from Tiendas.models import Shop
@@ -855,3 +857,82 @@ def usuario_admin_crear_view(request):
         'valores': valores,
         'departamentos_municipios': DEPARTAMENTOS_MUNICIPIOS
     })
+
+from Pedidos.models import Order, OrderItem
+from django.shortcuts import get_object_or_404, render
+
+def pedido_admin_detalle_view(request, pedido_id):
+    pedido = get_object_or_404(Order, id=pedido_id)
+    items = pedido.items.select_related('product', 'farmer').all()
+    return render(request, 'administrador/pedido_detalle_card.html', {
+        'pedido': pedido,
+        'items': items,
+    })
+
+def pedido_admin_editar_view(request, pedido_id):
+    pedido = get_object_or_404(Order, id=pedido_id)
+    errores = {}
+    if request.method == 'POST':
+        status = request.POST.get('status', '').strip()
+        delivery_address = request.POST.get('delivery_address', '').strip()
+        # Validaciones básicas
+        if status not in dict(Order.STATUS_CHOICES):
+            errores['status'] = 'Estado inválido.'
+        if not delivery_address:
+            errores['delivery_address'] = 'La dirección de entrega es obligatoria.'
+        if not errores:
+            pedido.status = status
+            pedido.delivery_address = delivery_address
+            pedido.save()
+            return redirect('administrador:orders_page')
+    items = pedido.items.select_related('product', 'farmer').all()
+    return render(request, 'administrador/pedido_editar_card.html', {
+        'pedido': pedido,
+        'items': items,
+        'errores': errores,
+        'status_choices': Order.STATUS_CHOICES,
+    })
+
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
+from django.http import HttpResponse
+
+def reporte_pedidos_view(request):
+    estado = request.GET.get('estado', 'todos')
+    queryset = Order.objects.select_related('customer').all()
+    if estado and estado != 'todos':
+        queryset = queryset.filter(status=estado)
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Pedidos Agrophia'
+    headers = ['ID', 'Cliente', 'Fecha', 'Total', 'Estado', 'Dirección de entrega']
+    ws.append(headers)
+    header_font = Font(bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='16A34A', end_color='16A34A', fill_type='solid')
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+    for p in queryset.order_by('-created_at'):
+        ws.append([
+            p.id,
+            p.customer.get_full_name() if hasattr(p.customer, 'get_full_name') else p.customer.username,
+            p.created_at.strftime('%Y-%m-%d %H:%M') if p.created_at else '',
+            str(p.total_amount),
+            p.get_status_display(),
+            p.delivery_address or '',
+        ])
+    for col in ws.columns:
+        max_length = 0
+        col_letter = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        ws.column_dimensions[col_letter].width = max_length + 2
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="pedidos_agrophia.xlsx"'
+    wb.save(response)
+    return response

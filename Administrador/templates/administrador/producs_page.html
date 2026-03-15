@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -11,6 +12,7 @@
     <script src="/frontend/public/js/components/search_products.js" defer></script>
     <script src="/frontend//public/js/components/products_table.js" defer></script>
     <script src="/frontend/public/js/components/card_information_admin.js"></script>
+    <script src="{% static 'js/productos_admin_actions.js' %}" defer></script>
     <title>Productos admin</title>
 </head>
 <body>
@@ -25,8 +27,9 @@
             <div class="card_admin_information"></div>
         </div>
     </div>
-    <div class="govco-container__two">
-        {% include 'components/gov-co__two.html' %}
+    
+    <div class="govco-container__one">
+        {% include 'components/gov-co__one.html' %}
     </div>
 </body>
 </html>

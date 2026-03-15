@@ -1,28 +1,23 @@
+    {% load static %}
     <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="/frontend/public/icons/planta.png">
-    <link rel="stylesheet" href="/frontend/public/css/main.css"> 
-    <script src="/frontend/public/js/components/store_admin.js" defer></script>
-    <script src="/frontend/public/js/components/sidebar_admin.js" defer></script>
-    <script src="/frontend/public/js/components/header_admin.js" defer></script>
-    <script src="/frontend/public/js/components/toolbar.js" defer></script>
-    <script src="/frontend/public/js/components/search_users.js" defer></script>
-    <title>Usuarios admin</title>
-</head>
-<body>
-    <div class="govco-container__one">
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Tiendas admin</title>
+        <link rel="stylesheet" href="{% static 'css/main.css' %}">
+        <link rel="stylesheet" href="{% static 'css/store_admin.css' %}">
+        <link rel="stylesheet" href="{% static 'css/toolbar_shop.css' %}">
+        <script src="{% static 'js/tiendas_admin_actions.js' %}" defer></script>
+        <!-- <script src="{% static 'js/components/toolbar_shop.js' %}" defer></script> -->
+    </head>
+    <body style="background: #f8fafc;">
         {% include 'components/gov-co__one.html' %}
-    </div>
-    {% include 'administrador/componentes/toolbar.html' %}
-    <div class="layout">
-        {% include 'administrador/componentes/sidebar.html' %}
-        {% include 'administrador/componentes/store_admin.html' %}
-    </div>
-    <div class="govco-container__two">
-        {% include 'components/gov-co__two.html' %}
-    </div>
-</body>
-</html>
+        {% include 'administrador/componentes/toolbar_shop.html' %}
+        <div class="layout">
+            {% include 'administrador/componentes/sidebar.html' %}
+            {% include 'administrador/componentes/table_shops_admin.html' %}
+        </div>
+        {% include 'components/gov-co__one.html' %}
+    </body>
+    </html>

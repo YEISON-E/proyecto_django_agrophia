@@ -1,0 +1,66 @@
+/* Estilos para editar producto admin */
+.editar-producto-container {
+  max-width: 520px;
+  margin: 32px auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  padding: 32px 28px;
+}
+.editar-producto-title {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #6366f1;
+  margin-bottom: 18px;
+}
+.editar-producto-form label {
+  font-weight: 600;
+  color: #232323;
+  margin-bottom: 2px;
+  display: block;
+}
+.editar-producto-form input,
+.editar-producto-form select,
+.editar-producto-form textarea {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 1em;
+}
+.editar-producto-btn {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 22px;
+  font-size: 1.08em;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.form-error {
+  color: #dc2626;
+  font-size: 0.98em;
+  margin-bottom: 8px;
+}
+.editar-producto-success {
+  background: #dbeafe;
+  color: #3730a3;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.editar-producto-imagenes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.editar-producto-imagen-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

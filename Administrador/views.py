@@ -1,3 +1,475 @@
+# --- Gestión de tiendas admin ---
+from Tiendas.models import Shop
+from django.views.decorators.http import require_POST
+
+def store_admin_view(request):
+    tiendas = Shop.objects.all().order_by('-created_at')
+    return render(request, 'administrador/store_admin.html', {'tiendas': tiendas})
+
+def tienda_admin_detalle_view(request, tienda_id):
+    tienda = get_object_or_404(Shop, id=tienda_id)
+    return render(request, 'administrador/tienda_detalle_admin.html', {'tienda': tienda})
+
+def tienda_admin_crear_view(request):
+    success = False
+    errores = {}
+    valores = {}
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        email = request.POST.get('email', '').strip()
+        departamento = request.POST.get('departamento', '').strip()
+        municipio = request.POST.get('municipio', '').strip()
+        direccion = request.POST.get('direccion', '').strip()
+        horario = request.POST.get('horario', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        valores = {
+            'nombre': nombre,
+            'telefono': telefono,
+            'email': email,
+            'departamento': departamento,
+            'municipio': municipio,
+            'direccion': direccion,
+            'horario': horario,
+            'descripcion': descripcion,
+        }
+        # Validaciones
+        if not nombre:
+            errores['nombre'] = 'El nombre es obligatorio.'
+        if not telefono:
+            errores['telefono'] = 'El teléfono es obligatorio.'
+        if not email:
+            errores['email'] = 'El correo es obligatorio.'
+        if not departamento:
+            errores['departamento'] = 'El departamento es obligatorio.'
+        if not municipio:
+            errores['municipio'] = 'El municipio es obligatorio.'
+        # Validar que el municipio pertenezca al departamento
+        from .departamentos_municipios import DEPARTAMENTOS_MUNICIPIOS
+        if departamento and municipio:
+            municipios_validos = DEPARTAMENTOS_MUNICIPIOS.get(departamento)
+            if municipios_validos and municipio not in municipios_validos:
+                errores['municipio'] = f'El municipio "{municipio}" no corresponde al departamento seleccionado.'
+        if not errores:
+            Shop.objects.create(
+                nombre=nombre,
+                telefono=telefono,
+                email=email,
+                departamento=departamento,
+                municipio=municipio,
+                direccion=direccion,
+                horario=horario,
+                descripcion=descripcion,
+                is_active=True
+            )
+            success = True
+            valores = {}
+    from .departamentos_municipios import DEPARTAMENTOS_MUNICIPIOS
+    return render(request, 'administrador/tienda_crear_admin.html', {
+        'success': success,
+        'errores': errores,
+        'valores': valores,
+        'departamentos_municipios': DEPARTAMENTOS_MUNICIPIOS,
+    })
+
+def tienda_admin_editar_view(request, tienda_id):
+    tienda = get_object_or_404(Shop, id=tienda_id)
+    success = False
+    errores = {}
+    valores = {
+        'nombre': tienda.nombre,
+        'telefono': tienda.telefono,
+        'email': tienda.email,
+        'departamento': tienda.departamento,
+        'municipio': tienda.municipio,
+        'direccion': tienda.direccion,
+        'horario': tienda.horario,
+        'descripcion': tienda.descripcion,
+    }
+    from .departamentos_municipios import DEPARTAMENTOS_MUNICIPIOS
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        telefono = request.POST.get('telefono', '').strip()
+        email = request.POST.get('email', '').strip()
+        departamento = request.POST.get('departamento', '').strip()
+        municipio = request.POST.get('municipio', '').strip()
+        direccion = request.POST.get('direccion', '').strip()
+        horario = request.POST.get('horario', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        valores = {
+            'nombre': nombre,
+            'telefono': telefono,
+            'email': email,
+            'departamento': departamento,
+            'municipio': municipio,
+            'direccion': direccion,
+            'horario': horario,
+            'descripcion': descripcion,
+        }
+        # Validaciones
+        if not nombre:
+            errores['nombre'] = 'El nombre es obligatorio.'
+        if not telefono:
+            errores['telefono'] = 'El teléfono es obligatorio.'
+        if not email:
+            errores['email'] = 'El correo es obligatorio.'
+        if not departamento:
+            errores['departamento'] = 'El departamento es obligatorio.'
+        if not municipio:
+            errores['municipio'] = 'El municipio es obligatorio.'
+        # Validar que el municipio pertenezca al departamento
+        from .departamentos_municipios import DEPARTAMENTOS_MUNICIPIOS
+        if departamento and municipio:
+            municipios_validos = DEPARTAMENTOS_MUNICIPIOS.get(departamento)
+            if municipios_validos and municipio not in municipios_validos:
+                errores['municipio'] = f'El municipio "{municipio}" no corresponde al departamento seleccionado.'
+        if not errores:
+            tienda.nombre = nombre
+            tienda.telefono = telefono
+            tienda.email = email
+            tienda.departamento = departamento
+            tienda.municipio = municipio
+            tienda.direccion = direccion
+            tienda.horario = horario
+            tienda.descripcion = descripcion
+            tienda.save()
+            success = True
+        return render(request, 'administrador/tienda_editar_admin.html', {
+            'success': success,
+            'errores': errores,
+            'valores': valores,
+            'departamentos_municipios': DEPARTAMENTOS_MUNICIPIOS,
+            'tienda': tienda,
+        })
+    return render(request, 'administrador/tienda_editar_admin.html', {
+        'success': success,
+        'errores': errores,
+        'valores': valores,
+        'departamentos_municipios': DEPARTAMENTOS_MUNICIPIOS,
+        'tienda': tienda,
+    })
+
+@require_POST
+def tienda_admin_block_view(request, tienda_id):
+    tienda = get_object_or_404(Shop, id=tienda_id)
+    tienda.is_active = False
+    tienda.save(update_fields=["is_active"])
+    return JsonResponse({'ok': True})
+
+@require_POST
+def tienda_admin_unblock_view(request, tienda_id):
+    tienda = get_object_or_404(Shop, id=tienda_id)
+    tienda.is_active = True
+    tienda.save(update_fields=["is_active"])
+    return JsonResponse({'ok': True})
+
+# Reporte de tiendas
+def reporte_tiendas_view(request):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Tiendas Agrophia'
+    headers = ['ID', 'Nombre', 'Teléfono', 'Correo', 'Departamento', 'Municipio', 'Dirección', 'Horario', 'Estado', 'Fecha creación']
+    ws.append(headers)
+    header_font = Font(bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='16A34A', end_color='16A34A', fill_type='solid')
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+    for t in Shop.objects.all().order_by('-created_at'):
+        ws.append([
+            t.id,
+            t.nombre,
+            t.telefono,
+            t.email,
+            t.departamento,
+            t.municipio,
+            t.direccion,
+            t.horario,
+            'Activo' if t.is_active else 'Inactivo',
+            t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else ''
+        ])
+    for col in ws.columns:
+        max_length = 0
+        col_letter = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        ws.column_dimensions[col_letter].width = max_length + 2
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="tiendas_agrophia.xlsx"'
+    wb.save(response)
+    return response
+# Reporte de productos
+def reporte_productos_view(request):
+    from Productos.models import Product
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Productos Agrophia'
+
+    # Encabezados
+    headers = ['ID', 'Nombre', 'Tipo', 'Unidad', 'Precio', 'Descripción', 'Garantía', 'Estado', 'Fecha creación']
+    ws.append(headers)
+    header_font = Font(bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='6366F1', end_color='6366F1', fill_type='solid')
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+
+    # Filas de datos
+    for p in Product.objects.all().order_by('-created_at'):
+        ws.append([
+            p.id,
+            p.nombre,
+            f"{p.tipo} ({p.tipo_otro})" if p.tipo == 'Otros' and p.tipo_otro else p.tipo,
+            p.unidad,
+            str(p.precio),
+            p.descripcion,
+            p.garantia,
+            'Activo' if p.is_active else 'Inactivo',
+            p.created_at.strftime('%Y-%m-%d %H:%M') if hasattr(p, 'created_at') and p.created_at else ''
+        ])
+
+    # Ajustar ancho de columnas
+    for col in ws.columns:
+        max_length = 0
+        col_letter = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        ws.column_dimensions[col_letter].width = max_length + 2
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="productos_agrophia.xlsx"'
+    wb.save(response)
+    return response
+# Vista detalle producto admin
+def producto_admin_detalle_view(request, product_id):
+    from Productos.models import Product
+    producto = get_object_or_404(Product, id=product_id)
+    return render(request, 'administrador/producto_detalle_admin.html', {'producto': producto})
+from Productos.models import Product, ProductImage
+from django.core.exceptions import ValidationError
+from decimal import Decimal, InvalidOperation
+# --- Vistas para crear y editar productos desde el admin ---
+def producto_admin_crear_view(request):
+    success = False
+    errores = {}
+    valores = {}
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        tipo = request.POST.get('tipo', '').strip()
+        tipo_otro = request.POST.get('tipo_otro', '').strip()
+        unidad = request.POST.get('unidad', '').strip()
+        precio = request.POST.get('precio', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        garantia = request.POST.get('garantia', '').strip()
+        fotos = request.FILES.getlist('fotos')
+        valores = {
+            'nombre': nombre,
+            'tipo': tipo,
+            'tipo_otro': tipo_otro,
+            'unidad': unidad,
+            'precio': precio,
+            'descripcion': descripcion,
+            'garantia': garantia,
+        }
+        # Validaciones básicas
+        if not nombre:
+            errores['nombre'] = 'El nombre es obligatorio.'
+        if not tipo:
+            errores['tipo'] = 'El tipo es obligatorio.'
+        if tipo == 'Otros' and not tipo_otro:
+            errores['tipo_otro'] = 'Debes especificar el tipo.'
+        if not unidad:
+            errores['unidad'] = 'La unidad es obligatoria.'
+        if not precio:
+            errores['precio'] = 'El precio es obligatorio.'
+        else:
+            try:
+                precio_val = Decimal(precio)
+                if precio_val <= 0:
+                    errores['precio'] = 'El precio debe ser mayor que 0.'
+            except (InvalidOperation, ValueError):
+                errores['precio'] = 'Precio inválido.'
+        if not descripcion:
+            errores['descripcion'] = 'La descripción es obligatoria.'
+        if not garantia:
+            errores['garantia'] = 'La garantía es obligatoria.'
+        if not fotos:
+            errores['fotos'] = 'Debes cargar al menos una imagen.'
+        elif len(fotos) > 8:
+            errores['fotos'] = 'Solo puedes cargar máximo 8 imágenes.'
+        else:
+            for photo in fotos:
+                if not (photo.content_type or '').startswith('image/'):
+                    errores['fotos'] = 'Solo se permiten archivos de imagen.'
+                    break
+        # Validación de modelo
+        if not errores:
+            producto = Product(
+                nombre=nombre,
+                tipo=tipo,
+                tipo_otro=tipo_otro,
+                unidad=unidad,
+                precio=precio,
+                descripcion=descripcion,
+                garantia=garantia,
+                is_active=True,
+                owner=request.user if request.user.is_authenticated else None
+            )
+            try:
+                producto.full_clean()
+            except ValidationError as exc:
+                for field, messages in exc.message_dict.items():
+                    errores[field] = messages[0] if messages else 'Valor inválido.'
+            else:
+                producto.save()
+                for photo in fotos:
+                    ProductImage.objects.create(product=producto, image=photo)
+                success = True
+                valores = {}
+    return render(request, 'administrador/producto_crear_admin.html', {
+        'success': success,
+        'errores': errores,
+        'valores': valores,
+        'tipo_choices': Product.TIPO_CHOICES,
+        'unidad_choices': Product.UNIDAD_CHOICES,
+    })
+
+def producto_admin_editar_view(request, product_id):
+    producto = get_object_or_404(Product, id=product_id)
+    success = False
+    errores = {}
+    valores = {
+        'nombre': producto.nombre,
+        'tipo': producto.tipo,
+        'tipo_otro': producto.tipo_otro,
+        'unidad': producto.unidad,
+        'precio': producto.precio,
+        'descripcion': producto.descripcion,
+        'garantia': producto.garantia,
+    }
+    existing_images = producto.images.all().order_by('-created_at')
+    can_upload_more_images = existing_images.count() < 8
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        tipo = request.POST.get('tipo', '').strip()
+        tipo_otro = request.POST.get('tipo_otro', '').strip()
+        unidad = request.POST.get('unidad', '').strip()
+        precio = request.POST.get('precio', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        garantia = request.POST.get('garantia', '').strip()
+        # método de pago y entrega eliminados
+        delete_image_ids = request.POST.getlist('delete_images')
+        new_images = request.FILES.getlist('new_images')
+        valores = {
+            'nombre': nombre,
+            'tipo': tipo,
+            'tipo_otro': tipo_otro,
+            'unidad': unidad,
+            'precio': precio,
+            'descripcion': descripcion,
+            'garantia': garantia,
+        }
+        # Validaciones básicas
+        if not nombre:
+            errores['nombre'] = 'El nombre es obligatorio.'
+        if not tipo:
+            errores['tipo'] = 'El tipo es obligatorio.'
+        if tipo == 'Otros' and not tipo_otro:
+            errores['tipo_otro'] = 'Debes especificar el tipo.'
+        if not unidad:
+            errores['unidad'] = 'La unidad es obligatoria.'
+        if not precio:
+            errores['precio'] = 'El precio es obligatorio.'
+        else:
+            try:
+                precio_val = Decimal(precio)
+                if precio_val <= 0:
+                    errores['precio'] = 'El precio debe ser mayor que 0.'
+            except (InvalidOperation, ValueError):
+                errores['precio'] = 'Precio inválido.'
+        if not descripcion:
+            errores['descripcion'] = 'La descripción es obligatoria.'
+        if not garantia:
+            errores['garantia'] = 'La garantía es obligatoria.'
+        # Imágenes
+        delete_qs = producto.images.filter(id__in=delete_image_ids)
+        existing_count = existing_images.count()
+        remaining_count = existing_count - delete_qs.count()
+        total_after_update = remaining_count + len(new_images)
+        if existing_count >= 8 and len(new_images) > 0 and delete_qs.count() == 0:
+            errores['fotos'] = 'Ya tienes 8 imágenes. Elimina alguna para poder subir nuevas.'
+        elif total_after_update <= 0:
+            errores['fotos'] = 'El producto debe tener al menos una imagen.'
+        elif total_after_update > 8:
+            errores['fotos'] = 'Solo puedes mantener máximo 8 imágenes por producto.'
+        else:
+            for photo in new_images:
+                if not (photo.content_type or '').startswith('image/'):
+                    errores['fotos'] = 'Solo se permiten archivos de imagen.'
+                    break
+        # Validación de modelo
+        if not errores:
+            producto.nombre = nombre
+            producto.tipo = tipo
+            producto.tipo_otro = tipo_otro
+            producto.unidad = unidad
+            producto.precio = precio
+            producto.descripcion = descripcion
+            producto.garantia = garantia
+            # método de pago y entrega eliminados
+            try:
+                producto.full_clean()
+            except ValidationError as exc:
+                for field, messages in exc.message_dict.items():
+                    errores[field] = messages[0] if messages else 'Valor inválido.'
+            else:
+                producto.save()
+                if delete_qs.exists():
+                    delete_qs.delete()
+                for image_file in new_images:
+                    ProductImage.objects.create(product=producto, image=image_file)
+                success = True
+                existing_images = producto.images.all().order_by('-created_at')
+                can_upload_more_images = existing_images.count() < 8
+    if success:
+        return redirect('administrador:producs_page')
+    return render(request, 'administrador/producto_editar_admin.html', {
+        'success': success,
+        'errores': errores,
+        'valores': valores,
+        'producto': producto,
+        'existing_images': existing_images,
+        'can_upload_more_images': can_upload_more_images,
+        'tipo_choices': Product.TIPO_CHOICES,
+        'unidad_choices': Product.UNIDAD_CHOICES,
+    })
+# Bloquear/desbloquear producto desde admin
+from Productos.models import Product
+from django.views.decorators.http import require_POST
+
+@require_POST
+def producto_admin_block_view(request, product_id):
+    producto = get_object_or_404(Product, id=product_id)
+    producto.is_active = False
+    producto.save(update_fields=["is_active"])
+    return JsonResponse({'ok': True})
+
+@require_POST
+def producto_admin_unblock_view(request, product_id):
+    producto = get_object_or_404(Product, id=product_id)
+    producto.is_active = True
+    producto.save(update_fields=["is_active"])
+    return JsonResponse({'ok': True})
 # Enviar mensaje general (a todos, solo usuarios o solo tiendas)
 from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
@@ -196,7 +668,9 @@ def store_admin_view(request):
     return render(request, 'administrador/store_admin.html', {'tiendas': tiendas})
 
 def producs_page_view(request):
-	return render(request, 'administrador/producs_page.html')
+    from Productos.models import Product
+    productos = Product.objects.all().order_by('-created_at')
+    return render(request, 'administrador/producs_page.html', {'productos': productos})
 
 # Bloquear/desbloquear usuario
 def usuario_admin_block_view(request, usuario_id):

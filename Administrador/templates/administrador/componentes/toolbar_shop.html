@@ -8,9 +8,9 @@
     </div>
     <div class="header-home__group header-home__group--right">
       <ul class="navbar__list">
-        <li class="navbar__item"><a href="/administrador/productos/" class="navbar__link">Productos</a></li>
-        <li class="navbar__item"><a href="#" class="navbar__link" onclick="descargarReporteProductos();return false;">Generar Reporte</a></li>
-        <li class="navbar__item"><a href="{% url 'administrador:producto_admin_crear' %}" class="navbar__link">Nuevo Producto</a></li>
+        <li class="navbar__item"><a href="/administrador/tiendas/" class="navbar__link">Tiendas</a></li>
+        <li class="navbar__item"><a href="#" class="navbar__link" onclick="descargarReporteTiendas();return false;">Generar Reporte</a></li>
+        <li class="navbar__item"><a href="{% url 'administrador:tienda_admin_crear' %}" class="navbar__link">Nueva Tienda</a></li>
         <li class="navbar__item"><a href="/administrador/logout/" class="navbar__link">Cerrar sesión</a></li>
       </ul>
       <div class="toolbar-main__row-icons">
@@ -30,9 +30,6 @@
           </div>
         </div>
         <script>
-          function descargarReporteProductos() {
-            window.location.href = '/administrador/productos/reporte/';
-          }
           // Cierra el dropdown si se hace click fuera
           window.addEventListener('click', function(e) {
             if (!e.target.closest('.toolbar-main__profile-dropdown')) {
@@ -52,4 +49,9 @@
       </div>
     </div>
   </nav>
+  <script>
+    function descargarReporteTiendas() {
+      window.location.href = '/administrador/tiendas/reporte/';
+    }
+  </script>
 </header>

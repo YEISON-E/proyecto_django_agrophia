@@ -1,0 +1,24 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/shop-detail-admin.css' %}">
+<link rel="stylesheet" href="{% static 'css/shop-detail-card.css' %}">
+<div class="shop-detail-card">
+  <div class="shop-detail-card__header">
+    <h2>Detalle de Tienda</h2>
+  </div>
+  <div class="shop-detail-card__body">
+    <div class="shop-detail-card__row"><span class="shop-detail-card__label">ID tienda:</span> <span class="shop-detail-card__value">{{ tienda.id }}</span></div>
+    <div class="shop-detail-card__row"><span class="shop-detail-card__label">Nombre:</span> <span class="shop-detail-card__value">{{ tienda.nombre }}</span></div>
+    <div class="shop-detail-card__row"><span class="shop-detail-card__label">Teléfono:</span> <span class="shop-detail-card__value">{{ tienda.telefono }}</span></div>
+    <div class="shop-detail-card__row"><span class="shop-detail-card__label">Correo electrónico:</span> <span class="shop-detail-card__value">{{ tienda.email }}</span></div>
+    <div class="shop-detail-card__row"><span class="shop-detail-card__label">Departamento:</span> <span class="shop-detail-card__value">{{ tienda.departamento }}</span></div>
+    <div class="shop-detail-card__row"><span class="shop-detail-card__label">Municipio:</span> <span class="shop-detail-card__value">{{ tienda.municipio }}</span></div>
+    <div class="shop-detail-card__row"><span class="shop-detail-card__label">Dirección:</span> <span class="shop-detail-card__value">{{ tienda.direccion }}</span></div>
+    <div class="shop-detail-card__row"><span class="shop-detail-card__label">Horario:</span> <span class="shop-detail-card__value">{{ tienda.horario }}</span></div>
+    <div class="shop-detail-card__row"><span class="shop-detail-card__label">Descripción:</span> <span class="shop-detail-card__value">{{ tienda.descripcion }}</span></div>
+    <div class="shop-detail-card__row"><span class="shop-detail-card__label">Estado:</span> <span class="shop-detail-card__value">{% if tienda.is_active %}Activo{% else %}Inactivo{% endif %}</span></div>
+  </div>
+  <div class="shop-detail-card__footer shop-detail-card__footer--bottom">
+    <a href="{% url 'administrador:store_admin' %}" class="shop-detail-back">&larr; Volver al listado</a>
+    <a href="{% url 'administrador:tienda_admin_editar' tienda.id %}" class="editar-tienda-btn">Editar tienda</a>
+  </div>
+</div>

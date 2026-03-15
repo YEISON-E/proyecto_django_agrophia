@@ -1,0 +1,18 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Tienda</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/store_admin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/toolbar_shop.css' %}">
+    <link rel="stylesheet" href="{% static 'css/update_shop.css' %}">
+</head>
+<body>
+    {% block content %}
+    {% include 'administrador/componentes/shop_editar_card.html' %}
+    {% endblock %}
+</body>
+</html>

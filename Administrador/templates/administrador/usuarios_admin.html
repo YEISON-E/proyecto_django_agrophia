@@ -1,0 +1,23 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/users_table.css' %}">
+<link rel="stylesheet" href="{% static 'css/usuario_detalle_admin.css' %}">
+<script src="{% static 'js/usuarios_admin_actions.js' %}"></script>
+<script>
+function descargarReporteUsuarios() {
+  window.location.href = '/administrador/usuarios/reporte/';
+}
+</script>
+
+
+{% include 'components/gov-co__one.html' %}
+{% include 'administrador/componentes/toolbar_users.html' %}
+<div class="sidebar-centered-container">
+  {% include 'administrador/componentes/sidebar.html' %}
+</div>
+<div class="admin-content">
+    <h1 class="admin-title">Usuarios registrados</h1>
+    {% include 'administrador/componentes/tabla_usuarios_admin.html' %}
+</div>
+
+    {% include 'components/gov-co__one.html' %}

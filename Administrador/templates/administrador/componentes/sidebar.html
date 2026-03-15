@@ -1,0 +1,35 @@
+{% load static %}
+<aside class="sidebar">
+  <ul class="sidebar__list">
+    <li>
+      <a href="/administrador/home/" class="sidebar__item">
+        <img src="{% static 'icons/home.svg' %}" alt="icono inicio" class="sidebar__icon">
+        <span class="sidebar__text">Inicio</span>
+      </a>
+    </li>
+    <li>
+      <a href="/administrador/pedidos/" class="sidebar__item">
+        <img src="{% static 'icons/truck.svg' %}" alt="icono pedidos" class="sidebar__icon">
+        <span class="sidebar__text">Pedidos</span>
+      </a>
+    </li>
+    <li>
+      <a href="/administrador/tiendas/" class="sidebar__item">
+        <img src="{% static 'img/store.png' %}" alt="icono tienda" class="sidebar__icon">
+        <span class="sidebar__text">Tiendas</span>
+      </a>
+    </li>
+    <li>
+      <a href="/administrador/productos/" class="sidebar__item">
+        <img src="{% static 'icons/box.svg' %}" alt="icono productos" class="sidebar__icon">
+        <span class="sidebar__text">Productos</span>
+      </a>
+    </li>
+    <li>
+      <a href="/administrador/usuarios/" class="sidebar__item">
+        <img src="{% static 'icons/users.svg' %}" alt="icono usuarios" class="sidebar__icon">
+        <span class="sidebar__text">Usuarios</span>
+      </a>
+    </li>
+  </ul>
+</aside>

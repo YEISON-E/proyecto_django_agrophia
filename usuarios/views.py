@@ -305,6 +305,17 @@ def login_customer_user(request):
     if not request.user.is_authenticated:
         return redirect("usuarios:login")
 
+    # Mostrar mensaje importante del admin si existe
+    from Mensajes.models import AdminToUserMessage
+    from usuarios.models import Register
+    # Buscar por id_usuario o por número_documento (username)
+    register_user = Register.objects.filter(id_usuario=request.user.id).first()
+    if not register_user:
+        register_user = Register.objects.filter(numero_documento=request.user.username).first()
+    mensaje_admin = None
+    if register_user:
+        mensaje_admin = AdminToUserMessage.objects.filter(usuario=register_user, leido=False).order_by('-creado').first()
+        # Ya no se marca como leído aquí, se hará por AJAX al cerrar el modal
     force_customer_home = request.session.pop("force_customer_home", False)
     if user_has_shop(request.user) and not force_customer_home:
         return redirect("tiendas:interface_farmer")
@@ -316,9 +327,13 @@ def login_customer_user(request):
 
     customer_home_notice = request.session.pop("customer_home_notice", "")
 
+    print("[DEBUG] Usuario autenticado:", request.user)
+    print("[DEBUG] Register encontrado:", register_user)
+    print("[DEBUG] mensaje_admin:", mensaje_admin)
     return render(request, "login_customer_user.html", {
         "productos": productos,
         "customer_home_notice": customer_home_notice,
+        "mensaje_admin": mensaje_admin,
     })
 
 
@@ -330,9 +345,19 @@ def mensajes_sends(request):
     return redirect("mensajes:sent_messages")
 
 def index(request):
-    """Página pública principal. Si está autenticado, redirige al home interno."""
+    """Página pública principal. Siempre muestra el index público y cierra sesión si hay usuario autenticado."""
+
     if request.user.is_authenticated:
-        return redirect("usuarios:home_customer")
+        # Si es admin, redirigir al home de admin
+        try:
+            reg = Register.objects.get(id_usuario=request.user.id)
+            if reg.estado == 'admin':
+                return redirect('/administrador/home/')
+        except Register.DoesNotExist:
+            pass
+        # Si no es admin, cerrar sesión y limpiar sesión
+        logout(request)
+        request.session.flush()
 
     productos = Product.objects.filter(
         is_active=True,
@@ -459,6 +484,14 @@ class Logueo(LoginView):
                 "valores": {"username": username}
             })
 
+        # VALIDAR ESTADO
+        if usuario_registro.estado not in ['activo', 'admin']:
+            errores["general"] = "Tu cuenta está bloqueada o inactiva. Contacta al administrador."
+            return render(request, self.template_name, {
+                "errores": errores,
+                "valores": {"username": username}
+            })
+
         # OBTENER O CREAR USUARIO EN DJANGO USER
         user, created = User.objects.get_or_create(
             username=username,
@@ -471,6 +504,11 @@ class Logueo(LoginView):
 
         # LOGIN OK
         login(request, user)
+        # Si es admin, siempre redirigir a la vista de admin
+        if usuario_registro.estado == 'admin':
+            request.session['admin_user_id'] = user.id
+            return redirect('administrador:home_admin')
+        # Si no es admin, ir a la vista de usuario
         return redirect("usuarios:home_customer")
 
 
@@ -815,4 +853,26 @@ def terminos_uso(request):
 @require_GET
 def preguntas_frecuentes(request):
     return render(request, "preguntas_frecuentes.html")
+
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+
+@require_POST
+def marcar_mensaje_admin_leido(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'No autenticado'}, status=403)
+    from Mensajes.models import AdminToUserMessage
+    from usuarios.models import Register
+    register_user = Register.objects.filter(id_usuario=request.user.id).first()
+    if not register_user:
+        return JsonResponse({'ok': False, 'error': 'Usuario no encontrado'}, status=404)
+    mensaje_id = request.POST.get('mensaje_id')
+    if not mensaje_id:
+        return JsonResponse({'ok': False, 'error': 'ID de mensaje faltante'}, status=400)
+    mensaje = AdminToUserMessage.objects.filter(id=mensaje_id, usuario=register_user, leido=False).first()
+    if not mensaje:
+        return JsonResponse({'ok': False, 'error': 'Mensaje no encontrado'}, status=404)
+    mensaje.leido = True
+    mensaje.save()
+    return JsonResponse({'ok': True})
 

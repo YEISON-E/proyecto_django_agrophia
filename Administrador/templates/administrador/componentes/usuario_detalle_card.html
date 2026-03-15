@@ -1,0 +1,82 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
+<div class="user-detail-main">
+  <div class="user-detail-grid">
+    <div class="user-detail-avatar">
+      {% if usuario.foto %}
+        <img src="{{ usuario.foto.url }}" alt="Foto de perfil" style="width:55px;height:55px;border-radius:50%;object-fit:cover;">
+      {% else %}
+        <span style="display:flex;align-items:center;justify-content:center;width:55px;height:55px;font-size:1.2em;background:#6366f1;color:#fff;border-radius:50%;">{{ usuario.nombres|slice:":1"|upper }}</span>
+      {% endif %}
+    </div>
+    <div>
+      <div class="user-detail-label">ID usuario</div>
+      <div class="user-detail-value">{{ usuario.id_usuario }}</div>
+    </div>
+    <div>
+      <div class="user-detail-label">Tipo documento</div>
+      <div class="user-detail-value">{{ usuario.tipo_documento }}</div>
+    </div>
+    <div>
+      <div class="user-detail-label">Número documento</div>
+      <div class="user-detail-value">{{ usuario.numero_documento }}</div>
+    </div>
+    <div>
+      <div class="user-detail-label">Nombre</div>
+      <div class="user-detail-value">{{ usuario.nombres }} {{ usuario.apellidos }}</div>
+    </div>
+    <div>
+      <div class="user-detail-label">Correo</div>
+      <div class="user-detail-value">{{ usuario.correo_electronico }}</div>
+    </div>
+    <div>
+      <div class="user-detail-label">Teléfono</div>
+      <div class="user-detail-value">{{ usuario.telefono }}</div>
+    </div>
+    <div>
+      <div class="user-detail-label">Departamento</div>
+      <div class="user-detail-value">{{ usuario.departamento }}</div>
+    </div>
+    <div>
+      <div class="user-detail-label">Municipio</div>
+      <div class="user-detail-value">{{ usuario.municipio }}</div>
+    </div>
+    <div>
+      <div class="user-detail-label">Estado</div>
+      <div class="user-detail-value">{{ usuario.estado|title }}</div>
+    </div>
+    <div>
+      <div class="user-detail-label">Admin code validado</div>
+      <div class="user-detail-value">{{ usuario.admin_code_validated|yesno:"Sí,No" }}</div>
+    </div>
+    <div style="grid-column: 1 / 4;">
+      <div class="user-detail-label">Dirección</div>
+      <div class="user-detail-value">{{ usuario.direccion_completa }}</div>
+    </div>
+    {% if usuario.descripcion_perfil %}
+    <div style="grid-column: 1 / 4;">
+      <div class="user-detail-label">Descripción perfil</div>
+      <div class="user-detail-value">{{ usuario.descripcion_perfil }}</div>
+    </div>
+    {% endif %}
+  </div>
+  {% if tienda %}
+  <div style="margin-top:24px;padding:16px 20px;background:#f0fdf4;border-radius:8px;grid-column: 1 / 4;">
+    <strong style="color:#16a34a;">Este usuario es una tienda</strong><br>
+    <strong>Nombre tienda:</strong> {{ tienda.nombre }}<br>
+    <strong>Email tienda:</strong> {{ tienda.email }}<br>
+    <strong>Teléfono tienda:</strong> {{ tienda.telefono }}<br>
+    <strong>Departamento:</strong> {{ tienda.departamento }}<br>
+    <strong>Municipio:</strong> {{ tienda.municipio }}<br>
+    <strong>Dirección:</strong> {{ tienda.direccion }}<br>
+    <strong>Descripción:</strong> {{ tienda.descripcion }}<br>
+    <strong>Horario:</strong> {{ tienda.horario }}<br>
+    <strong>¿Punto físico?:</strong> {{ tienda.punto_fisico|yesno:"Sí,No" }}<br>
+    <strong>Estado tienda:</strong> {{ tienda.is_active|yesno:"Activa,Inactiva" }}
+  </div>
+  {% endif %}
+  <div style="display:flex; justify-content:space-between; margin-top:18px;">
+    <a href="{% url 'administrador:usuarios_admin' %}" class="user-detail-back">&larr; Volver</a>
+    <a href="{% url 'administrador:usuario_admin_editar' usuario.id %}" class="user-detail-save">Editar</a>
+  </div>
+</div>

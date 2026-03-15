@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/frontend/public/icons/planta.png">
+    <link rel="stylesheet" href="/frontend/public/css/main.css">
+    <script src="/frontend/public/js/components/sidebar_admin.js" defer></script>
+    <script src="/frontend/public/js/components/header_admin.js" defer></script>
+    <script src="/frontend/public/js/components/toolbar_products.js" defer></script>
+    <script src="/frontend/public/js/components/search_products.js" defer></script>
+    <script src="/frontend//public/js/components/products_table.js" defer></script>
+    <script src="/frontend/public/js/components/card_information_admin.js"></script>
+    <title>Productos admin</title>
+</head>
+<body>
+    <div class="govco-container__one">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+    {% include 'administrador/componentes/toolbar_products.html' %}
+    <div class="layout">
+        {% include 'administrador/componentes/sidebar.html' %}
+        <div class="layout__products-row">
+            {% include 'administrador/componentes/table_products_admin.html' %}
+            <div class="card_admin_information"></div>
+        </div>
+    </div>
+    <div class="govco-container__two">
+        {% include 'components/gov-co__two.html' %}
+    </div>
+</body>
+</html>

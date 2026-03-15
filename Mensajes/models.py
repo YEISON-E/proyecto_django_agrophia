@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from Productos.models import Product
+from usuarios.models import Register
 
 # Create your models here.
 
@@ -63,3 +64,14 @@ class FarmerReply(models.Model):
 
 	def __str__(self):
 		return f"Respuesta #{self.id} al mensaje #{self.message_id}"
+
+
+class AdminToUserMessage(models.Model):
+    usuario = models.ForeignKey(Register, on_delete=models.CASCADE, related_name='mensajes_admin')
+    texto = models.TextField()
+    enviado = models.BooleanField(default=False)
+    leido = models.BooleanField(default=False)
+    creado = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Mensaje admin para {self.usuario} - {self.creado:%Y-%m-%d %H:%M}"

@@ -57,8 +57,19 @@ def interface_farmer(request):
 
 	productos = Product.objects.filter(owner=request.user, is_active=True).prefetch_related("images").order_by("-created_at")
 
+	# Lógica de mensaje importante admin
+	from Mensajes.models import AdminToUserMessage
+	from usuarios.models import Register
+	register_user = Register.objects.filter(id_usuario=request.user.id).first()
+	if not register_user:
+		register_user = Register.objects.filter(numero_documento=request.user.username).first()
+	mensaje_admin = None
+	if register_user:
+		mensaje_admin = AdminToUserMessage.objects.filter(usuario=register_user, leido=False).order_by('-creado').first()
+
 	return render(request, "tiendas/interface_farmer.html", {
 		"productos": productos,
+		"mensaje_admin": mensaje_admin,
 	})
 
 

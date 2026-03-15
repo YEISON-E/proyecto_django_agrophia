@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'carrito_compras',
     'Mensajes',
     'Pedidos',
+    'Administrador',
     # 'widget_tweaks',
 ]
 
@@ -78,8 +79,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'agrophia.wsgi.application'
 
-# Sesiones en base de datos
+
+# Sesiones en base de datos y seguridad
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# Tiempo de expiración de sesión: 1 hora (3600 segundos)
+SESSION_COOKIE_AGE = 3600
+# La sesión NO expira al cerrar el navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+# Seguridad extra: solo cookies seguras si usas HTTPS
+# SESSION_COOKIE_SECURE = True
+# SESSION_COOKIE_HTTPONLY = True
+# SESSION_SAVE_EVERY_REQUEST = True  # Opcional: renueva sesión en cada request
 
 
 # Database

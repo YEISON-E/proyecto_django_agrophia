@@ -1,18 +1,101 @@
 {% load static %}
-<div class="toolbar-main">
-  <div class="header-home__group header-home__group--left">
-    <h1 class="header-home__title">Agrophia</h1>
-    <img src="{% static 'icons/planta.png' %}" alt="Icon principal">
-  </div>
-
-  <div class="header-home__group header-home__group--right">
-    <div class="toolbar-main__row-icons">
-      <button class="toolbar-main__icon" title="Notificaciones">
-        <img src="{% static 'icons/bell.svg' %}" alt="Notificaciones" class="toolbar-main__icon-img">
-      </button>
-      <button class="toolbar-main__icon" title="Perfil">
-        <img src="{% static 'icons/user.svg' %}" alt="Perfil" class="toolbar-main__icon-img">
-      </button>
+<header class="header">
+  <nav class="header__navbar">
+    <div class="header-home__group header-home__group--left">
+      <img src="{% static 'icons/Logo SENA.svg' %}" alt="SENA" class="navbar__sena-logo">
+      <h1 class="header-home__title">Agrophia</h1>
+      <img src="{% static 'icons/planta.png' %}" alt="Icon principal">
     </div>
+    <div class="header-home__group header-home__group--right">
+      <ul class="navbar__list">
+        <li class="navbar__item"><a href="{% url 'administrador:home_admin' %}" class="navbar__link">Inicio</a></li>
+        <li class="navbar__item"><a href="{% url 'administrador:usuarios_admin' %}" class="navbar__link">Usuarios</a></li>
+        <li class="navbar__item"><a href="{% url 'administrador:store_admin' %}" class="navbar__link">Tiendas</a></li>
+        <li class="navbar__item"><a href="{% url 'administrador:producs_page' %}" class="navbar__link">Productos</a></li>
+        <li class="navbar__item"><a href="{% url 'administrador:orders_page' %}" class="navbar__link">Pedidos</a></li>
+        <li class="navbar__item"><a href="#" class="navbar__link" id="toolbar-home-report-trigger">Generar reporte</a></li>
+        <li class="navbar__item"><a href="/administrador/logout/" class="navbar__link">Cerrar sesión</a></li>
+      </ul>
+      <div class="toolbar-main__row-icons">
+        <button class="toolbar-main__icon" title="Notificaciones" type="button">
+          <img src="{% static 'icons/bell.svg' %}" alt="Notificaciones" class="toolbar-main__icon-img">
+        </button>
+        <div class="toolbar-main__profile-dropdown" style="position:relative;display:inline-block;">
+          <button class="toolbar-main__icon" title="Perfil" type="button" id="toolbar-home-profile-toggle">
+            <img src="{% static 'icons/user.svg' %}" alt="Perfil" class="toolbar-main__icon-img">
+          </button>
+          <div id="toolbar-home-profile-menu" class="profile-dropdown-content" style="display:none;position:absolute;right:0;top:40px;background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.12);min-width:220px;padding:16px 18px;z-index:100;">
+            <div style="font-weight:700;font-size:1.08em;color:#16a34a;margin-bottom:4px;">{{ request.session.admin_nombres|default:'Administrador' }}</div>
+            <div style="font-size:0.98em;color:#232323;margin-bottom:8px;">{{ request.session.admin_correo|default:'admin@correo.com' }}</div>
+            <hr style="margin:8px 0;">
+            <a href="{% url 'administrador:admin_editar_perfil' %}" style="color:#16a34a;font-weight:600;text-decoration:none;display:block;margin-bottom:8px;">Editar perfil</a>
+            <a href="/administrador/logout/" style="color:#dc2626;font-weight:600;text-decoration:none;">Cerrar sesión</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="toolbar-report__overlay" id="toolbar-home-report-overlay" aria-hidden="true">
+  <div class="toolbar-report__modal" role="dialog" aria-modal="true" aria-labelledby="toolbar-home-report-title">
+    <div class="toolbar-report__header">
+      <h2 id="toolbar-home-report-title" class="toolbar-report__title">Reporte de actividad reciente</h2>
+      <button type="button" class="toolbar-report__close" id="toolbar-home-report-close" aria-label="Cerrar">×</button>
+    </div>
+    <form method="get" action="{% url 'administrador:reporte_actividad_reciente' %}" id="toolbar-home-report-form" class="toolbar-report__form">
+      <label class="toolbar-report__field">
+        <span>Tipo de actividad</span>
+        <select name="activity_type" id="toolbar-home-activity-type">
+          <option value="all">Toda la actividad</option>
+          <option value="users">Solo usuarios</option>
+          <option value="shops">Solo tiendas</option>
+          <option value="products">Solo productos</option>
+          <option value="orders">Solo pedidos</option>
+        </select>
+      </label>
+      <label class="toolbar-report__field">
+        <span>Alcance del reporte</span>
+        <select name="scope" id="toolbar-home-scope">
+          <option value="all">Toda la actividad disponible</option>
+          <option value="count">Solo una parte por cantidad</option>
+          <option value="period">Solo el periodo actual</option>
+        </select>
+      </label>
+      <div class="toolbar-report__conditional" id="toolbar-home-count-fields" hidden>
+        <label class="toolbar-report__field">
+          <span>Orden</span>
+          <select name="count_mode">
+            <option value="latest">Ultimas</option>
+            <option value="first">Primeras</option>
+          </select>
+        </label>
+        <label class="toolbar-report__field">
+          <span>Cantidad</span>
+          <input type="number" name="count_value" min="1" max="1000" value="100">
+        </label>
+      </div>
+      <div class="toolbar-report__conditional" id="toolbar-home-period-fields" hidden>
+        <label class="toolbar-report__field">
+          <span>Periodo</span>
+          <select name="period">
+            <option value="month">Este mes</option>
+            <option value="year">Este año</option>
+          </select>
+        </label>
+      </div>
+      <label class="toolbar-report__field">
+        <span>Formato de salida</span>
+        <select name="output_format" id="toolbar-home-output-format">
+          <option value="excel">Generar Excel</option>
+          <option value="print">Vista para imprimir</option>
+        </select>
+      </label>
+      <p class="toolbar-report__help">Puedes exportar toda la actividad o una parte: por ejemplo, las ultimas 100, las primeras 100, las de este mes o las de este año.</p>
+      <div class="toolbar-report__actions">
+        <button type="button" class="toolbar-report__button toolbar-report__button--secondary" id="toolbar-home-report-cancel">Cancelar</button>
+        <button type="submit" class="toolbar-report__button toolbar-report__button--primary">Generar</button>
+      </div>
+    </form>
   </div>
 </div>
+<script src="{% static 'js/components/toolbar_home.js' %}" defer></script>

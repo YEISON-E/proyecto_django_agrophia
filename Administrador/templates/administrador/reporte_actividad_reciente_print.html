@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte de actividad reciente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 24px;
+            color: #111827;
+        }
+        .report-header {
+            margin-bottom: 18px;
+        }
+        .report-header h1 {
+            margin: 0 0 10px;
+            color: #166534;
+        }
+        .report-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+        .report-summary__item {
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #f9fafb;
+        }
+        .report-summary__label {
+            display: block;
+            font-size: 0.85rem;
+            color: #4b5563;
+            margin-bottom: 4px;
+        }
+        .report-summary__value {
+            font-weight: 700;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #d1d5db;
+            padding: 10px;
+            text-align: left;
+            vertical-align: top;
+        }
+        th {
+            background: #166534;
+            color: #ffffff;
+        }
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        @media print {
+            body {
+                margin: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-header">
+        <h1>Reporte de actividad reciente</h1>
+    </div>
+    <div class="report-summary">
+        <div class="report-summary__item">
+            <span class="report-summary__label">Tipo de actividad</span>
+            <span class="report-summary__value">{{ resumen.tipo_actividad }}</span>
+        </div>
+        <div class="report-summary__item">
+            <span class="report-summary__label">Alcance</span>
+            <span class="report-summary__value">{{ resumen.alcance }}</span>
+        </div>
+        <div class="report-summary__item">
+            <span class="report-summary__label">Resultados</span>
+            <span class="report-summary__value">{{ resumen.total_resultados }}</span>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Categoría</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for evento in eventos %}
+            <tr>
+                <td>{{ evento.fecha }}</td>
+                <td>{{ evento.categoria }}</td>
+                <td>{{ evento.tipo }}</td>
+                <td>{{ evento.descripcion }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No hay actividad para los filtros seleccionados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        window.addEventListener('load', function () {
+            window.print();
+        });
+    </script>
+</body>
+</html>

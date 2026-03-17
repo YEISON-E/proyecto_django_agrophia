@@ -1,12 +1,61 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const ToolbarElement = document.querySelector(".toolbar_shop");
+  const toggleButton = document.getElementById("toolbar-shop-profile-toggle");
+  const menu = document.getElementById("profile-dropdown");
+  const reportTrigger = document.getElementById("toolbar-shop-report-trigger");
+  const reportOverlay = document.getElementById("toolbar-shop-report-overlay");
+  const reportClose = document.getElementById("toolbar-shop-report-close");
+  const reportCancel = document.getElementById("toolbar-shop-report-cancel");
+  const reportForm = document.getElementById("toolbar-shop-report-form");
+  const outputFormat = document.getElementById("toolbar-shop-output-format");
 
-  if (ToolbarElement) {
-    fetch("/frontend/public/views/components/toolbar_Shop.html")
-      .then(response => response.text())
-      .then(data => {
-        ToolbarElement.innerHTML = data;
-      })
-      .catch(error => console.log("Error cargando el toolbar", error));
+  if (!toggleButton || !menu) {
+    return;
   }
+
+  function closeReportModal() {
+    if (!reportOverlay) {
+      return;
+    }
+    reportOverlay.classList.remove("is-open");
+    reportOverlay.setAttribute("aria-hidden", "true");
+  }
+
+  toggleButton.addEventListener("click", function (event) {
+    event.stopPropagation();
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  });
+
+  if (reportTrigger) {
+    reportTrigger.addEventListener("click", function (event) {
+      event.preventDefault();
+      reportOverlay.classList.add("is-open");
+      reportOverlay.setAttribute("aria-hidden", "false");
+    });
+  }
+  if (reportClose) {
+    reportClose.addEventListener("click", closeReportModal);
+  }
+  if (reportCancel) {
+    reportCancel.addEventListener("click", closeReportModal);
+  }
+  if (reportForm && outputFormat) {
+    reportForm.addEventListener("submit", function () {
+      reportForm.target = outputFormat.value === "print" ? "_blank" : "_self";
+    });
+  }
+
+  window.addEventListener("click", function (event) {
+    if (!event.target.closest(".toolbar-main__profile-dropdown")) {
+      menu.style.display = "none";
+    }
+    if (reportOverlay && event.target === reportOverlay) {
+      closeReportModal();
+    }
+  });
+
+  window.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      closeReportModal();
+    }
+  });
 });

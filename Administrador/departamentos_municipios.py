@@ -1,31 +1,12 @@
 # Lista de departamentos y municipios válidos para Colombia (ejemplo)
 DEPARTAMENTOS_MUNICIPIOS = {
-    'Amazonas': ['Leticia', 'Puerto Nariño'],
-    'Antioquia': ['Medellín', 'Bello', 'Envigado', 'Itagüí'],
-    'Atlántico': ['Barranquilla', 'Soledad'],
-    'Bogotá D.C.': ['Bogotá'],
-    'Bolívar': ['Cartagena', 'Magangué'],
-    'Boyacá': ['Tunja', 'Duitama'],
-    'Caldas': ['Manizales', 'Villamaría'],
-    'Caquetá': ['Florencia'],
-    'Cauca': ['Popayán'],
-    'Cesar': ['Valledupar'],
-    'Córdoba': ['Montería'],
-    'Cundinamarca': ['Soacha', 'Zipaquirá'],
-    'Chocó': ['Quibdó'],
-    'Huila': ['Neiva'],
-    'La Guajira': ['Riohacha'],
-    'Magdalena': ['Santa Marta'],
-    'Meta': ['Villavicencio'],
-    'Nariño': ['Pasto'],
-    'Norte de Santander': ['Cúcuta'],
-    'Putumayo': ['Mocoa'],
-    'Quindío': ['Armenia'],
-    'Risaralda': ['Pereira', 'Dosquebradas', 'Santa Rosa de Cabal'],
-    'Santander': ['Bucaramanga'],
-    'Sucre': ['Sincelejo'],
-    'Tolima': ['Ibagué'],
-    'Valle del Cauca': ['Cali', 'Palmira', 'Buenaventura'],
-    'Vaupés': ['Mitú'],
-    'Vichada': ['Puerto Carreño'],
+    'Caldas': [
+        'Aguadas', 'Anserma', 'Aranzazu', 'Belalcázar', 'Chinchiná', 'Filadelfia', 'La Dorada', 'La Merced', 'Manizales', 'Manzanares', 'Marmato', 'Marquetalia', 'Marulanda', 'Neira', 'Norcasia', 'Pácora', 'Palestina', 'Pensilvania', 'Riosucio', 'Risaralda', 'Salamina', 'Samaná', 'San José', 'Supía', 'Victoria', 'Villamaría', 'Viterbo'
+    ],
+    'Risaralda': [
+        'Apía', 'Balboa', 'Belén de Umbría', 'Dosquebradas', 'Guática', 'La Celia', 'La Virginia', 'Marsella', 'Mistrató', 'Pereira', 'Pueblo Rico', 'Quinchía', 'Santa Rosa de Cabal', 'Santuario'
+    ],
+    'Quindío': [
+        'Armenia', 'Buenavista', 'Calarcá', 'Circasia', 'Córdoba', 'Filandia', 'Génova', 'La Tebaida', 'Montenegro', 'Pijao', 'Quimbaya', 'Salento'
+    ]
 }

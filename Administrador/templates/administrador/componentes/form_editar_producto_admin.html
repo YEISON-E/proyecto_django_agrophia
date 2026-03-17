@@ -1,0 +1,98 @@
+{% load static %}
+<div class="editar-producto-container">
+  <a href="{% url 'administrador:producs_page' %}" style="display:inline-block;margin-bottom:18px;color:#16a34a;font-weight:600;text-decoration:none;font-size:1.08em;">
+    ← Volver al listado
+  </a>
+  <div class="editar-producto-title">Editar producto</div>
+  {% if success %}
+    <div class="editar-producto-success">Producto editado exitosamente.</div>
+  {% endif %}
+  <form method="post" class="editar-producto-form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div>
+      <label for="nombre">Nombre</label>
+      <input type="text" name="nombre" id="nombre" value="{{ valores.nombre|default:'' }}" required>
+      {% if errores.nombre %}<div class="form-error">{{ errores.nombre }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="tipo">Tipo</label>
+      <select name="tipo" id="tipo" required>
+        <option value="">Seleccione...</option>
+        {% for value, label in tipo_choices %}
+          <option value="{{ value }}" {% if valores.tipo == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if errores.tipo %}<div class="form-error">{{ errores.tipo }}</div>{% endif %}
+    </div>
+    <div id="group-tipo-otro" style="display:{% if valores.tipo == 'Otros' %}block{% else %}none{% endif %};">
+      <label for="tipo_otro">Tipo (si seleccionaste Otros)</label>
+      <input type="text" name="tipo_otro" id="tipo_otro" value="{{ valores.tipo_otro|default:'' }}">
+      {% if errores.tipo_otro %}<div class="form-error">{{ errores.tipo_otro }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="unidad">Unidad</label>
+      <select name="unidad" id="unidad" required>
+        <option value="">Seleccione...</option>
+        {% for value, label in unidad_choices %}
+          <option value="{{ value }}" {% if valores.unidad == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if errores.unidad %}<div class="form-error">{{ errores.unidad }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="precio">Precio</label>
+      <input type="number" name="precio" id="precio" value="{{ valores.precio|default:'' }}" min="1" step="0.01" required>
+      {% if errores.precio %}<div class="form-error">{{ errores.precio }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="descripcion">Descripción</label>
+      <textarea name="descripcion" id="descripcion" required>{{ valores.descripcion|default:'' }}</textarea>
+      {% if errores.descripcion %}<div class="form-error">{{ errores.descripcion }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="garantia">Garantía</label>
+      <input type="text" name="garantia" id="garantia" value="{{ valores.garantia|default:'' }}" required>
+      {% if errores.garantia %}<div class="form-error">{{ errores.garantia }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="metodo_pago">Método de pago</label>
+      <select name="metodo_pago" id="metodo_pago" required>
+        <option value="">Seleccione...</option>
+        {% for value, label in metodo_pago_choices %}
+          <option value="{{ value }}" {% if valores.metodo_pago == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if errores.metodo_pago %}<div class="form-error">{{ errores.metodo_pago }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="metodo_entrega">Método de entrega</label>
+      <select name="metodo_entrega" id="metodo_entrega" required>
+        <option value="">Seleccione...</option>
+        {% for value, label in metodo_entrega_choices %}
+          <option value="{{ value }}" {% if valores.metodo_entrega == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if errores.metodo_entrega %}<div class="form-error">{{ errores.metodo_entrega }}</div>{% endif %}
+    </div>
+    <div>
+      <label>Imágenes actuales</label>
+      <div class="editar-producto-imagenes">
+        {% for image in existing_images %}
+          <div class="editar-producto-imagen-item">
+            <img src="{{ image.image.url }}" alt="Imagen del producto" style="width:60px;height:60px;object-fit:cover;border-radius:8px;">
+            <label><input type="checkbox" name="delete_images" value="{{ image.id }}"> Eliminar</label>
+          </div>
+        {% empty %}
+          <p>No hay imágenes registradas.</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div>
+      <label for="new_images">Agregar nuevas imágenes</label>
+      <input type="file" name="new_images" id="new_images" accept="image/*" multiple {% if not can_upload_more_images %}disabled{% endif %}>
+      {% if errores.fotos %}<div class="form-error">{{ errores.fotos }}</div>{% endif %}
+    </div>
+    <button type="submit" class="editar-producto-btn">Guardar cambios</button>
+  </form>
+</div>
+<script src="{% static 'js/productos_editar_admin.js' %}"></script>

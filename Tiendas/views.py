@@ -1,6 +1,11 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
+from django.contrib.auth import logout
+from django.contrib.auth.models import User
+from django.core import signing
+from django.core.signing import BadSignature, SignatureExpired
+from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from datetime import datetime
@@ -44,8 +49,29 @@ def _get_register_user(request):
 	return register_user
 
 
+def _get_shop_flow_owner(request):
+	if request.user.is_authenticated:
+		request.session["shop_flow_owner_id"] = request.user.id
+		return request.user
+
+	owner_id = request.session.get("shop_flow_owner_id")
+	if not owner_id:
+		return None
+
+	return User.objects.filter(id=owner_id).first()
+
+
+@never_cache
 def create_farmer_perfil(request):
-	return render(request, "tiendas/create-farmer-perfil.html")
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+	request.session["shop_flow_owner_id"] = request.user.id
+	if user_has_shop(request.user):
+		return redirect("tiendas:interface_farmer")
+	shop_owner_token = signing.dumps({"owner_user_id": request.user.id})
+	return render(request, "tiendas/create-farmer-perfil.html", {
+		"shop_owner_token": shop_owner_token,
+	})
 
 
 @never_cache
@@ -173,9 +199,30 @@ def create_product2(request):
 	return redirect("productos:create_product2")
 
 
+@never_cache
 def create_shop_step1(request):
+	flow_owner = _get_shop_flow_owner(request)
+	if not flow_owner and request.method == "POST":
+		owner_token = request.POST.get("owner_token", "")
+		if owner_token:
+			try:
+				owner_data = signing.loads(owner_token, max_age=7200)
+				owner_user_id = owner_data.get("owner_user_id")
+				if owner_user_id:
+					flow_owner = User.objects.filter(id=owner_user_id).first()
+					if flow_owner:
+						request.session["shop_flow_owner_id"] = flow_owner.id
+			except (BadSignature, SignatureExpired, TypeError, ValueError):
+				flow_owner = None
+
+	if not flow_owner:
+		return redirect("usuarios:login")
+	if user_has_shop(flow_owner):
+		return redirect("tiendas:interface_farmer")
+
 	if request.method == "POST":
 		request.session["shop_step1"] = {
+			"owner_user_id": flow_owner.id,
 			"nombre": request.POST.get("nombre"),
 			"telefono": request.POST.get("telefono"),
 			"email": request.POST.get("email"),
@@ -184,11 +231,26 @@ def create_shop_step1(request):
 		}
 		return redirect("tiendas:create_shop_step2")
 
-	return render(request, "tiendas/create-shop.html")
+	valores = request.session.get("shop_step1", {})
+	shop_owner_token = signing.dumps({"owner_user_id": flow_owner.id})
+	return render(request, "tiendas/create-shop.html", {
+		"shop_owner_token": shop_owner_token,
+		"valores": valores,
+	})
 
 
+@never_cache
 def create_shop_step2(request):
-	shop_success = request.session.pop("shop_success", False)
+	step1 = request.session.get("shop_step1")
+	owner_user_id = step1.get("owner_user_id") if step1 else request.session.get("shop_flow_owner_id")
+	owner_user = User.objects.filter(id=owner_user_id).first() if owner_user_id else None
+	flow_user = request.user if request.user.is_authenticated else owner_user
+
+	if flow_user and user_has_shop(flow_user) and not step1:
+		return redirect("tiendas:interface_farmer")
+	if request.method == "GET" and not step1:
+		return redirect("tiendas:create_shop_step1") if request.user.is_authenticated else redirect("usuarios:login")
+
 	errores = {}
 	valores = {
 		"tiene_punto_fisico": "no",
@@ -199,8 +261,13 @@ def create_shop_step2(request):
 	}
 
 	if request.method == "POST":
-		step1 = request.session.get("shop_step1")
 		if not step1:
+			return redirect("tiendas:create_shop_step1")
+		if not owner_user:
+			request.session.pop("shop_step1", None)
+			return redirect("usuarios:login")
+		if request.user.is_authenticated and step1.get("owner_user_id") != request.user.id:
+			request.session.pop("shop_step1", None)
 			return redirect("tiendas:create_shop_step1")
 
 		tiene_punto_fisico = request.POST.get("tiene_punto_fisico", "no").strip()
@@ -247,11 +314,10 @@ def create_shop_step2(request):
 			return render(request, "tiendas/create-shop2.html", {
 				"errores": errores,
 				"valores": valores,
-				"shop_success": shop_success,
 			})
 
 		Shop.objects.create(
-			owner=request.user if request.user.is_authenticated else None,
+			owner=owner_user,
 			nombre=step1["nombre"],
 			telefono=step1["telefono"],
 			email=step1["email"],
@@ -264,12 +330,11 @@ def create_shop_step2(request):
 		)
 
 		del request.session["shop_step1"]
-
-		request.session["shop_success"] = True
-		return redirect("tiendas:create_shop_step2")
+		request.session.pop("shop_flow_owner_id", None)
+		logout(request)
+		return redirect(f"{reverse('usuarios:login')}?shop_created=1")
 
 	return render(request, "tiendas/create-shop2.html", {
-		"shop_success": shop_success,
 		"errores": errores,
 		"valores": valores,
 	})

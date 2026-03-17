@@ -1,0 +1,83 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/shop-edit-card.css' %}">
+<div class="shop-edit-main">
+  <form method="post">
+    {% csrf_token %}
+    <h2 style="text-align:center;color:#16a34a;margin-bottom:18px;">Editar Tienda</h2>
+    <div class="shop-edit-grid">
+      <div class="shop-edit-label">Nombre</div>
+      <div class="shop-edit-value"><input type="text" name="nombre" value="{{ valores.nombre|default:'' }}" required></div>
+      <div class="shop-edit-label">Teléfono</div>
+      <div class="shop-edit-value"><input type="text" name="telefono" value="{{ valores.telefono|default:'' }}" required></div>
+      <div class="shop-edit-label">Correo electrónico</div>
+      <div class="shop-edit-value"><input type="email" name="email" value="{{ valores.email|default:'' }}" required></div>
+      <div class="shop-edit-label">Departamento</div>
+      <div class="shop-edit-value">
+        <select id="departamento-select" name="departamento" required>
+          <option value="">Selecciona un departamento</option>
+          {% for dep, municipios in departamentos_municipios.items %}
+            <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="shop-edit-label">Municipio</div>
+      <div class="shop-edit-value">
+        <select id="municipio-select" name="municipio" required>
+          <option value="">Selecciona un municipio</option>
+          {% if valores.departamento and valores.municipio %}
+            {% with municipios=departamentos_municipios|dictsort:valores.departamento %}
+              {% for dep, municipios_list in departamentos_municipios.items %}
+                {% if dep == valores.departamento %}
+                  {% for mun in municipios_list %}
+                    <option value="{{ mun }}" {% if valores.municipio == mun %}selected{% endif %}>{{ mun }}</option>
+                  {% endfor %}
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          {% endif %}
+        </select>
+      </div>
+      </div>
+      <script>
+      // Diccionario de departamentos y municipios para JS
+      const departamentosMunicipios = {
+        {% for dep, municipios in departamentos_municipios.items %}
+          "{{ dep }}": [{% for mun in municipios %}"{{ mun }}"{% if not forloop.last %},{% endif %}{% endfor %}],
+        {% endfor %}
+      };
+
+      const departamentoSelect = document.getElementById('departamento-select');
+      const municipioSelect = document.getElementById('municipio-select');
+
+      departamentoSelect.addEventListener('change', function() {
+        const dep = this.value;
+        municipioSelect.innerHTML = '<option value="">Selecciona un municipio</option>';
+        if (departamentosMunicipios[dep]) {
+          departamentosMunicipios[dep].forEach(function(mun) {
+            const opt = document.createElement('option');
+            opt.value = mun;
+            opt.textContent = mun;
+            municipioSelect.appendChild(opt);
+          });
+        }
+      });
+      </script>
+      <div class="shop-edit-label">Dirección</div>
+      <div class="shop-edit-value"><input type="text" name="direccion" value="{{ valores.direccion|default:'' }}"></div>
+      <div class="shop-edit-label">Horario</div>
+      <div class="shop-edit-value"><input type="text" name="horario" value="{{ valores.horario|default:'' }}"></div>
+      <div class="shop-edit-label">Descripción</div>
+      <div class="shop-edit-value"><textarea name="descripcion">{{ valores.descripcion|default:'' }}</textarea></div>
+    </div>
+    {% if errores %}
+      <div class="form-error" style="margin-top:12px;">{{ errores.nombre }}{{ errores.telefono }}{{ errores.email }}{{ errores.departamento }}{{ errores.municipio }}</div>
+    {% endif %}
+    <div class="shop-edit-footer">
+      <a href="{% url 'administrador:store_admin' %}" class="shop-edit-cancel">&larr; Cancelar</a>
+      <button type="submit" class="shop-edit-btn">Guardar cambios</button>
+    </div>
+    {% if success %}
+      <div class="editar-tienda-success">Tienda editada exitosamente.</div>
+    {% endif %}
+  </form>
+</div>

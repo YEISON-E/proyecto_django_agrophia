@@ -1,0 +1,58 @@
+{% load static %}
+<header class="header">
+  <nav class="header__navbar">
+    <div class="header-home__group header-home__group--left">
+      <img src="{% static 'icons/Logo SENA.svg' %}" alt="SENA" class="navbar__sena-logo">
+      <h1 class="header-home__title">Agrophia</h1>
+      <img src="{% static 'icons/planta.png' %}" alt="Icon principal">
+    </div>
+    <div class="header-home__group header-home__group--right">
+      <ul class="navbar__list">
+        <li class="navbar__item"><a href="/administrador/tiendas/" class="navbar__link">Tiendas</a></li>
+        <li class="navbar__item"><a href="#" class="navbar__link" id="toolbar-shop-report-trigger">Generar Reporte</a></li>
+        <li class="navbar__item"><a href="{% url 'administrador:tienda_admin_crear' %}" class="navbar__link">Nueva Tienda</a></li>
+        <li class="navbar__item"><a href="/administrador/logout/" class="navbar__link">Cerrar sesión</a></li>
+      </ul>
+      <div class="toolbar-main__row-icons">
+        <button class="toolbar-main__icon" title="Notificaciones">
+          <img src="{% static 'icons/bell.svg' %}" alt="Notificaciones" class="toolbar-main__icon-img">
+        </button>
+        <div class="toolbar-main__profile-dropdown" style="position:relative;display:inline-block;">
+          <button class="toolbar-main__icon" title="Perfil" type="button" id="toolbar-shop-profile-toggle">
+            <img src="{% static 'icons/user.svg' %}" alt="Perfil" class="toolbar-main__icon-img">
+          </button>
+          <div id="profile-dropdown" class="profile-dropdown-content" style="display:none;position:absolute;right:0;top:40px;background:#fff;border-radius:10px;box-shadow:0 2px 12px rgba(0,0,0,0.12);min-width:220px;padding:16px 18px;z-index:100;">
+            <div style="font-weight:700;font-size:1.08em;color:#16a34a;margin-bottom:4px;">{{ request.session.admin_nombres|default:'Administrador' }}</div>
+            <div style="font-size:0.98em;color:#232323;margin-bottom:8px;">{{ request.session.admin_correo|default:'admin@correo.com' }}</div>
+            <hr style="margin:8px 0;">
+            <a href="{% url 'administrador:admin_editar_perfil' %}" style="color:#16a34a;font-weight:600;text-decoration:none;display:block;margin-bottom:8px;">Editar perfil</a>
+            <a href="/administrador/logout/" style="color:#dc2626;font-weight:600;text-decoration:none;">Cerrar sesión</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+<div class="toolbar-report__overlay" id="toolbar-shop-report-overlay" aria-hidden="true">
+  <div class="toolbar-report__modal" role="dialog" aria-modal="true" aria-labelledby="toolbar-shop-report-title">
+    <div class="toolbar-report__header">
+      <h2 id="toolbar-shop-report-title" class="toolbar-report__title">Reporte de tiendas</h2>
+      <button type="button" class="toolbar-report__close" id="toolbar-shop-report-close" aria-label="Cerrar">×</button>
+    </div>
+    <form method="get" action="{% url 'administrador:reporte_tiendas' %}" id="toolbar-shop-report-form" class="toolbar-report__form">
+      <label class="toolbar-report__field">
+        <span>Formato de salida</span>
+        <select name="output_format" id="toolbar-shop-output-format">
+          <option value="excel">Generar Excel</option>
+          <option value="print">Vista para imprimir</option>
+        </select>
+      </label>
+      <p class="toolbar-report__help">Exporta el listado actual de tiendas con el mismo estilo de modal usado en inicio.</p>
+      <div class="toolbar-report__actions">
+        <button type="button" class="toolbar-report__button toolbar-report__button--secondary" id="toolbar-shop-report-cancel">Cancelar</button>
+        <button type="submit" class="toolbar-report__button toolbar-report__button--primary">Generar</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script src="{% static 'js/components/toolbar_shop.js' %}" defer></script>

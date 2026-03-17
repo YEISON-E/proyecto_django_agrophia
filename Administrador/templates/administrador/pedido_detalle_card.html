@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Pedido</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/shop-edit-card.css' %}">
+</head>
+<body>
+    {% block content %}
+        {% include 'administrador/componentes/pedido_detalle_card.html' %}
+    {% endblock %}
+</body>
+</html>

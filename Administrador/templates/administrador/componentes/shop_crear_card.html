@@ -1,0 +1,140 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/shop-edit-card.css' %}">
+<div class="shop-edit-main">
+  <form method="post" autocomplete="off">
+    {% csrf_token %}
+    <h2 style="text-align:center;color:#16a34a;margin-bottom:18px;">Crear Tienda</h2>
+    <div style="margin-bottom:18px;">
+      <div class="shop-edit-label" style="margin-bottom:8px;">Usuario cliente asociado</div>
+      <div class="shop-edit-value">
+        <select name="owner_id" id="owner-select" required>
+          <option value="">Selecciona un cliente existente</option>
+          {% for usuario in usuarios_disponibles %}
+            <option value="{{ usuario.id_usuario }}" {% if valores.owner_id == usuario.id_usuario|stringformat:'s' %}selected{% endif %}>
+              {{ usuario.nombres }} {{ usuario.apellidos }} - {{ usuario.numero_documento }} - {{ usuario.correo_electronico }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      {% if errores.owner_id %}
+        <div class="form-error" style="margin-top:8px;">{{ errores.owner_id }}</div>
+      {% endif %}
+      <div style="margin-top:8px;font-size:0.95em;color:#4b5563;">
+        La tienda se crea sobre un cliente existente. Ese usuario conservara su usuario y contraseña para iniciar sesión como tienda.
+      </div>
+    </div>
+    <div class="shop-edit-grid">
+      <div class="shop-edit-label">Nombre</div>
+      <div class="shop-edit-value"><input type="text" name="nombre" value="{{ valores.nombre|default:'' }}" required></div>
+      <div class="shop-edit-label">Teléfono</div>
+      <div class="shop-edit-value"><input type="text" name="telefono" id="telefono-input" value="{{ valores.telefono|default:'' }}" required></div>
+      <div class="shop-edit-label">Correo electrónico</div>
+      <div class="shop-edit-value"><input type="email" name="email" id="email-input" value="{{ valores.email|default:'' }}" required></div>
+      <div class="shop-edit-label">Departamento</div>
+      <div class="shop-edit-value">
+        <select id="departamento-select" name="departamento" required>
+          <option value="">Selecciona un departamento</option>
+          {% for dep, municipios in departamentos_municipios.items %}
+            <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="shop-edit-label">Municipio</div>
+      <div class="shop-edit-value">
+        <select id="municipio-select" name="municipio" required>
+          <option value="">Selecciona un municipio</option>
+        </select>
+      </div>
+      <div class="shop-edit-label">Dirección</div>
+      <div class="shop-edit-value"><input type="text" name="direccion" id="direccion-input" value="{{ valores.direccion|default:'' }}"></div>
+      <div class="shop-edit-label">Horario</div>
+      <div class="shop-edit-value"><input type="text" name="horario" value="{{ valores.horario|default:'' }}"></div>
+      <div class="shop-edit-label">Descripción</div>
+      <div class="shop-edit-value"><textarea name="descripcion">{{ valores.descripcion|default:'' }}</textarea></div>
+    </div>
+    {% if errores %}
+      <div class="form-error" style="margin-top:12px;">{{ errores.nombre }}{{ errores.telefono }}{{ errores.email }}{{ errores.departamento }}{{ errores.municipio }}</div>
+    {% endif %}
+    <div class="shop-edit-footer">
+      <button type="submit" class="shop-edit-btn">Crear tienda</button>
+      <a href="{% url 'administrador:store_admin' %}" class="shop-edit-cancel">&larr; Cancelar</a>
+    </div>
+    {% if success %}
+      <div class="editar-tienda-success">Tienda creada exitosamente. Redirigiendo...</div>
+      <script>setTimeout(function(){ window.location.href = "{% url 'administrador:store_admin' %}"; }, 1200);</script>
+    {% endif %}
+  </form>
+  {{ departamentos_municipios|json_script:"departamentos-municipios-data" }}
+  {{ usuarios_disponibles_data|json_script:"usuarios-disponibles-data" }}
+  <script>
+  const departamentosMunicipios = JSON.parse(
+    document.getElementById('departamentos-municipios-data').textContent
+  );
+  const usuariosDisponibles = JSON.parse(
+    document.getElementById('usuarios-disponibles-data').textContent
+  );
+  const usuariosPorId = Object.fromEntries(
+    usuariosDisponibles.map((usuario) => [String(usuario.id_usuario), usuario])
+  );
+
+  const ownerSelect = document.getElementById('owner-select');
+  const departamentoSelect = document.getElementById('departamento-select');
+  const municipioSelect = document.getElementById('municipio-select');
+  const telefonoInput = document.getElementById('telefono-input');
+  const emailInput = document.getElementById('email-input');
+  const direccionInput = document.getElementById('direccion-input');
+  const municipioSeleccionado = "{{ valores.municipio|default:''|escapejs }}";
+
+  function renderMunicipios(departamento, municipioActual = '') {
+    municipioSelect.innerHTML = '<option value="">Selecciona un municipio</option>';
+    if (departamentosMunicipios[departamento]) {
+      departamentosMunicipios[departamento].forEach(function(mun) {
+        const opt = document.createElement('option');
+        opt.value = mun;
+        opt.textContent = mun;
+        if (mun === municipioActual) {
+          opt.selected = true;
+        }
+        municipioSelect.appendChild(opt);
+      });
+    }
+  }
+
+  function autocompletarDesdeUsuario() {
+    const usuario = usuariosPorId[ownerSelect.value];
+    if (!usuario) {
+      return;
+    }
+
+    if (!telefonoInput.value.trim()) {
+      telefonoInput.value = usuario.telefono || '';
+    }
+    if (!emailInput.value.trim()) {
+      emailInput.value = usuario.correo_electronico || '';
+    }
+    if (!departamentoSelect.value.trim()) {
+      departamentoSelect.value = usuario.departamento || '';
+      renderMunicipios(departamentoSelect.value, usuario.municipio || '');
+    } else if (!municipioSelect.value.trim() && usuario.departamento === departamentoSelect.value) {
+      renderMunicipios(departamentoSelect.value, usuario.municipio || '');
+    }
+    if (!direccionInput.value.trim()) {
+      direccionInput.value = usuario.direccion_completa || '';
+    }
+  }
+
+  departamentoSelect.addEventListener('change', function() {
+    renderMunicipios(this.value, '');
+  });
+
+  ownerSelect.addEventListener('change', autocompletarDesdeUsuario);
+
+  if (departamentoSelect.value) {
+    renderMunicipios(departamentoSelect.value, municipioSeleccionado);
+  }
+
+  if (ownerSelect.value) {
+    autocompletarDesdeUsuario();
+  }
+  </script>
+</div>

@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const emailInput = document.getElementById("email");
     const departamentoSelect = document.getElementById("departamento");
     const municipioSelect = document.getElementById("municipio");
+    const municipioPrevio = municipioSelect?.dataset.selectedMunicipio || "";
 
     // Normaliza texto para comparar municipios (manejo de tildes y espacios)
     const normalizarTexto = (valor) =>
@@ -42,6 +43,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const departamento = departamentoSelect?.value || "";
         if (window.LocationUtils) {
             window.LocationUtils.poblarMunicipios(departamento, municipioSelect);
+            if (municipioPrevio) {
+                municipioSelect.value = municipioPrevio;
+            }
             return;
         }
 

@@ -36,8 +36,8 @@
       </div>
     {% endif %}
     <div class="shop-edit-footer">
-      <button type="submit" class="shop-edit-btn" {% if pedido.status == 'cancelled' %}disabled{% endif %}>Actualizar pedido</button>
       <a href="{% url 'administrador:orders_page' %}" class="shop-edit-cancel">&larr; Cancelar</a>
+      <button type="submit" class="shop-edit-btn" {% if pedido.status == 'cancelled' %}disabled{% endif %}>Actualizar pedido</button>
     </div>
   </form>
 </div>

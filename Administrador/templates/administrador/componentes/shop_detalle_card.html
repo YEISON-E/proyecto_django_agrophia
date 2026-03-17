@@ -71,8 +71,10 @@
   </div>
   {% endif %}
 
-  <div style="display:flex; justify-content:space-between; margin-top:18px;">
-    <a href="{% url 'administrador:store_admin' %}" class="user-detail-back">&larr; Volver</a>
-    <a href="{% url 'administrador:tienda_admin_editar' tienda.id %}" class="user-detail-save">Editar</a>
+  <div class="shop-edit-footer">
+    <a href="{% url 'administrador:store_admin' %}" class="shop-edit-cancel">&larr; Volver</a>
+    <a href="{% url 'administrador:tienda_admin_editar' tienda.id %}" class="shop-edit-btn">
+      <img src="{% static 'icons/edit.svg' %}" alt="Editar" class="shop-edit-action-icon">Editar
+    </a>
   </div>
 </div>

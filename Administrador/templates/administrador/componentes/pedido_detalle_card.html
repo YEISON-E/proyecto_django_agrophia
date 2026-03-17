@@ -16,10 +16,10 @@
     <div class="shop-edit-label">Dirección de entrega</div>
     <div class="shop-edit-value">{{ pedido.delivery_address|default:'Sin dirección registrada' }}</div>
   </div>
-  <div class="shop-edit-footer" style="display:flex;gap:12px;align-items:center;">
-    <a href="{% url 'administrador:pedido_admin_editar' pedido.id %}" class="shop-edit-btn" style="display:inline-flex;align-items:center;gap:6px;">
-      <img src="{% static 'icons/edit.svg' %}" alt="Editar" style="width:18px;height:18px;vertical-align:middle;">Editar
+  <div class="shop-edit-footer">
+    <a href="{% url 'administrador:orders_page' %}" class="shop-edit-cancel">&larr; Volver</a>
+    <a href="{% url 'administrador:pedido_admin_editar' pedido.id %}" class="shop-edit-btn">
+      <img src="{% static 'icons/edit.svg' %}" alt="Editar" class="shop-edit-action-icon">Editar
     </a>
-    <a href="{% url 'administrador:orders_page' %}" class="shop-edit-cancel">&larr; Volver a pedidos</a>
   </div>
 </div>

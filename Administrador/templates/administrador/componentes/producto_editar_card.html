@@ -53,9 +53,9 @@
     {% if errores %}
       <div class="form-error" style="margin-top:12px;">{{ errores.fotos }}{{ errores.nombre }}{{ errores.tipo }}{{ errores.tipo_otro }}{{ errores.unidad }}{{ errores.precio }}{{ errores.descripcion }}{{ errores.garantia }}{{ errores.metodo_pago }}{{ errores.metodo_entrega }}</div>
     {% endif %}
-    <div style="display:flex; justify-content:space-between; margin-top:18px;">
-      <button type="submit" class="editar-producto-btn">Guardar cambios</button>
-      <a href="{% url 'administrador:producs_page' %}" class="product-detail-back">&larr; Cancelar</a>
+    <div class="shop-edit-footer">
+      <a href="{% url 'administrador:producs_page' %}" class="shop-edit-cancel">&larr; Cancelar</a>
+      <button type="submit" class="shop-edit-btn">Guardar cambios</button>
     </div>
     {% if success %}
       <div class="editar-producto-success">Producto editado exitosamente.</div>

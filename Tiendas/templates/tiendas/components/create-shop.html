@@ -9,22 +9,23 @@
             <div class="form-shop">
                 <form id="create-shop-form" method="POST" action="{% url 'tiendas:create_shop_step1' %}" class="form-shop__body">
                     {% csrf_token %}
+                    <input type="hidden" name="owner_token" value="{{ shop_owner_token|default:'' }}">
 
                     <div class="form-shop__group">
                         <label for="nombre" class="form-shop__label">Nombre de la tienda</label>
-                        <input type="text" id="nombre" name="nombre" class="form-shop__input" placeholder="Nombre tienda" required>
+                        <input type="text" id="nombre" name="nombre" class="form-shop__input" placeholder="Nombre tienda" value="{{ valores.nombre|default:'' }}" required>
                         <div id="error-nombre" class="input-error" style="display: none;"></div>
                     </div>
 
                     <div class="form-shop__group">
                         <label for="telefono" class="form-shop__label">Teléfono</label>
-                        <input type="tel" id="telefono" name="telefono" class="form-shop__input" placeholder="Teléfono" required>
+                        <input type="tel" id="telefono" name="telefono" class="form-shop__input" placeholder="Teléfono" value="{{ valores.telefono|default:'' }}" required>
                         <div id="error-telefono" class="input-error" style="display: none;"></div>
                     </div>
 
                     <div class="form-shop__group">
                         <label for="email" class="form-shop__label">Correo Electrónico</label>
-                        <input type="email" id="email" name="email" class="form-shop__input" placeholder="Correo" required>
+                        <input type="email" id="email" name="email" class="form-shop__input" placeholder="Correo" value="{{ valores.email|default:'' }}" required>
                         <div id="error-email" class="input-error" style="display: none;"></div>
                     </div>
 
@@ -32,23 +33,23 @@
                         <label class="form-shop__label" for="departamento">Departamento</label>
                         <select id="departamento" name="departamento" class="form-shop__option">
                             <option value="">Selecciona el Departamento</option>
-                            <option value="Risaralda">Risaralda</option>
-                            <option value="Caldas">Caldas</option>
-                            <option value="Quindio">Quindio</option>
+                            <option value="Risaralda" {% if valores.departamento == 'Risaralda' %}selected{% endif %}>Risaralda</option>
+                            <option value="Caldas" {% if valores.departamento == 'Caldas' %}selected{% endif %}>Caldas</option>
+                            <option value="Quindio" {% if valores.departamento == 'Quindio' %}selected{% endif %}>Quindio</option>
                         </select>
                         <div id="error-departamento" class="input-error" style="display: none;"></div>
                     </div>
 
                     <div class="form-shop__group">
                         <label class="form-shop__label" for="municipio">Municipio</label>
-                        <select id="municipio" name="municipio" class="form-shop__option">
+                        <select id="municipio" name="municipio" class="form-shop__option" data-selected-municipio="{{ valores.municipio|default:'' }}">
                             <option value="">Selecciona el Municipio</option>
                         </select>
                         <div id="error-municipio" class="input-error" style="display: none;"></div>
                     </div>
                 </form>
                 <div class="form-content__register--row-buttons">
-                    <a href="{% url 'usuarios:home_customer' %}" class="form-content__register--row-buttons__back">Volver</a>
+                    <a href="{% url 'usuarios:login' %}" class="form-content__register--row-buttons__back">Volver</a>
                     <button type="submit" form="create-shop-form" class="form-shop__button">Siguiente</button>
                 </div>
             </div>

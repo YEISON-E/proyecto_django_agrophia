@@ -32,8 +32,10 @@
       {% endfor %}
     </div>
   </div>
-  <div style="margin-top:18px;">
-    <a href="{% url 'administrador:producs_page' %}" class="product-detail-back">&larr; Volver al listado</a>
-    <a href="{% url 'administrador:producto_admin_editar' producto.id %}" class="editar-producto-btn">Editar producto</a>
+  <div class="shop-edit-footer">
+    <a href="{% url 'administrador:producs_page' %}" class="shop-edit-cancel">&larr; Volver al listado</a>
+    <a href="{% url 'administrador:producto_admin_editar' producto.id %}" class="shop-edit-btn">
+      <img src="{% static 'icons/edit.svg' %}" alt="Editar" class="shop-edit-action-icon">Editar producto
+    </a>
   </div>
 </div>

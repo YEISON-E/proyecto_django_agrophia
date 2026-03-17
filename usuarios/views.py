@@ -492,18 +492,51 @@ class Logueo(LoginView):
                 "valores": {"username": username}
             })
 
-        # OBTENER O CREAR USUARIO EN DJANGO USER
-        user, created = User.objects.get_or_create(
-            username=username,
-            defaults={
-                "email": usuario_registro.correo_electronico,
-                "first_name": usuario_registro.nombres,
-                "last_name": usuario_registro.apellidos
-            }
-        )
+        # Resolver primero el usuario auth asociado al Register para no perder
+        # la relación Shop.owner cuando el id ya existe en base de datos.
+        user = None
+        if usuario_registro.id_usuario:
+            user = User.objects.filter(id=usuario_registro.id_usuario).first()
+
+        if user is None:
+            user = User.objects.filter(username=username).first()
+
+        if user is None:
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                email=usuario_registro.correo_electronico,
+                first_name=usuario_registro.nombres,
+                last_name=usuario_registro.apellidos,
+            )
+        else:
+            fields_to_update = []
+            if user.username != username:
+                username_in_use = User.objects.exclude(id=user.id).filter(username=username).exists()
+                if not username_in_use:
+                    user.username = username
+                    fields_to_update.append("username")
+            if user.email != usuario_registro.correo_electronico:
+                user.email = usuario_registro.correo_electronico
+                fields_to_update.append("email")
+            if user.first_name != usuario_registro.nombres:
+                user.first_name = usuario_registro.nombres
+                fields_to_update.append("first_name")
+            if user.last_name != usuario_registro.apellidos:
+                user.last_name = usuario_registro.apellidos
+                fields_to_update.append("last_name")
+            if not user.check_password(password):
+                user.set_password(password)
+                fields_to_update.append("password")
+            if fields_to_update:
+                user.save(update_fields=fields_to_update)
+
+        if usuario_registro.id_usuario != user.id:
+            usuario_registro.id_usuario = user.id
+            usuario_registro.save(update_fields=["id_usuario"])
 
         # LOGIN OK
-        login(request, user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         # Si es admin, siempre redirigir a la vista de admin
         if usuario_registro.estado == 'admin':
             request.session['admin_user_id'] = user.id

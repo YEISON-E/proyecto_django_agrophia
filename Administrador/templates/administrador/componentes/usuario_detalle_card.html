@@ -75,8 +75,10 @@
     <strong>Estado tienda:</strong> {{ tienda.is_active|yesno:"Activa,Inactiva" }}
   </div>
   {% endif %}
-  <div style="display:flex; justify-content:space-between; margin-top:18px;">
-    <a href="{% url 'administrador:usuarios_admin' %}" class="user-detail-back">&larr; Volver</a>
-    <a href="{% url 'administrador:usuario_admin_editar' usuario.id %}" class="user-detail-save">Editar</a>
+  <div class="shop-edit-footer">
+    <a href="{% url 'administrador:usuarios_admin' %}" class="shop-edit-cancel">&larr; Volver</a>
+    <a href="{% url 'administrador:usuario_admin_editar' usuario.id %}" class="shop-edit-btn">
+      <img src="{% static 'icons/edit.svg' %}" alt="Editar" class="shop-edit-action-icon">Editar
+    </a>
   </div>
 </div>

@@ -160,9 +160,9 @@
         </select>
       </div>
     {% endif %}
-    <div style="display:flex; justify-content:space-between; margin-top:18px;">
-      <button type="submit" class="user-detail-save">Guardar cambios</button>
-      <a href="{% url 'administrador:usuario_admin_detalle' usuario.id %}" class="user-detail-back">&larr; Cancelar</a>
+    <div class="shop-edit-footer">
+      <a href="{% url 'administrador:usuario_admin_detalle' usuario.id %}" class="shop-edit-cancel">&larr; Cancelar</a>
+      <button type="submit" class="shop-edit-btn">Guardar cambios</button>
     </div>
   </form>
 </div>

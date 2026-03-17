@@ -11,6 +11,21 @@
     <div class="login">
       <h1 class="login__title">Iniciar Sesión</h1>
 
+      {% if request.GET.shop_created == '1' %}
+        <div id="shop-created-alert" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;">
+          <div style="position:absolute;inset:0;background:rgba(15,23,42,0.45);"></div>
+          <div style="position:relative;z-index:1;max-width:420px;width:92%;background:#fff;border-radius:12px;padding:22px 20px;box-shadow:0 10px 30px rgba(15,23,42,0.25);text-align:center;">
+            <h3 style="margin:0 0 10px 0;color:#166534;font-size:1.2rem;">Informacion importante</h3>
+            <p style="margin:0 0 18px 0;color:#1f2937;line-height:1.45;white-space:pre-line;">Tu tienda fue creada exitosamente.
+
+Para continuar, inicia sesion nuevamente con tu usuario y contrasena.
+
+Si deseas completar o actualizar la informacion de tu tienda, ingresa a la seccion Perfil.</p>
+            <button id="shop-created-confirm" type="button" style="border:none;border-radius:8px;padding:10px 22px;font-weight:700;cursor:pointer;background:linear-gradient(90deg,#16a34a 60%,#22c55e 100%);color:#fff;">Confirmar</button>
+          </div>
+        </div>
+      {% endif %}
+
       <form method="POST" class="login-form">
         {% csrf_token %}
 
@@ -49,4 +64,21 @@
 </div>
 
 <script src="{% static 'js/components/login.js' %}"></script>
+{% if request.GET.shop_created == '1' %}
+<script>
+  (function () {
+    const alertEl = document.getElementById('shop-created-alert');
+    const confirmBtn = document.getElementById('shop-created-confirm');
+    if (!alertEl || !confirmBtn) {
+      return;
+    }
+
+    confirmBtn.addEventListener('click', function () {
+      alertEl.remove();
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    });
+  })();
+</script>
+{% endif %}
 

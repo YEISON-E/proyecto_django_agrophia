@@ -73,8 +73,8 @@
       <div class="form-error" style="margin-top:12px;">{{ errores.nombre }}{{ errores.telefono }}{{ errores.email }}{{ errores.departamento }}{{ errores.municipio }}</div>
     {% endif %}
     <div class="shop-edit-footer">
-      <button type="submit" class="shop-edit-btn">Guardar cambios</button>
       <a href="{% url 'administrador:store_admin' %}" class="shop-edit-cancel">&larr; Cancelar</a>
+      <button type="submit" class="shop-edit-btn">Guardar cambios</button>
     </div>
     {% if success %}
       <div class="editar-tienda-success">Tienda editada exitosamente.</div>

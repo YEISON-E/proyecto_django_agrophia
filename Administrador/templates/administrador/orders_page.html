@@ -1,15 +1,12 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="/frontend/public/icons/planta.png">
-    <link rel="stylesheet" href="/frontend/public/css/main.css">
-    <script src="/frontend/public/js/components/header_admin.js" defer></script>
-    <script src="/frontend/public/js/components/toolbar_pedidos.js" defer></script>
-    <script src="/frontend/public/js/components/search_orders.js"></script>
-    <script src="/frontend/public/js/components/sidebar_admin.js" defer></script>
-    <script src="/frontend/public/js/components/orders_admin.js" defer></script>
+  <link rel="icon" href="{% static 'icons/planta.png' %}">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/toolbar.css' %}">
 
     
     <title>Pedidos admin</title>
@@ -19,37 +16,6 @@
         {% include 'components/gov-co__one.html' %}
     </div>
     {% include 'administrador/componentes/toolbar_orders.html' %}
-    <div id="modal-reporte" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:#0005;z-index:1000;align-items:center;justify-content:center;">
-      <div style="background:#fff;padding:28px 32px 20px 32px;border-radius:10px;box-shadow:0 2px 12px #0002;min-width:320px;max-width:90vw;">
-        <form id="form-reporte-pedidos" method="get" action="{% url 'administrador:reporte_pedidos' %}" style="display:flex;flex-direction:column;gap:18px;">
-          <div style="display:flex;flex-direction:column;gap:8px;">
-            <label for="estado_reporte_modal" style="font-weight:600;color:#16a34a;">¿Qué pedidos quieres exportar?</label>
-            <select name="estado" id="estado_reporte_modal" style="padding:4px 8px;border-radius:4px;">
-              <option value="todos">Todos</option>
-              <option value="confirmed">Confirmados</option>
-              <option value="in_progress">En curso</option>
-              <option value="completed">Finalizados</option>
-              <option value="cancelled">Cancelados</option>
-            </select>
-          </div>
-          <div style="display:flex;gap:16px;justify-content:flex-end;">
-            <button type="button" id="cancelar-modal-reporte" style="background:#eee;color:#222;padding:6px 18px;border:none;border-radius:4px;font-weight:500;">Cancelar</button>
-            <button type="submit" style="background:#16a34a;color:#fff;padding:6px 18px;border:none;border-radius:4px;font-weight:600;">Generar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-    <script>
-      document.getElementById('abrir-modal-reporte').onclick = function() {
-        document.getElementById('modal-reporte').style.display = 'flex';
-      };
-      document.getElementById('cancelar-modal-reporte').onclick = function() {
-        document.getElementById('modal-reporte').style.display = 'none';
-      };
-      document.getElementById('modal-reporte').onclick = function(e) {
-        if (e.target === this) this.style.display = 'none';
-      };
-    </script>
 
     <div class="layout">
         {% include 'administrador/componentes/sidebar.html' %}

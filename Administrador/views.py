@@ -200,19 +200,11 @@ def tienda_admin_unblock_view(request, tienda_id):
 
 # Reporte de tiendas
 def reporte_tiendas_view(request):
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = 'Tiendas Agrophia'
+    output_format = request.GET.get('output_format', 'excel')
+    tiendas = Shop.objects.all().order_by('-created_at')
     headers = ['ID', 'Nombre', 'Teléfono', 'Correo', 'Departamento', 'Municipio', 'Dirección', 'Horario', 'Estado', 'Fecha creación']
-    ws.append(headers)
-    header_font = Font(bold=True, color='FFFFFF')
-    header_fill = PatternFill(start_color='16A34A', end_color='16A34A', fill_type='solid')
-    for cell in ws[1]:
-        cell.font = header_font
-        cell.fill = header_fill
-        cell.alignment = Alignment(horizontal='center')
-    for t in Shop.objects.all().order_by('-created_at'):
-        ws.append([
+    rows = [
+        [
             t.id,
             t.nombre,
             t.telefono,
@@ -223,17 +215,26 @@ def reporte_tiendas_view(request):
             t.horario,
             'Activo' if t.is_active else 'Inactivo',
             t.created_at.strftime('%Y-%m-%d %H:%M') if t.created_at else ''
-        ])
-    for col in ws.columns:
-        max_length = 0
-        col_letter = col[0].column_letter
-        for cell in col:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        ws.column_dimensions[col_letter].width = max_length + 2
+        ]
+        for t in tiendas
+    ]
+
+    if output_format == 'print':
+        return render_generic_report_print(request, 'Reporte de tiendas', headers, rows)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Tiendas Agrophia'
+    ws.append(headers)
+    header_font = Font(bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='16A34A', end_color='16A34A', fill_type='solid')
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+    for row in rows:
+        ws.append(row)
+    autofit_worksheet_columns(ws)
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="tiendas_agrophia.xlsx"'
     wb.save(response)
@@ -241,23 +242,11 @@ def reporte_tiendas_view(request):
 # Reporte de productos
 def reporte_productos_view(request):
     from Productos.models import Product
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    ws.title = 'Productos Agrophia'
-
-    # Encabezados
+    output_format = request.GET.get('output_format', 'excel')
+    productos = Product.objects.all().order_by('-created_at')
     headers = ['ID', 'Nombre', 'Tipo', 'Unidad', 'Precio', 'Descripción', 'Garantía', 'Estado', 'Fecha creación']
-    ws.append(headers)
-    header_font = Font(bold=True, color='FFFFFF')
-    header_fill = PatternFill(start_color='6366F1', end_color='6366F1', fill_type='solid')
-    for cell in ws[1]:
-        cell.font = header_font
-        cell.fill = header_fill
-        cell.alignment = Alignment(horizontal='center')
-
-    # Filas de datos
-    for p in Product.objects.all().order_by('-created_at'):
-        ws.append([
+    rows = [
+        [
             p.id,
             p.nombre,
             f"{p.tipo} ({p.tipo_otro})" if p.tipo == 'Otros' and p.tipo_otro else p.tipo,
@@ -267,19 +256,26 @@ def reporte_productos_view(request):
             p.garantia,
             'Activo' if p.is_active else 'Inactivo',
             p.created_at.strftime('%Y-%m-%d %H:%M') if hasattr(p, 'created_at') and p.created_at else ''
-        ])
+        ]
+        for p in productos
+    ]
 
-    # Ajustar ancho de columnas
-    for col in ws.columns:
-        max_length = 0
-        col_letter = col[0].column_letter
-        for cell in col:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        ws.column_dimensions[col_letter].width = max_length + 2
+    if output_format == 'print':
+        return render_generic_report_print(request, 'Reporte de productos', headers, rows)
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Productos Agrophia'
+    ws.append(headers)
+    header_font = Font(bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='6366F1', end_color='6366F1', fill_type='solid')
+    for cell in ws[1]:
+        cell.font = header_font
+        cell.fill = header_fill
+        cell.alignment = Alignment(horizontal='center')
+    for row in rows:
+        ws.append(row)
+    autofit_worksheet_columns(ws)
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="productos_agrophia.xlsx"'
@@ -852,6 +848,28 @@ def activity_scope_label(scope, count_mode='latest', count_value=100, period='mo
         return 'Actividades de este mes' if period == 'month' else 'Actividades de este año'
     return 'Toda la actividad disponible'
 
+def autofit_worksheet_columns(ws):
+    from openpyxl.utils import get_column_letter
+
+    for col_index, col in enumerate(ws.iter_cols(min_col=1, max_col=ws.max_column), start=1):
+        max_length = 0
+        for cell in col:
+            try:
+                cell_value = '' if cell.value is None else str(cell.value)
+                if len(cell_value) > max_length:
+                    max_length = len(cell_value)
+            except Exception:
+                pass
+        ws.column_dimensions[get_column_letter(col_index)].width = min(max_length + 2, 60)
+
+def render_generic_report_print(request, title, headers, rows, subtitle=''):
+    return render(request, 'administrador/reporte_generico_print.html', {
+        'title': title,
+        'headers': headers,
+        'rows': rows,
+        'subtitle': subtitle,
+    })
+
 def home_admin_view(request):
     eventos = [
         {
@@ -935,17 +953,7 @@ def reporte_actividad_reciente_view(request):
             evento['tipo'],
             evento['descripcion'],
         ])
-
-    for col in ws.columns:
-        max_length = 0
-        col_letter = col[0].column_letter
-        for cell in col:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        ws.column_dimensions[col_letter].width = min(max_length + 2, 60)
+    autofit_worksheet_columns(ws)
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="actividad_reciente_agrophia.xlsx"'
@@ -953,87 +961,83 @@ def reporte_actividad_reciente_view(request):
     return response
 
 def usuarios_admin_view(request):
-    from usuarios.models import Register
     usuarios = Register.objects.exclude(estado='admin').order_by('nombres', 'apellidos')
     return render(request, 'administrador/usuarios_admin.html', {'usuarios': usuarios})
 
 def orders_page_view(request):
-    from Pedidos.models import Order
-    pedidos = Order.objects.select_related('customer').all()
+    pedidos = Order.objects.select_related('customer').order_by('-created_at')
     return render(request, 'administrador/orders_page.html', {'pedidos': pedidos})
 
-def store_admin_view(request):
-    from Tiendas.models import Shop
-    tiendas = Shop.objects.select_related('owner').all()
-    return render(request, 'administrador/store_admin.html', {'tiendas': tiendas})
-
 def producs_page_view(request):
-    from Productos.models import Product
     productos = Product.objects.all().order_by('-created_at')
     return render(request, 'administrador/producs_page.html', {'productos': productos})
 
-# Bloquear/desbloquear usuario
 def usuario_admin_block_view(request, usuario_id):
-    if request.method == 'POST':
-        from usuarios.models import Register
-        usuario = get_object_or_404(Register, id=usuario_id)
-        usuario.estado = 'inactivo'
-        usuario.save()
-        return JsonResponse({'ok': True})
-    return JsonResponse({'ok': False}, status=400)
+    if request.method != 'POST':
+        return JsonResponse({'ok': False}, status=400)
+
+    usuario = get_object_or_404(Register, id=usuario_id)
+    usuario.estado = 'inactivo'
+    usuario.save(update_fields=['estado'])
+    return JsonResponse({'ok': True})
 
 def usuario_admin_unblock_view(request, usuario_id):
-    if request.method == 'POST':
-        from usuarios.models import Register
-        usuario = get_object_or_404(Register, id=usuario_id)
-        usuario.estado = 'activo'
-        usuario.save()
-        return JsonResponse({'ok': True})
-    return JsonResponse({'ok': False}, status=400)
+    if request.method != 'POST':
+        return JsonResponse({'ok': False}, status=400)
 
-# Enviar mensaje desde admin (POST, AJAX)
+    usuario = get_object_or_404(Register, id=usuario_id)
+    usuario.estado = 'activo'
+    usuario.save(update_fields=['estado'])
+    return JsonResponse({'ok': True})
+
 def usuario_admin_enviar_mensaje_view(request, usuario_id):
-    if request.method == 'POST':
-        import json
-        from Mensajes.models import AdminToUserMessage
-        from usuarios.models import Register
-        from django.core.mail import send_mail
-        data = json.loads(request.body)
-        texto = data.get('mensaje', '').strip()
-        if texto:
-            usuario = get_object_or_404(Register, id=usuario_id)
-            # Guardar mensaje importante
-            mensaje = AdminToUserMessage.objects.create(
-                usuario=usuario,
-                texto=texto,
-                enviado=True
-            )
-            # Enviar correo
-            send_mail(
-                'Mensaje importante de Agrophia',
-                texto,
-                'no-reply@agrophia.com',
-                [usuario.correo_electronico],
-                fail_silently=True
-            )
-            return JsonResponse({'ok': True})
-        return JsonResponse({'ok': False, 'error': 'Mensaje vacío'}, status=400)
-    return JsonResponse({'ok': False}, status=400)
+    if request.method != 'POST':
+        return JsonResponse({'ok': False}, status=400)
 
-# Reporte de usuarios
+    import json
+    from Mensajes.models import AdminToUserMessage
+    from django.core.mail import send_mail
+
+    usuario = get_object_or_404(Register, id=usuario_id)
+
+    try:
+        data = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        data = {}
+
+    texto = (data.get('mensaje') or '').strip()
+    if not texto:
+        return JsonResponse({'ok': False, 'error': 'Mensaje vacío'}, status=400)
+
+    AdminToUserMessage.objects.create(
+        usuario=usuario,
+        texto=texto,
+        enviado=True,
+    )
+    send_mail(
+        'Mensaje importante de Agrophia',
+        texto,
+        'no-reply@agrophia.com',
+        [usuario.correo_electronico],
+        fail_silently=True,
+    )
+    return JsonResponse({'ok': True})
+
 def reporte_usuarios_view(request):
-    from usuarios.models import Register
-    from Tiendas.models import Shop
-    # Excluir usuarios con tienda y con estado 'admin'
-    usuarios_con_tienda = Shop.objects.values_list('owner__id', flat=True)
-    usuarios = Register.objects.exclude(id_usuario__in=usuarios_con_tienda).exclude(estado='admin')
+    output_format = request.GET.get('output_format', 'excel')
+    usuarios = Register.objects.exclude(estado='admin').order_by('nombres', 'apellidos')
+    headers = ['ID', 'Nombres', 'Apellidos', 'Correo', 'Teléfono', 'Departamento', 'Municipio', 'Estado']
+    rows = [
+        [u.id, u.nombres, u.apellidos, u.correo_electronico, u.telefono, u.departamento, u.municipio, u.estado]
+        for u in usuarios
+    ]
+
+    if output_format == 'print':
+        return render_generic_report_print(request, 'Reporte de usuarios', headers, rows)
 
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = 'Usuarios Agrophia'
-
-    # Encabezados
-    headers = ['ID', 'Nombres', 'Apellidos', 'Correo', 'Teléfono', 'Departamento', 'Municipio', 'Estado']
     ws.append(headers)
     header_font = Font(bold=True, color='FFFFFF')
     header_fill = PatternFill(start_color='16A34A', end_color='16A34A', fill_type='solid')
@@ -1041,24 +1045,9 @@ def reporte_usuarios_view(request):
         cell.font = header_font
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal='center')
-
-    # Filas de datos
-    for u in usuarios:
-        ws.append([
-            u.id, u.nombres, u.apellidos, u.correo_electronico, u.telefono, u.departamento, u.municipio, u.estado
-        ])
-
-    # Ajustar ancho de columnas
-    for col in ws.columns:
-        max_length = 0
-        col_letter = col[0].column_letter
-        for cell in col:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        ws.column_dimensions[col_letter].width = max_length + 2
+    for row in rows:
+        ws.append(row)
+    autofit_worksheet_columns(ws)
 
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="usuarios_agrophia.xlsx"'
@@ -1197,13 +1186,30 @@ from django.http import HttpResponse
 
 def reporte_pedidos_view(request):
     estado = request.GET.get('estado', 'todos')
+    output_format = request.GET.get('output_format', 'excel')
     queryset = Order.objects.select_related('customer').all()
     if estado and estado != 'todos':
         queryset = queryset.filter(status=estado)
+    headers = ['ID', 'Cliente', 'Fecha', 'Total', 'Estado', 'Dirección de entrega']
+    rows = [
+        [
+            p.id,
+            p.customer.get_full_name() if hasattr(p.customer, 'get_full_name') else p.customer.username,
+            p.created_at.strftime('%Y-%m-%d %H:%M') if p.created_at else '',
+            str(p.total_amount),
+            p.get_status_display(),
+            p.delivery_address or '',
+        ]
+        for p in queryset.order_by('-created_at')
+    ]
+
+    if output_format == 'print':
+        subtitle = 'Estado: Todos' if estado == 'todos' else f'Estado: {estado}'
+        return render_generic_report_print(request, 'Reporte de pedidos', headers, rows, subtitle=subtitle)
+
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = 'Pedidos Agrophia'
-    headers = ['ID', 'Cliente', 'Fecha', 'Total', 'Estado', 'Dirección de entrega']
     ws.append(headers)
     header_font = Font(bold=True, color='FFFFFF')
     header_fill = PatternFill(start_color='16A34A', end_color='16A34A', fill_type='solid')
@@ -1211,25 +1217,9 @@ def reporte_pedidos_view(request):
         cell.font = header_font
         cell.fill = header_fill
         cell.alignment = Alignment(horizontal='center')
-    for p in queryset.order_by('-created_at'):
-        ws.append([
-            p.id,
-            p.customer.get_full_name() if hasattr(p.customer, 'get_full_name') else p.customer.username,
-            p.created_at.strftime('%Y-%m-%d %H:%M') if p.created_at else '',
-            str(p.total_amount),
-            p.get_status_display(),
-            p.delivery_address or '',
-        ])
-    for col in ws.columns:
-        max_length = 0
-        col_letter = col[0].column_letter
-        for cell in col:
-            try:
-                if len(str(cell.value)) > max_length:
-                    max_length = len(str(cell.value))
-            except:
-                pass
-        ws.column_dimensions[col_letter].width = max_length + 2
+    for row in rows:
+        ws.append(row)
+    autofit_worksheet_columns(ws)
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="pedidos_agrophia.xlsx"'
     wb.save(response)

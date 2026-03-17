@@ -64,21 +64,29 @@
 }
 .shop-edit-footer {
   display: flex;
-  justify-content: flex-end;
-  gap: 16px;
+  justify-content: space-around;
+  align-items: center;
+  gap: 12px;
   margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(99, 102, 241, 0.14);
 }
 .shop-edit-btn, .shop-edit-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   background: linear-gradient(90deg, #16a34a 60%, #4ade80 100%);
   color: #fff;
   border: none;
-  border-radius: 8px;
-  padding: 12px 32px;
-  font-size: 1.08em;
+  border-radius: 999px;
+  min-width: 180px;
+  padding: 12px 24px;
+  font-size: 1em;
   font-weight: 700;
   text-decoration: none;
-  box-shadow: 0 2px 8px 0 rgba(60,60,120,0.10);
-  letter-spacing: 0.5px;
+  box-shadow: 0 10px 24px rgba(60,60,120,0.14);
+  letter-spacing: 0.02em;
   transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.18s;
   outline: none;
   cursor: pointer;
@@ -89,9 +97,27 @@
 .shop-edit-btn:hover, .shop-edit-cancel:hover {
   background: linear-gradient(90deg, #15803d 60%, #16a34a 100%);
   color: #fff;
-  box-shadow: 0 6px 18px 0 rgba(60,60,120,0.18);
-  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 16px 30px rgba(60,60,120,0.18);
+  transform: translateY(-2px);
 }
 .shop-edit-cancel:hover {
   background: linear-gradient(90deg, #3730a3 60%, #6366f1 100%);
+}
+.shop-edit-action-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+@media (max-width: 640px) {
+  .shop-edit-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .shop-edit-btn,
+  .shop-edit-cancel {
+    width: 100%;
+    min-width: 0;
+  }
 }

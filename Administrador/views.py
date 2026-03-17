@@ -8,13 +8,39 @@ def store_admin_view(request):
 
 def tienda_admin_detalle_view(request, tienda_id):
     tienda = get_object_or_404(Shop, id=tienda_id)
-    return render(request, 'administrador/tienda_detalle_admin.html', {'tienda': tienda})
+    usuario = tienda.owner if tienda.owner else None
+    usuario_info = None
+    if usuario:
+        usuario_info = Register.objects.filter(id_usuario=usuario.id).first()
+    return render(request, 'administrador/tienda_detalle_admin.html', {
+        'tienda': tienda,
+        'usuario': usuario,
+        'usuario_info': usuario_info,
+    })
 
 def tienda_admin_crear_view(request):
+    from usuarios.models import Register
     success = False
     errores = {}
     valores = {}
+    usuarios_con_tienda = Shop.objects.exclude(owner__isnull=True).values_list('owner__id', flat=True)
+    usuarios_disponibles = Register.objects.exclude(id_usuario__in=usuarios_con_tienda).exclude(estado='admin').order_by('nombres', 'apellidos')
+    usuarios_disponibles_data = [
+        {
+            'id_usuario': usuario.id_usuario,
+            'nombres': usuario.nombres,
+            'apellidos': usuario.apellidos,
+            'correo_electronico': usuario.correo_electronico,
+            'telefono': usuario.telefono,
+            'departamento': usuario.departamento,
+            'municipio': usuario.municipio,
+            'direccion_completa': usuario.direccion_completa,
+        }
+        for usuario in usuarios_disponibles
+    ]
+
     if request.method == 'POST':
+        owner_id = request.POST.get('owner_id', '').strip()
         nombre = request.POST.get('nombre', '').strip()
         telefono = request.POST.get('telefono', '').strip()
         email = request.POST.get('email', '').strip()
@@ -24,6 +50,7 @@ def tienda_admin_crear_view(request):
         horario = request.POST.get('horario', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()
         valores = {
+            'owner_id': owner_id,
             'nombre': nombre,
             'telefono': telefono,
             'email': email,
@@ -34,6 +61,11 @@ def tienda_admin_crear_view(request):
             'descripcion': descripcion,
         }
         # Validaciones
+        propietario = usuarios_disponibles.filter(id_usuario=owner_id).first() if owner_id else None
+        if not owner_id:
+            errores['owner_id'] = 'Debes seleccionar un usuario cliente existente.'
+        elif not propietario:
+            errores['owner_id'] = 'El usuario seleccionado no esta disponible para crear tienda.'
         if not nombre:
             errores['nombre'] = 'El nombre es obligatorio.'
         if not telefono:
@@ -52,6 +84,7 @@ def tienda_admin_crear_view(request):
                 errores['municipio'] = f'El municipio "{municipio}" no corresponde al departamento seleccionado.'
         if not errores:
             Shop.objects.create(
+                owner_id=propietario.id_usuario,
                 nombre=nombre,
                 telefono=telefono,
                 email=email,
@@ -69,6 +102,8 @@ def tienda_admin_crear_view(request):
         'success': success,
         'errores': errores,
         'valores': valores,
+        'usuarios_disponibles': usuarios_disponibles,
+        'usuarios_disponibles_data': usuarios_disponibles_data,
         'departamentos_municipios': DEPARTAMENTOS_MUNICIPIOS,
     })
 
@@ -612,6 +647,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.utils.crypto import get_random_string
+from django.utils import timezone
 from django.http import HttpResponse
 import csv
 
@@ -648,15 +684,277 @@ def admin_logout_view(request):
 		request.session.flush()
 		return redirect('/')
 
+def safe_fecha(fecha):
+    if hasattr(fecha, 'strftime'):
+        return fecha.strftime('%d/%m/%Y %H:%M')
+    return 'Sin fecha'
+
+def activity_category_label(category):
+    labels = {
+        'all': 'Toda la actividad',
+        'users': 'Usuarios',
+        'shops': 'Tiendas',
+        'products': 'Productos',
+        'orders': 'Pedidos',
+    }
+    return labels.get(category, 'Actividad')
+
+def _activity_timestamp(fecha):
+    if hasattr(fecha, 'timestamp'):
+        return fecha.timestamp()
+    return 0
+
+def activity_latest_sort_key(evento):
+    fecha = evento.get('occurred_at')
+    return (0 if fecha else 1, -_activity_timestamp(fecha), evento.get('sequence', 0))
+
+def activity_first_sort_key(evento):
+    fecha = evento.get('occurred_at')
+    return (0 if fecha else 1, _activity_timestamp(fecha), evento.get('sequence', 0))
+
+def build_activity_events():
+    eventos = []
+    sequence = 0
+
+    registros = list(Register.objects.exclude(estado='admin').order_by('-id'))
+    usuarios_auth = User.objects.in_bulk([
+        registro.id_usuario for registro in registros if registro.id_usuario
+    ])
+
+    for registro in registros:
+        usuario_auth = usuarios_auth.get(registro.id_usuario)
+        fecha_registro = getattr(usuario_auth, 'date_joined', None)
+        eventos.append({
+            'sequence': sequence,
+            'occurred_at': fecha_registro,
+            'category': 'users',
+            'tipo': 'Registro de usuario',
+            'descripcion': f"Nuevo usuario registrado: {registro.nombres} {registro.apellidos} ({registro.numero_documento})",
+        })
+        sequence += 1
+
+        if registro.estado == 'inactivo':
+            eventos.append({
+                'sequence': sequence,
+                'occurred_at': None,
+                'category': 'users',
+                'tipo': 'Usuario bloqueado',
+                'descripcion': f"Usuario bloqueado: {registro.nombres} {registro.apellidos} ({registro.numero_documento})",
+            })
+            sequence += 1
+
+    for tienda in Shop.objects.select_related('owner').order_by('-created_at'):
+        propietario = tienda.owner.username if tienda.owner else 'Sin propietario'
+        eventos.append({
+            'sequence': sequence,
+            'occurred_at': tienda.created_at,
+            'category': 'shops',
+            'tipo': 'Tienda creada',
+            'descripcion': f"Nueva tienda creada: {tienda.nombre} (Dueño: {propietario})",
+        })
+        sequence += 1
+
+        if not tienda.is_active:
+            eventos.append({
+                'sequence': sequence,
+                'occurred_at': None,
+                'category': 'shops',
+                'tipo': 'Tienda deshabilitada',
+                'descripcion': f"Tienda deshabilitada: {tienda.nombre} (Dueño: {propietario})",
+            })
+            sequence += 1
+
+    for producto in Product.objects.select_related('owner', 'shop').order_by('-created_at'):
+        propietario = producto.owner.username if producto.owner else 'Sin propietario'
+        eventos.append({
+            'sequence': sequence,
+            'occurred_at': producto.created_at,
+            'category': 'products',
+            'tipo': 'Producto creado',
+            'descripcion': f"Producto creado: {producto.nombre} (Productor: {propietario})",
+        })
+        sequence += 1
+
+        if not producto.is_active:
+            eventos.append({
+                'sequence': sequence,
+                'occurred_at': None,
+                'category': 'products',
+                'tipo': 'Producto deshabilitado',
+                'descripcion': f"Producto deshabilitado: {producto.nombre} (ID: {producto.id})",
+            })
+            sequence += 1
+
+    for pedido in Order.objects.select_related('customer').order_by('-created_at'):
+        eventos.append({
+            'sequence': sequence,
+            'occurred_at': pedido.created_at,
+            'category': 'orders',
+            'tipo': 'Pedido realizado',
+            'descripcion': f"Nuevo pedido #{pedido.id} realizado por {pedido.customer.username} por ${pedido.total_amount}",
+        })
+        sequence += 1
+
+    return eventos
+
+def filter_activity_events(events, category='all', scope='all', count_mode='latest', count_value=100, period='month'):
+    valid_categories = {'all', 'users', 'shops', 'products', 'orders'}
+    valid_scopes = {'all', 'count', 'period'}
+    valid_count_modes = {'latest', 'first'}
+    valid_periods = {'month', 'year'}
+
+    if category not in valid_categories:
+        category = 'all'
+    if scope not in valid_scopes:
+        scope = 'all'
+    if count_mode not in valid_count_modes:
+        count_mode = 'latest'
+    if period not in valid_periods:
+        period = 'month'
+
+    filtrados = [
+        evento for evento in events
+        if category == 'all' or evento['category'] == category
+    ]
+
+    if scope == 'period':
+        ahora = timezone.now()
+        if period == 'month':
+            filtrados = [
+                evento for evento in filtrados
+                if evento['occurred_at']
+                and evento['occurred_at'].year == ahora.year
+                and evento['occurred_at'].month == ahora.month
+            ]
+        else:
+            filtrados = [
+                evento for evento in filtrados
+                if evento['occurred_at'] and evento['occurred_at'].year == ahora.year
+            ]
+        return sorted(filtrados, key=activity_latest_sort_key)
+
+    if scope == 'count':
+        try:
+            count = int(count_value)
+        except (TypeError, ValueError):
+            count = 100
+        count = max(1, min(count, 1000))
+        sort_key = activity_latest_sort_key if count_mode == 'latest' else activity_first_sort_key
+        return sorted(filtrados, key=sort_key)[:count]
+
+    return sorted(filtrados, key=activity_latest_sort_key)
+
+def activity_scope_label(scope, count_mode='latest', count_value=100, period='month'):
+    if scope == 'count':
+        prefix = 'Ultimas' if count_mode == 'latest' else 'Primeras'
+        return f"{prefix} {count_value} actividades"
+    if scope == 'period':
+        return 'Actividades de este mes' if period == 'month' else 'Actividades de este año'
+    return 'Toda la actividad disponible'
+
 def home_admin_view(request):
-	return render(request, 'administrador/home_admin.html')
+    eventos = [
+        {
+            'fecha': safe_fecha(evento['occurred_at']),
+            'tipo': evento['tipo'],
+            'descripcion': evento['descripcion'],
+        }
+        for evento in filter_activity_events(
+            build_activity_events(),
+            scope='count',
+            count_mode='latest',
+            count_value=10,
+        )
+    ]
+    return render(request, 'administrador/home_admin.html', {'eventos': eventos})
+
+def reporte_actividad_reciente_view(request):
+    activity_type = request.GET.get('activity_type', 'all')
+    scope = request.GET.get('scope', 'all')
+    count_mode = request.GET.get('count_mode', 'latest')
+    count_value = request.GET.get('count_value', '100')
+    period = request.GET.get('period', 'month')
+    output_format = request.GET.get('output_format', 'excel')
+
+    eventos = filter_activity_events(
+        build_activity_events(),
+        category=activity_type,
+        scope=scope,
+        count_mode=count_mode,
+        count_value=count_value,
+        period=period,
+    )
+
+    resumen = {
+        'tipo_actividad': activity_category_label(activity_type),
+        'alcance': activity_scope_label(scope, count_mode, count_value, period),
+        'total_resultados': len(eventos),
+    }
+
+    if output_format == 'print':
+        return render(request, 'administrador/reporte_actividad_reciente_print.html', {
+            'eventos': [
+                {
+                    'fecha': safe_fecha(evento['occurred_at']),
+                    'categoria': activity_category_label(evento['category']),
+                    'tipo': evento['tipo'],
+                    'descripcion': evento['descripcion'],
+                }
+                for evento in eventos
+            ],
+            'resumen': resumen,
+        })
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = 'Actividad reciente'
+
+    ws.merge_cells('A1:D1')
+    ws['A1'] = 'Reporte de actividad reciente'
+    ws['A1'].font = Font(bold=True, size=14, color='FFFFFF')
+    ws['A1'].fill = PatternFill(start_color='16A34A', end_color='16A34A', fill_type='solid')
+    ws['A1'].alignment = Alignment(horizontal='center')
+
+    ws.append([])
+    ws.append(['Tipo de actividad', resumen['tipo_actividad'], 'Alcance', resumen['alcance']])
+    ws.append(['Resultados', resumen['total_resultados'], '', ''])
+    ws.append([])
+
+    headers = ['Fecha', 'Categoria', 'Tipo', 'Descripcion']
+    ws.append(headers)
+    header_row_index = ws.max_row
+    for cell in ws[header_row_index]:
+        cell.font = Font(bold=True, color='FFFFFF')
+        cell.fill = PatternFill(start_color='6366F1', end_color='6366F1', fill_type='solid')
+        cell.alignment = Alignment(horizontal='center')
+
+    for evento in eventos:
+        ws.append([
+            safe_fecha(evento['occurred_at']),
+            activity_category_label(evento['category']),
+            evento['tipo'],
+            evento['descripcion'],
+        ])
+
+    for col in ws.columns:
+        max_length = 0
+        col_letter = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        ws.column_dimensions[col_letter].width = min(max_length + 2, 60)
+
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="actividad_reciente_agrophia.xlsx"'
+    wb.save(response)
+    return response
 
 def usuarios_admin_view(request):
     from usuarios.models import Register
-    from Tiendas.models import Shop
-    # Excluir usuarios que son dueños de tienda
-    usuarios_con_tienda = Shop.objects.values_list('owner__id', flat=True)
-    usuarios = Register.objects.exclude(id_usuario__in=usuarios_con_tienda)
+    usuarios = Register.objects.exclude(estado='admin').order_by('nombres', 'apellidos')
     return render(request, 'administrador/usuarios_admin.html', {'usuarios': usuarios})
 
 def orders_page_view(request):

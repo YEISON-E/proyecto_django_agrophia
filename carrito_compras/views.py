@@ -109,7 +109,7 @@ def add_to_cart(request):
 	cart = request.session.get("shopping_cart", {})
 	product_key = str(product.id)
 	if product_key in cart:
-		items_count = sum(int(qty) for qty in cart.values())
+		items_count = len(cart)
 		return JsonResponse({
 			"ok": True,
 			"already_in_cart": True,
@@ -122,7 +122,7 @@ def add_to_cart(request):
 	request.session["shopping_cart"] = cart
 	request.session.modified = True
 
-	items_count = sum(int(quantity) for quantity in cart.values())
+	items_count = len(cart)
 
 	return JsonResponse({
 		"ok": True,

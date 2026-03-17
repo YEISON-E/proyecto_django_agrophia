@@ -6,69 +6,15 @@
       <th class="home-table__header">Descripcion</th>
     </tr>
   </thead>
-
   <tbody class="home-table__body">
+    {% for evento in eventos %}
     <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
+      <td class="home-table__cell">{{ evento.fecha }}</td>
+      <td class="home-table__cell">{{ evento.tipo }}</td>
+      <td class="home-table__cell">{{ evento.descripcion }}</td>
     </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-    <tr class="home-table__row">
-      <td class="home-table__cell">23/09/2025</td>
-      <td class="home-table__cell">Pedido</td>
-      <td class="home-table__cell">Nuevo pedido de 100 kg de tomates</td>
-    </tr>
-
-
+    {% empty %}
+    <tr><td colspan="3">No hay eventos recientes.</td></tr>
+    {% endfor %}
   </tbody>
 </table>

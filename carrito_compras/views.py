@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
+from django.db import transaction
 
 from Productos.models import Product
 from Pedidos.models import Order, OrderItem
@@ -34,6 +35,7 @@ def shopping_cart(request):
 	cart_items = []
 	total = 0
 	clean_cart = {}
+	notice_messages = []
 
 	for product_id_str, quantity_value in cart.items():
 		try:
@@ -44,7 +46,16 @@ def shopping_cart(request):
 
 		product = products_by_id.get(product_id)
 		if not product:
+			notice_messages.append("Se eliminaron productos no disponibles del carrito.")
 			continue
+
+		if product.stock <= 0:
+			notice_messages.append(f"{product.nombre} ya no tiene stock disponible y fue retirado del carrito.")
+			continue
+
+		if quantity > product.stock:
+			quantity = product.stock
+			notice_messages.append(f"La cantidad de {product.nombre} fue ajustada al stock disponible ({product.stock}).")
 
 		product_images = list(product.images.all())
 		first_image = product_images[0] if product_images else None
@@ -63,6 +74,11 @@ def shopping_cart(request):
 	request.session["shopping_cart"] = clean_cart
 	request.session.modified = True
 
+	cart_notice = request.session.pop("cart_notice", "")
+	if notice_messages:
+		combined_notice = " ".join(dict.fromkeys(notice_messages))
+		cart_notice = f"{cart_notice} {combined_notice}".strip()
+
 	can_pickup_in_store = bool(cart_items) and all(
 		item["product"].shop and item["product"].shop.punto_fisico
 		for item in cart_items
@@ -80,6 +96,7 @@ def shopping_cart(request):
 		"cart_total": total,
 		"user_address": user_address,
 		"can_pickup_in_store": can_pickup_in_store,
+		"cart_notice": cart_notice,
 	})
 
 
@@ -105,6 +122,15 @@ def add_to_cart(request):
 
 	if quantity <= 0:
 		return JsonResponse({"ok": False, "message": "Cantidad inválida."}, status=400)
+
+	if product.stock <= 0:
+		return JsonResponse({"ok": False, "message": "Este producto no tiene stock disponible."}, status=400)
+
+	if quantity > product.stock:
+		return JsonResponse({
+			"ok": False,
+			"message": f"Solo hay {product.stock} unidades disponibles para este producto.",
+		}, status=400)
 
 	cart = request.session.get("shopping_cart", {})
 	product_key = str(product.id)
@@ -167,7 +193,31 @@ def update_cart_quantity(request, product_id):
 			return JsonResponse({"ok": False, "message": "Cantidad inválida."}, status=400)
 		return redirect("carrito_compras:shopping_cart")
 
-	cart[str(product_id)] = max(1, quantity)
+	try:
+		product = Product.objects.get(pk=product_id, is_active=True, shop__is_active=True)
+	except Product.DoesNotExist:
+		cart.pop(str(product_id), None)
+		request.session["shopping_cart"] = cart
+		request.session.modified = True
+		if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+			return JsonResponse({"ok": False, "message": "Producto no disponible actualmente."}, status=400)
+		return redirect("carrito_compras:shopping_cart")
+
+	quantity = max(1, quantity)
+	if product.stock <= 0:
+		if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+			return JsonResponse({"ok": False, "message": "Este producto no tiene stock disponible."}, status=400)
+		return redirect("carrito_compras:shopping_cart")
+
+	if quantity > product.stock:
+		if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+			return JsonResponse({
+				"ok": False,
+				"message": f"Solo hay {product.stock} unidades disponibles para este producto.",
+			}, status=400)
+		quantity = product.stock
+
+	cart[str(product_id)] = quantity
 	request.session["shopping_cart"] = cart
 	request.session.modified = True
 
@@ -239,6 +289,14 @@ def checkout(request):
 		if not product:
 			continue
 
+		if product.stock <= 0:
+			request.session["cart_notice"] = f"{product.nombre} ya no tiene stock disponible."
+			return redirect("carrito_compras:shopping_cart")
+
+		if quantity > product.stock:
+			request.session["cart_notice"] = f"Solo hay {product.stock} unidades disponibles para {product.nombre}."
+			return redirect("carrito_compras:shopping_cart")
+
 		subtotal = product.precio * quantity
 		total_amount += subtotal
 		items_data.append({
@@ -250,24 +308,50 @@ def checkout(request):
 	if not items_data:
 		return redirect("carrito_compras:shopping_cart")
 
-	order = Order.objects.create(
-		customer=request.user,
-		total_amount=total_amount,
-		payment_method=payment_method,
-		delivery_method=delivery_method,
-		delivery_address=delivery_address,
-		status=Order.STATUS_PENDING,
-	)
-	OrderItem.objects.bulk_create([
-		OrderItem(
-			order=order,
-			product=item["product"],
-			farmer=item["product"].owner,
-			quantity=item["quantity"],
-			subtotal=item["subtotal"],
+	with transaction.atomic():
+		locked_products = Product.objects.select_for_update().filter(id__in=[item["product"].id for item in items_data])
+		locked_map = {product.id: product for product in locked_products}
+
+		for item in items_data:
+			locked_product = locked_map.get(item["product"].id)
+			if not locked_product or not locked_product.is_active or locked_product.stock <= 0:
+				request.session["cart_notice"] = f"{item['product'].nombre} ya no está disponible."
+				return redirect("carrito_compras:shopping_cart")
+			if item["quantity"] > locked_product.stock:
+				request.session["cart_notice"] = (
+					f"No hay stock suficiente para {locked_product.nombre}. Disponible: {locked_product.stock}."
+				)
+				return redirect("carrito_compras:shopping_cart")
+
+		order = Order.objects.create(
+			customer=request.user,
+			total_amount=total_amount,
+			payment_method=payment_method,
+			delivery_method=delivery_method,
+			delivery_address=delivery_address,
+			status=Order.STATUS_PENDING,
 		)
-		for item in items_data
-	])
+
+		OrderItem.objects.bulk_create([
+			OrderItem(
+				order=order,
+				product=item["product"],
+				farmer=item["product"].owner,
+				quantity=item["quantity"],
+				subtotal=item["subtotal"],
+			)
+			for item in items_data
+		])
+
+		for item in items_data:
+			locked_product = locked_map[item["product"].id]
+			locked_product.stock -= item["quantity"]
+			if locked_product.stock <= 0:
+				locked_product.stock = 0
+				locked_product.is_active = False
+				locked_product.save(update_fields=["stock", "is_active"])
+			else:
+				locked_product.save(update_fields=["stock"])
 
 	request.session["shopping_cart"] = {}
 	request.session.modified = True

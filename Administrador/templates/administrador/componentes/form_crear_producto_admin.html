@@ -45,6 +45,11 @@
       {% if errores.precio %}<div class="form-error">{{ errores.precio }}</div>{% endif %}
     </div>
     <div>
+      <label for="stock">Cantidad disponible (stock)</label>
+      <input type="number" name="stock" id="stock" value="{{ valores.stock|default:'' }}" min="0" step="1" required>
+      {% if errores.stock %}<div class="form-error">{{ errores.stock }}</div>{% endif %}
+    </div>
+    <div>
       <label for="descripcion">Descripción</label>
       <textarea name="descripcion" id="descripcion" required>{{ valores.descripcion|default:'' }}</textarea>
       {% if errores.descripcion %}<div class="form-error">{{ errores.descripcion }}</div>{% endif %}

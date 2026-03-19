@@ -4,7 +4,7 @@ from . import views
 app_name = 'administrador'
 
 urlpatterns = [
-    path('login/', views.admin_login_view, name='admin_login'),
+    path('verificar-codigo/', views.admin_verify_code_view, name='admin_verify_code'),
     path('logout/', views.admin_logout_view, name='admin_logout'),
     path('home/', views.home_admin_view, name='home_admin'),
     path('home/reporte-actividad/', views.reporte_actividad_reciente_view, name='reporte_actividad_reciente'),
@@ -36,4 +36,6 @@ urlpatterns = [
     path('pedidos/<int:pedido_id>/', views.pedido_admin_detalle_view, name='pedido_admin_detalle'),
     path('pedidos/<int:pedido_id>/editar/', views.pedido_admin_editar_view, name='pedido_admin_editar'),
     path('pedidos/reporte/', views.reporte_pedidos_view, name='reporte_pedidos'),
+    path('notificaciones/', views.admin_notifications_view, name='admin_notifications'),
+    path('notificaciones/<int:notification_id>/leer/', views.admin_notification_mark_read_view, name='admin_notification_mark_read'),
 ]

@@ -45,6 +45,11 @@
       {% if errores.precio %}<div class="form-error">{{ errores.precio }}</div>{% endif %}
     </div>
     <div>
+      <label for="stock">Cantidad disponible (stock)</label>
+      <input type="number" name="stock" id="stock" value="{{ valores.stock|default:'' }}" min="0" step="1" required>
+      {% if errores.stock %}<div class="form-error">{{ errores.stock }}</div>{% endif %}
+    </div>
+    <div>
       <label for="descripcion">Descripción</label>
       <textarea name="descripcion" id="descripcion" required>{{ valores.descripcion|default:'' }}</textarea>
       {% if errores.descripcion %}<div class="form-error">{{ errores.descripcion }}</div>{% endif %}
@@ -54,26 +59,7 @@
       <input type="text" name="garantia" id="garantia" value="{{ valores.garantia|default:'' }}" required>
       {% if errores.garantia %}<div class="form-error">{{ errores.garantia }}</div>{% endif %}
     </div>
-    <div>
-      <label for="metodo_pago">Método de pago</label>
-      <select name="metodo_pago" id="metodo_pago" required>
-        <option value="">Seleccione...</option>
-        {% for value, label in metodo_pago_choices %}
-          <option value="{{ value }}" {% if valores.metodo_pago == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-      {% if errores.metodo_pago %}<div class="form-error">{{ errores.metodo_pago }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="metodo_entrega">Método de entrega</label>
-      <select name="metodo_entrega" id="metodo_entrega" required>
-        <option value="">Seleccione...</option>
-        {% for value, label in metodo_entrega_choices %}
-          <option value="{{ value }}" {% if valores.metodo_entrega == value %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-      {% if errores.metodo_entrega %}<div class="form-error">{{ errores.metodo_entrega }}</div>{% endif %}
-    </div>
+
     <div>
       <label>Imágenes actuales</label>
       <div class="editar-producto-imagenes">

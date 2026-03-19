@@ -25,10 +25,9 @@
       <p class="product-detail__type"><strong>Tipo:</strong> {% if product.tipo == 'Otros' and product.tipo_otro %}{{ product.tipo_otro }}{% else %}{{ product.get_tipo_display }}{% endif %}</p>
       <p class="product-detail__price"><strong>Precio:</strong> ${{ product.precio }}</p>
       <p class="product-detail__unit"><strong>Unidad de medida:</strong> {{ product.get_unidad_display }}</p>
+      <p class="product-detail__stock"><strong>Cantidad disponible:</strong> {{ product.stock }}</p>
       <p class="product-detail__description"><strong>Descripcion:</strong> {{ product.descripcion }}</p>
       <p class="product-detail__warranty"><strong>Garantia:</strong> {{ product.garantia }}</p>
-      <p class="product-detail__payment"><strong>Metodo de pago:</strong> {{ product.get_metodo_pago_display }}</p>
-      <p class="product-detail__delivery"><strong>Metodo de entrega:</strong> {{ product.get_metodo_entrega_display }}</p>
 
       <div class="product-detail__actions">
         <a href="{% url 'tiendas:interface_farmer' %}" class="product-detail__btn--back">Volver</a>
@@ -53,6 +52,10 @@
             data-confirm-title="Habilitar producto"
             data-confirm-message="¿Seguro que deseas habilitar este producto? Volvera a estar visible para los clientes."
             data-confirm-button="Si, habilitar"
+            {% if product.disabled_by_admin %}
+            data-admin-disabled="true"
+            data-request-url="{% url 'productos:request_admin_product_reactivation' product.id %}"
+            {% endif %}
           >
             {% csrf_token %}
             <button type="submit" class="product-detail__btn--enable">Habilitar</button>
@@ -70,6 +73,31 @@
     <div class="profile-shop-alert__actions">
       <button type="button" class="profile-shop-alert__button profile-shop-alert__button--secondary" data-disable-product-cancel>Cancelar</button>
       <button type="button" class="profile-shop-alert__button profile-shop-alert__button--danger" data-disable-product-confirm data-confirm-button>Si, deshabilitar</button>
+    </div>
+  </div>
+</div>
+
+<div class="seller-message-modal" id="admin-reactivation-modal" aria-hidden="true">
+  <div class="seller-message-modal__backdrop" id="admin-reactivation-backdrop"></div>
+  <div class="seller-message-modal__content" role="dialog" aria-modal="true" aria-labelledby="admin-reactivation-title">
+    <h2 class="seller-message-modal__title" id="admin-reactivation-title">Solicitud al administrador</h2>
+    <form id="admin-reactivation-form" class="seller-message-modal__form">
+      <label for="admin-reactivation-text" class="seller-message-modal__label">Escribe el mensaje</label>
+      <textarea id="admin-reactivation-text" class="seller-message-modal__textarea" name="message" maxlength="500" placeholder="Hola administrador, deseo activar nuevamente este producto..." required></textarea>
+      <div class="seller-message-modal__actions">
+        <button type="button" class="seller-message-modal__btn seller-message-modal__btn--secondary" id="close-admin-reactivation-modal">Cancelar</button>
+        <button type="submit" class="seller-message-modal__btn seller-message-modal__btn--primary">Enviar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="reset-success-overlay profile-shop-alert-overlay" id="feedback-overlay" aria-hidden="true">
+  <div class="reset-success-alert profile-shop-alert" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
+    <h3 id="feedback-title" class="profile-shop-alert__title">Información</h3>
+    <p class="profile-shop-alert__message" id="feedback-message">Mensaje</p>
+    <div class="profile-shop-alert__actions">
+      <button type="button" class="profile-shop-alert__button profile-shop-alert__button--secondary" id="feedback-close">Aceptar</button>
     </div>
   </div>
 </div>

@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{% static 'icons/planta.png' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/toolbar.css' %}">
+    <script src="{% static 'js/productos_admin_actions.js' %}" defer></script>
+    <title>Productos admin</title>
+</head>
+<body>
+    <div class="govco-container__one">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+    {% include 'administrador/componentes/toolbar_products.html' %}
+    <div class="layout">
+        {% include 'administrador/componentes/sidebar.html' %}
+        <div class="layout__products-row">
+            {% include 'administrador/componentes/table_products_admin.html' %}
+            <div class="card_admin_information"></div>
+        </div>
+    </div>
+    
+    <div class="govco-container__one">
+        {% include 'components/gov-co__one.html' %}
+    </div>
+</body>
+</html>

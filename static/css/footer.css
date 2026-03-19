@@ -1,22 +1,94 @@
+/* === NUEVOS BLOQUES === */
+.footer__info {
+  grid-column: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--fs-xxxs);
+  text-align: left;
+  padding-left: 8px;
+}
+
+.footer__mission {
+  font-size: var(--fs-xxxs);
+  color: var(--primary-700);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.footer__contact {
+  font-size: var(--fs-xxxs);
+  color: var(--gray-800);
+}
+
+.footer__contact a {
+  color: var(--primary-700);
+  text-decoration: underline dotted;
+  margin: 0 2px;
+}
+
+.footer__links {
+  font-size: var(--fs-xxxs);
+  color: var(--gray-700);
+}
+
+.footer__link {
+  color: var(--primary-600);
+  text-decoration: underline;
+  margin: 0 2px;
+  font-weight: 500;
+}
+
+/* Ajuste para grid de 3 columnas en desktop */
+.footer-content {
+  grid-template-columns: 2fr 1fr 1.5fr;
+}
+
+@media (max-width: 1024px) {
+  .footer-content {
+    grid-template-columns: 1fr 1fr;
+  }
+  .footer__info {
+    grid-column: 1 / span 2;
+    align-items: center;
+    text-align: center;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .footer-content {
+    flex-direction: column-reverse;
+    display: flex;
+    gap: 10px;
+    padding: 10px 4px;
+  }
+  .footer__info {
+    align-items: center;
+    text-align: center;
+    padding-left: 0;
+    gap: 4px;
+  }
+  .footer__mission, .footer__contact, .footer__links {
+    font-size: var(--fs-xs);
+  }
+}
 /* === FOOTER PRINCIPAL === */
 .footer-content {
-  height: 10vh;  
-  position: static;
-  bottom: 0;
-  left: 0;
   width: 100%;
-  justify-content: center;
   background-color: var(--gray-100);
   color: var(--primary-800);
   font-size: var(--fs-xxxs);
   text-align: center;
-  padding: 8px 16px;
+  padding: 16px 16px 8px 16px;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
+  grid-template-columns: 2fr 1.2fr 1.5fr;
+  align-items: start;
+  gap: 12px;
+  min-height: 120px;
 }
 
 /* === ELEMENTOS === */
@@ -55,8 +127,8 @@
 }
 
 .footer__social-icon--sena {
-  width: 34px;
-  height: 34px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
   transform-origin: center;
   filter: brightness(0) saturate(100%) invert(49%) sepia(97%) saturate(541%) hue-rotate(77deg) brightness(96%) contrast(101%);

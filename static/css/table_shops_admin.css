@@ -1,0 +1,89 @@
+/* ====== CONTENEDOR DE TABLAS DE TIENDAS ====== */
+.table-containerstore {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 6px var(--gray-100);
+  overflow-x: auto;
+}
+.table_shops{
+  width: 100%;
+  overflow-y: scroll;
+  overflow-x: scroll;
+}
+/* ====== TABLA DE TIENDAS ====== */
+.shops-table {
+  width: 100%;
+  margin: 24px 0;
+  background: var(--white);
+  box-shadow: 0 6px 24px 0 rgba(0,0,0,0.08);
+  font-size: var(--fs-xxxs);
+  border-radius: 18px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+.shops-table__header,
+.shops-table__cell {
+  font-family: var(--main-font);
+  color: var(--black);
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.shops-table__header {
+  background: linear-gradient(90deg, var(--primary-100) 0%, var(--primary-200) 100%);
+  color: var(--black);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: var(--fs-xxxs);
+  text-align: center;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--primary-200);
+}
+
+.shops-table__row:nth-child(even) {
+  background-color: var(--gray-50);
+}
+
+.shops-table__row:hover {
+  background-color: var(--primary-50);
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+}
+
+.shops-table__cell--status {
+  font-weight: 700;
+  color: var(--primary-700);
+}
+
+.shops-table__button {
+  border: none;
+  outline: none;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: var(--fs-xxxs);
+  font-weight: 600;
+  margin: 0 2px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.shops-table__button--detail {
+  background: var(--primary-100);
+  color: var(--primary-700);
+}
+.shops-table__button--edit {
+  background: var(--primary-50);
+  color: var(--primary-700);
+}
+.shops-table__button--block {
+  background: var(--red-100);
+  color: var(--red-700);
+}
+.shops-table__button--unblock {
+  background: var(--green-100);
+  color: var(--green-700);
+}
+.shops-table__button:hover {
+  opacity: 0.85;
+}

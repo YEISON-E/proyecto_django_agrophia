@@ -33,13 +33,13 @@
                     <td>
                         <form method="post" action="{% url 'pedidos:update_order_status' order.id %}" class="tableorder__action-form">
                             {% csrf_token %}
-                            <select name="status" class="tableorder__status-select" aria-label="Estado del pedido {{ order.id }}">
-                                <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>Pendiente</option>
+                            <select name="status" class="tableorder__status-select" aria-label="Estado del pedido {{ order.id }}" {% if order.status == 'cancelled' %}disabled{% endif %}>
                                 <option value="confirmed" {% if order.status == 'confirmed' %}selected{% endif %}>Confirmado</option>
+                                <option value="in_progress" {% if order.status == 'in_progress' %}selected{% endif %}>En curso</option>
                                 <option value="completed" {% if order.status == 'completed' %}selected{% endif %}>Completado</option>
                                 <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>Cancelado</option>
                             </select>
-                            <button class="tableorder__action tableorder__action--save" type="submit" title="Actualizar estado">
+                            <button class="tableorder__action tableorder__action--save" type="submit" title="Actualizar estado" {% if order.status == 'cancelled' %}disabled{% endif %}>
                                 Guardar
                             </button>
                             <a href="{% url 'pedidos:order_farmer_detail' order.id %}" class="tableorder__action tableorder__action--view" title="Visualizar detalles del pedido {{ order.id }}" aria-label="Visualizar pedido {{ order.id }}">

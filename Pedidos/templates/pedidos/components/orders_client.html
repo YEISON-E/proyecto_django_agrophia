@@ -57,6 +57,12 @@
           </form>
         </div>
         {% endif %}
+        <form method="post" action="{% url 'pedidos:confirm_order' order.id %}" style="display:inline;">
+          {% csrf_token %}
+          {% if order.status == 'pending' %}
+          <button type="submit" class="orders__btn orders__btn--confirm">⏩ Acelerar pedido</button>
+          {% endif %}
+        </form>
         <a href="{% url 'pedidos:order_receipt' order.id %}" target="_blank" class="orders__btn orders__btn--receipt">
           📄 Ver comprobante
         </a>

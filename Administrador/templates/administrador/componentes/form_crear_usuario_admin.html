@@ -1,0 +1,85 @@
+{% comment %} Componente: Formulario crear usuario admin {% endcomment %}
+<div class="crear-usuario-container">
+  <a href="{% url 'administrador:usuarios_admin' %}" style="display:inline-block;margin-bottom:18px;color:#16a34a;font-weight:600;text-decoration:none;font-size:1.08em;">
+    ← Volver al listado
+  </a>
+  <div class="crear-usuario-title">Crear nuevo usuario</div>
+  {% if success %}
+    <div class="crear-usuario-success">Usuario creado exitosamente.</div>
+  {% endif %}
+  <form method="post" class="crear-usuario-form">
+    {% csrf_token %}
+    <div>
+      <label for="nombres">Nombres</label>
+      <input type="text" name="nombres" id="nombres" value="{{ valores.nombres|default:'' }}" required>
+      {% if errores.nombres %}<div class="form-error">{{ errores.nombres }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="apellidos">Apellidos</label>
+      <input type="text" name="apellidos" id="apellidos" value="{{ valores.apellidos|default:'' }}" required>
+      {% if errores.apellidos %}<div class="form-error">{{ errores.apellidos }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="tipo_documento">Tipo de documento</label>
+      <select name="tipo_documento" id="tipo_documento" required>
+        <option value="CC" {% if valores.tipo_documento == 'CC' %}selected{% endif %}>Cédula</option>
+        <option value="CE" {% if valores.tipo_documento == 'CE' %}selected{% endif %}>Cédula Extranjería</option>
+        <option value="NIT" {% if valores.tipo_documento == 'NIT' %}selected{% endif %}>NIT</option>
+        <option value="PAS" {% if valores.tipo_documento == 'PAS' %}selected{% endif %}>Pasaporte</option>
+      </select>
+      {% if errores.tipo_documento %}<div class="form-error">{{ errores.tipo_documento }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="numero_documento">Número de documento</label>
+      <input type="text" name="numero_documento" id="numero_documento" value="{{ valores.numero_documento|default:'' }}" required>
+      {% if errores.numero_documento %}<div class="form-error">{{ errores.numero_documento }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="correo_electronico">Correo electrónico</label>
+      <input type="email" name="correo_electronico" id="correo_electronico" value="{{ valores.correo_electronico|default:'' }}" required>
+      {% if errores.correo_electronico %}<div class="form-error">{{ errores.correo_electronico }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="telefono">Teléfono</label>
+      <input type="text" name="telefono" id="telefono" value="{{ valores.telefono|default:'' }}" required>
+      {% if errores.telefono %}<div class="form-error">{{ errores.telefono }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="departamento">Departamento</label>
+      <select name="departamento" id="departamento" required>
+        <option value="">Seleccione...</option>
+        {% for dep, municipios in departamentos_municipios.items %}
+          <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
+        {% endfor %}
+      </select>
+      {% if errores.departamento %}<div class="form-error">{{ errores.departamento }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="municipio">Municipio</label>
+      <select name="municipio" id="municipio" required>
+        <option value="">Seleccione...</option>
+        <!-- Las opciones de municipio se llenan por JS -->
+      </select>
+      {% if errores.municipio %}<div class="form-error">{{ errores.municipio }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="direccion_completa">Dirección</label>
+      <input type="text" name="direccion_completa" id="direccion_completa" value="{{ valores.direccion_completa|default:'' }}" required>
+      {% if errores.direccion_completa %}<div class="form-error">{{ errores.direccion_completa }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="descripcion_perfil">Descripción</label>
+      <textarea name="descripcion_perfil" id="descripcion_perfil" rows="2" style="width:100%;border-radius:6px;border:1px solid #d1d5db;padding:8px 10px;">{{ valores.descripcion_perfil|default:'' }}</textarea>
+      {% if errores.descripcion_perfil %}<div class="form-error">{{ errores.descripcion_perfil }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="contrasena">Contraseña</label>
+      <input type="password" name="contrasena" id="contrasena" required>
+      {% if errores.contrasena %}<div class="form-error">{{ errores.contrasena }}</div>{% endif %}
+    </div>
+    <div>
+      <button type="submit">Crear usuario</button>
+    </div>
+  </form>
+</div>
+

@@ -1,9 +1,10 @@
 from django.urls import path
-from .views import index, Logueo, register_step_1, register_step_2, olvidaste_contrasena, restablecer_contrasena, login_customer_user, mensajes_sends, logout_user, profile, update_perfil, update_perfil2
+from .views import index, public_products, Logueo, register_step_1, register_step_2, olvidaste_contrasena, restablecer_contrasena, login_customer_user, mensajes_sends, logout_user, profile, update_perfil, update_perfil2, aviso_privacidad, terminos_uso, preguntas_frecuentes, marcar_mensaje_admin_leido, enviar_mensaje_admin_usuario_bloqueado
 app_name = 'usuarios'
 
 urlpatterns = [
     path('', index, name='index'),
+    path('productos/', public_products, name='public_products'),
     path('login/', Logueo.as_view(), name='login'),
     path('home/', login_customer_user, name='home_customer'),
     path('login-customer-user/', login_customer_user, name='login_customer_user'),
@@ -20,4 +21,9 @@ urlpatterns = [
 
     path('logout/', logout_user, name='logout'),
 
+    path('aviso-privacidad/', aviso_privacidad, name='aviso_privacidad'),
+    path('terminos-uso/', terminos_uso, name='terminos_uso'),
+    path('preguntas-frecuentes/', preguntas_frecuentes, name='preguntas_frecuentes'),
+    path('marcar-mensaje-admin-leido/', marcar_mensaje_admin_leido, name='marcar_mensaje_admin_leido'),
+    path('enviar-mensaje-admin-usuario-bloqueado/', enviar_mensaje_admin_usuario_bloqueado, name='enviar_mensaje_admin_usuario_bloqueado'),
 ]

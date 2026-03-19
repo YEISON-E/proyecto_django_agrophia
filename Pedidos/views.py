@@ -5,6 +5,20 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from datetime import timedelta
 
+# Confirmar pedido por el cliente
+@require_POST
+@never_cache
+def confirm_order(request, order_id):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	order = get_object_or_404(Order, pk=order_id, customer=request.user)
+	if order.status == Order.STATUS_PENDING:
+		order.status = Order.STATUS_CONFIRMED
+		order.save(update_fields=["status"])
+
+	return redirect("pedidos:orders_client")
+
 from django.db.models import Prefetch
 from django.utils import timezone
 from Tiendas.models import Shop
@@ -43,7 +57,16 @@ def orders_farmer(request):
 	if not Shop.objects.filter(owner=request.user, is_active=True).exists():
 		return redirect("usuarios:home_customer")
 
-	orders = Order.objects.filter(items__farmer=request.user).distinct().prefetch_related(
+	cutoff = timezone.now() - timedelta(hours=Order.CANCEL_WINDOW_HOURS)
+	Order.objects.filter(
+		status=Order.STATUS_PENDING,
+		created_at__lt=cutoff,
+	).update(status=Order.STATUS_CONFIRMED)
+
+	# Mostrar todos los pedidos donde el agricultor tenga productos (sin filtrar por cutoff)
+	orders = Order.objects.filter(
+		items__farmer=request.user
+	).distinct().prefetch_related(
 		Prefetch(
 			"items",
 			queryset=OrderItem.objects.filter(farmer=request.user).select_related("product"),
@@ -88,8 +111,11 @@ def update_order_status(request, order_id):
 	if not order.items.filter(farmer=request.user).exists():
 		return redirect("pedidos:orders_farmer")
 
+	if order.status == Order.STATUS_CANCELLED:
+		return redirect("pedidos:orders_farmer")
+
 	new_status = (request.POST.get("status") or "").strip()
-	valid_statuses = {choice[0] for choice in Order.STATUS_CHOICES}
+	valid_statuses = {Order.STATUS_CONFIRMED, Order.STATUS_IN_PROGRESS, Order.STATUS_COMPLETED, Order.STATUS_CANCELLED}
 
 	if new_status in valid_statuses:
 		order.status = new_status

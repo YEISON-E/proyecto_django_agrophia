@@ -8,12 +8,14 @@ from django.utils import timezone
 class Order(models.Model):
 	STATUS_PENDING = "pending"
 	STATUS_CONFIRMED = "confirmed"
+	STATUS_IN_PROGRESS = "in_progress"
 	STATUS_COMPLETED = "completed"
 	STATUS_CANCELLED = "cancelled"
 
 	STATUS_CHOICES = [
 		(STATUS_PENDING, "Pendiente"),
 		(STATUS_CONFIRMED, "Confirmado"),
+		(STATUS_IN_PROGRESS, "En curso"),
 		(STATUS_COMPLETED, "Completado"),
 		(STATUS_CANCELLED, "Cancelado"),
 	]

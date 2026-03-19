@@ -1,0 +1,59 @@
+{% load static %}
+<div class="table-container">
+<table class="users-table">
+  <thead class="users-table__head">
+    <tr class="users-table__row users-table__row--head">
+      <th class="users-table__header">Nombre</th>
+      <th class="users-table__header">Correo electrónico</th>
+      <th class="users-table__header">Teléfono</th>
+      <th class="users-table__header">Ubicación</th>
+      <th class="users-table__header">Estado</th>
+      <th class="users-table__header">Acciones</th>
+      <th class="users-table__header">Mensaje</th>
+    </tr>
+  </thead>
+  <tbody class="users-table__body">
+    {% for usuario in usuarios %}
+    <tr class="users-table__row">
+      <td class="users-table__cell">
+        {{ usuario.nombres }} {{ usuario.apellidos }}
+      </td>
+      <td class="users-table__cell">{{ usuario.correo_electronico }}</td>
+      <td class="users-table__cell">{{ usuario.telefono }}</td>
+      <td class="users-table__cell">{{ usuario.departamento }}, {{ usuario.municipio }}</td>
+      <td class="users-table__cell users-table__cell--status">
+        {% if usuario.estado == 'activo' %}
+          <span class="users-table__status users-table__status--active">Activo</span>
+        {% else %}
+          <span class="users-table__status users-table__status--blocked">Inactivo</span>
+        {% endif %}
+      </td>
+      <td class="users-table__cell users-table__cell--actions">
+        {% if usuario.estado == 'activo' %}
+        <button class="users-table__button users-table__button--block" title="Bloquear" data-user-id="{{ usuario.id }}" data-action="block">
+          <img src="{% static 'icons/lock.svg' %}" alt="Bloquear" width="20" height="20">
+        </button>
+        {% else %}
+        <button class="users-table__button users-table__button--unblock" title="Desbloquear" data-user-id="{{ usuario.id }}" data-action="unblock">
+          <img src="{% static 'icons/unlock.svg' %}" alt="Desbloquear" width="20" height="20">
+        </button>
+        {% endif %}
+        <a href="{% url 'administrador:usuario_admin_editar' usuario.id %}" class="users-table__button users-table__button--edit" title="Editar">
+          <img src="{% static 'icons/edit.svg' %}" alt="Editar" width="20" height="20">
+        </a>
+        <a href="{% url 'administrador:usuario_admin_detalle' usuario.id %}" class="users-table__button users-table__button--view" title="Ver más" style="margin-left:4px;background:#e0e7ff;border:1px solid #6366f1;color:#3730a3;font-weight:600;">
+          Ver más
+        </a>
+      </td>
+      <td class="users-table__cell users-table__cell--message">
+        <button class="users-table__button users-table__button--message" title="Enviar mensaje" data-user-id="{{ usuario.id }}" data-user-name="{{ usuario.nombres }} {{ usuario.apellidos }}">
+          <img src="{% static 'icons/icon_mensaje.png' %}" alt="Mensaje" width="20" height="20">
+        </button>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="7" style="text-align:center;">No hay usuarios registrados.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>

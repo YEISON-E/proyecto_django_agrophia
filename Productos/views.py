@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
+from django.http import JsonResponse
 from django.conf import settings
 from django.core.files import File
 from django.urls import reverse
@@ -81,10 +82,12 @@ def _validate_step2(data):
 	errors = {}
 
 	precio_raw = (data.get("precio") or "").strip()
+	stock_raw = (data.get("stock") or "").strip()
 	descripcion = (data.get("descripcion") or "").strip()
 	garantia = (data.get("garantia") or "").strip()
 
 	precio_value = None
+	stock_value = None
 	if not precio_raw:
 		errors["precio"] = "El precio es obligatorio."
 	else:
@@ -96,6 +99,17 @@ def _validate_step2(data):
 			if precio_value <= 0:
 				errors["precio"] = "Ingresa un precio válido mayor que 0."
 
+	if not stock_raw:
+		errors["stock"] = "La cantidad disponible es obligatoria."
+	else:
+		try:
+			stock_value = int(stock_raw)
+		except (TypeError, ValueError):
+			errors["stock"] = "Ingresa una cantidad disponible válida."
+		else:
+			if stock_value < 0:
+				errors["stock"] = "La cantidad disponible no puede ser negativa."
+
 	if not descripcion:
 		errors["descripcion"] = "La descripción es obligatoria."
 	elif len(descripcion) < 10:
@@ -106,7 +120,7 @@ def _validate_step2(data):
 	elif len(garantia) < 3:
 		errors["garantia"] = "El tiempo de durabilidad debe tener al menos 3 caracteres."
 
-	return errors, precio_value
+	return errors, precio_value, stock_value
 
 
 @never_cache
@@ -177,9 +191,10 @@ def create_product2(request):
 		return redirect("productos:create_product")
 
 	if request.method == "POST":
-		errors, precio_value = _validate_step2(request.POST)
+		errors, precio_value, stock_value = _validate_step2(request.POST)
 		valores = {
 			"precio": (request.POST.get("precio") or "").strip(),
+			"stock": (request.POST.get("stock") or "").strip(),
 			"descripcion": (request.POST.get("descripcion") or "").strip(),
 			"garantia": (request.POST.get("garantia") or "").strip(),
 		}
@@ -203,10 +218,10 @@ def create_product2(request):
 			tipo_otro=step1.get("tipo_otro", ""),
 			unidad=step1.get("unidad", ""),
 			precio=precio_value,
+			stock=stock_value,
 			descripcion=valores["descripcion"],
 			garantia=valores["garantia"],
-			metodo_pago=Product.METODO_PAGO_CONTADO,
-			metodo_entrega=Product.METODO_ENTREGA_DOMICILIO,
+			is_active=stock_value > 0,
 		)
 
 		for temp_path in temp_paths:
@@ -238,7 +253,10 @@ def descripcion_product(request, product_id):
 		pk=product_id,
 	)
 
-	if (not product.is_active or (product.shop and not product.shop.is_active)) and product.owner_id != request.user.id:
+	if (
+		(not product.is_active or product.stock <= 0 or (product.shop and not product.shop.is_active))
+		and product.owner_id != request.user.id
+	):
 		return redirect("usuarios:home_customer")
 
 	return render(request, "productos/descripcion_product.html", {
@@ -272,7 +290,8 @@ def disable_product(request, product_id):
 
 	product = get_object_or_404(Product, pk=product_id, owner=request.user)
 	product.is_active = False
-	product.save(update_fields=["is_active"])
+	product.disabled_by_admin = False
+	product.save(update_fields=["is_active", "disabled_by_admin"])
 
 	return redirect("tiendas:interface_farmer")
 
@@ -299,10 +318,57 @@ def activate_product(request, product_id):
 		return redirect("usuarios:login")
 
 	product = get_object_or_404(Product, pk=product_id, owner=request.user, is_active=False)
+
+	if product.disabled_by_admin:
+		if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+			return JsonResponse({
+				"ok": False,
+				"requires_admin_message": True,
+				"message": "Este producto fue deshabilitado por el administrador.",
+			})
+		return redirect("productos:disabled_products")
+
+	if product.stock <= 0:
+		if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+			return JsonResponse({
+				"ok": False,
+				"message": "No puedes habilitar este producto porque su stock es 0.",
+			}, status=400)
+		return redirect("productos:disabled_products")
+
 	product.is_active = True
 	product.save(update_fields=["is_active"])
 
 	return redirect("productos:disabled_products")
+
+
+@require_POST
+@never_cache
+def request_admin_product_reactivation(request, product_id):
+	if not request.user.is_authenticated:
+		return JsonResponse({"ok": False, "message": "Sesion no valida."}, status=401)
+
+	product = get_object_or_404(Product, pk=product_id, owner=request.user, is_active=False)
+	if not product.disabled_by_admin:
+		return JsonResponse({"ok": False, "message": "Este producto no requiere aprobacion del administrador."}, status=400)
+
+	message_text = (request.POST.get("message") or "").strip()
+	if len(message_text) < 10:
+		return JsonResponse({"ok": False, "message": "Escribe un mensaje de al menos 10 caracteres."}, status=400)
+
+	from Mensajes.models import AdminNotification
+	from usuarios.models import Register
+
+	sender_register = Register.objects.filter(id_usuario=request.user.id).first()
+	AdminNotification.objects.create(
+		notification_type=AdminNotification.TYPE_PRODUCT_REACTIVATION,
+		sender_user=request.user,
+		sender_register=sender_register,
+		product=product,
+		message=message_text,
+	)
+
+	return JsonResponse({"ok": True, "message": "Tu solicitud fue enviada al administrador."})
 
 
 @never_cache
@@ -321,10 +387,9 @@ def update_product(request, product_id):
 		"tipo_otro": product.tipo_otro or "",
 		"unidad": product.unidad,
 		"precio": str(product.precio),
+		"stock": product.stock,
 		"descripcion": product.descripcion,
 		"garantia": product.garantia,
-		"metodo_pago": product.metodo_pago,
-		"metodo_entrega": product.metodo_entrega,
 	}
 
 	if request.method == "POST":
@@ -337,10 +402,9 @@ def update_product(request, product_id):
 			"tipo_otro": (request.POST.get("tipo_otro") or "").strip(),
 			"unidad": (request.POST.get("unidad") or "").strip(),
 			"precio": (request.POST.get("precio") or "").strip(),
+			"stock": (request.POST.get("stock") or "").strip(),
 			"descripcion": (request.POST.get("descripcion") or "").strip(),
 			"garantia": (request.POST.get("garantia") or "").strip(),
-			"metodo_pago": (request.POST.get("metodo_pago") or "").strip(),
-			"metodo_entrega": (request.POST.get("metodo_entrega") or "").strip(),
 		}
 
 		try:
@@ -348,6 +412,15 @@ def update_product(request, product_id):
 		except (InvalidOperation, ValueError):
 			errores["precio"] = "Ingresa un precio valido mayor que 0."
 			precio_value = None
+
+		try:
+			stock_value = int(valores["stock"])
+		except (TypeError, ValueError):
+			errores["stock"] = "Ingresa una cantidad disponible válida."
+			stock_value = None
+		else:
+			if stock_value < 0:
+				errores["stock"] = "La cantidad disponible no puede ser negativa."
 
 		for photo in new_images:
 			if not (photo.content_type or "").startswith("image/"):
@@ -371,10 +444,11 @@ def update_product(request, product_id):
 			product.tipo_otro = valores["tipo_otro"]
 			product.unidad = valores["unidad"]
 			product.precio = precio_value
+			product.stock = stock_value
 			product.descripcion = valores["descripcion"]
 			product.garantia = valores["garantia"]
-			product.metodo_pago = valores["metodo_pago"]
-			product.metodo_entrega = valores["metodo_entrega"]
+			if product.stock <= 0:
+				product.is_active = False
 
 			try:
 				product.full_clean()
@@ -400,6 +474,4 @@ def update_product(request, product_id):
 		"errores": errores,
 		"tipo_choices": Product.TIPO_CHOICES,
 		"unidad_choices": Product.UNIDAD_CHOICES,
-		"metodo_pago_choices": Product.METODO_PAGO_CHOICES,
-		"metodo_entrega_choices": Product.METODO_ENTREGA_CHOICES,
 	})

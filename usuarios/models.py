@@ -21,5 +21,8 @@ class Register(models.Model):
     codigo_reset = models.CharField(max_length=6, null=True, blank=True)
     fecha_expiracion_codigo = models.DateTimeField(null=True, blank=True)
 
+    # Campo para persistir validación de código admin
+    admin_code_validated = models.BooleanField(default=False)
+
     def __str__(self):
         return f"{self.nombres} {self.apellidos} - {self.numero_documento}"

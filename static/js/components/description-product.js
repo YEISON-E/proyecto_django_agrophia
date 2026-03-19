@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }, 1500);
   };
 
-  const requestProductQuantity = () => new Promise((resolve) => {
+  const requestProductQuantity = (maxStock) => new Promise((resolve) => {
     const previous = document.getElementById("cart-feedback-quantity-modal");
     if (previous) {
       previous.remove();
@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
       <div class="cart-feedback__modal" role="dialog" aria-modal="true" aria-labelledby="cart-feedback-modal-title">
         <h3 id="cart-feedback-modal-title" class="cart-feedback__title">Agregar al carrito</h3>
         <p class="cart-feedback__text">Digita la cantidad que deseas agregar</p>
-        <input type="number" min="1" step="1" value="1" class="cart-feedback__input" id="cart-feedback-quantity-input" />
+        <input type="number" min="1" ${maxStock ? `max="${maxStock}"` : ""} step="1" value="1" class="cart-feedback__input" id="cart-feedback-quantity-input" />
         <div class="cart-feedback__actions">
           <button type="button" class="cart-feedback__btn cart-feedback__btn--secondary" id="cart-feedback-cancel">Cancelar</button>
           <button type="button" class="cart-feedback__btn cart-feedback__btn--primary" id="cart-feedback-accept">Aceptar</button>
@@ -234,18 +234,29 @@ document.addEventListener("DOMContentLoaded", function () {
       event.preventDefault();
 
       const productId = addButton.dataset.productId;
+      const availableStock = Number.parseInt(addButton.dataset.productStock || "0", 10);
       const endpoint = addButton.getAttribute("href");
       if (!productId || !endpoint) {
         return;
       }
 
-      const quantity = await requestProductQuantity();
+      if (Number.isNaN(availableStock) || availableStock <= 0) {
+        showTemporaryAlert("Este producto no tiene stock disponible.", true);
+        return;
+      }
+
+      const quantity = await requestProductQuantity(availableStock);
       if (quantity === null) {
         return;
       }
 
       if (Number.isNaN(quantity) || quantity <= 0) {
         showTemporaryAlert("Cantidad inválida.", true);
+        return;
+      }
+
+      if (quantity > availableStock) {
+        showTemporaryAlert(`Solo hay ${availableStock} unidades disponibles.`, true);
         return;
       }
 
@@ -266,7 +277,7 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        showTemporaryAlert("Producto agregado exitosamente");
+        showTemporaryAlert(data.message || "Producto agregado exitosamente");
       } catch (error) {
         showTemporaryAlert("Ocurrió un error al agregar al carrito.", true);
       }

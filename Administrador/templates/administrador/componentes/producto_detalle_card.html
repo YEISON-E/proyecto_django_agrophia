@@ -1,0 +1,39 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/producto_detalle_card.css' %}">
+<div class="product-detail-main">
+  <div class="product-detail-title">Detalle de producto</div>
+  <div class="product-detail-grid">
+    <div class="product-detail-label">ID producto</div>
+    <div class="product-detail-value">{{ producto.id }}</div>
+    <div class="product-detail-label">Nombre</div>
+    <div class="product-detail-value">{{ producto.nombre }}</div>
+    <div class="product-detail-label">Tipo</div>
+    <div class="product-detail-value">{{ producto.tipo }}{% if producto.tipo == 'Otros' and producto.tipo_otro %} ({{ producto.tipo_otro }}){% endif %}</div>
+    <div class="product-detail-label">Unidad</div>
+    <div class="product-detail-value">{{ producto.unidad }}</div>
+    <div class="product-detail-label">Precio</div>
+    <div class="product-detail-value">${{ producto.precio }}</div>
+    <div class="product-detail-label">Cantidad disponible</div>
+    <div class="product-detail-value">{{ producto.stock }}</div>
+    <div class="product-detail-label">Descripción</div>
+    <div class="product-detail-value">{{ producto.descripcion }}</div>
+    <div class="product-detail-label">Garantía</div>
+    <div class="product-detail-value">{{ producto.garantia }}</div>
+    <div class="product-detail-label">Estado</div>
+    <div class="product-detail-value">{% if producto.is_active %}Activo{% else %}Inactivo{% endif %}</div>
+    <div class="product-detail-label">Imágenes</div>
+    <div class="product-detail-value product-detail-images">
+      {% for image in producto.images.all %}
+        <img src="{{ image.image.url }}" alt="Imagen del producto" class="detalle-producto-img-fixed">
+      {% empty %}
+        <span>No hay imágenes.</span>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="shop-edit-footer">
+    <a href="{% url 'administrador:producs_page' %}" class="shop-edit-cancel">&larr; Volver al listado</a>
+    <a href="{% url 'administrador:producto_admin_editar' producto.id %}" class="shop-edit-btn">
+      <img src="{% static 'icons/edit.svg' %}" alt="Editar" class="shop-edit-action-icon">Editar producto
+    </a>
+  </div>
+</div>

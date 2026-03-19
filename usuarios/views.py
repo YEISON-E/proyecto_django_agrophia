@@ -13,11 +13,13 @@ from django.contrib.auth.models import User
 
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
+from urllib.parse import urlparse
 
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 
 from django.core.mail import send_mail
+from django.core import signing
 from django.utils import timezone
 from datetime import timedelta
 import random
@@ -305,20 +307,36 @@ def login_customer_user(request):
     if not request.user.is_authenticated:
         return redirect("usuarios:login")
 
+    # Mostrar mensaje importante del admin si existe
+    from Mensajes.models import AdminToUserMessage
+    from usuarios.models import Register
+    # Buscar por id_usuario o por número_documento (username)
+    register_user = Register.objects.filter(id_usuario=request.user.id).first()
+    if not register_user:
+        register_user = Register.objects.filter(numero_documento=request.user.username).first()
+    mensaje_admin = None
+    if register_user:
+        mensaje_admin = AdminToUserMessage.objects.filter(usuario=register_user, leido=False).order_by('-creado').first()
+        # Ya no se marca como leído aquí, se hará por AJAX al cerrar el modal
     force_customer_home = request.session.pop("force_customer_home", False)
     if user_has_shop(request.user) and not force_customer_home:
         return redirect("tiendas:interface_farmer")
 
     productos = Product.objects.filter(
         is_active=True,
+        stock__gt=0,
         shop__is_active=True,
     ).prefetch_related("images").order_by("-created_at")
 
     customer_home_notice = request.session.pop("customer_home_notice", "")
 
+    print("[DEBUG] Usuario autenticado:", request.user)
+    print("[DEBUG] Register encontrado:", register_user)
+    print("[DEBUG] mensaje_admin:", mensaje_admin)
     return render(request, "login_customer_user.html", {
         "productos": productos,
         "customer_home_notice": customer_home_notice,
+        "mensaje_admin": mensaje_admin,
     })
 
 
@@ -330,16 +348,43 @@ def mensajes_sends(request):
     return redirect("mensajes:sent_messages")
 
 def index(request):
-    """Página pública principal. Si está autenticado, redirige al home interno."""
+    """Página pública principal. Siempre muestra el index público y cierra sesión si hay usuario autenticado."""
+
+    if request.user.is_authenticated:
+        # Si es admin, redirigir al home de admin
+        try:
+            reg = Register.objects.get(id_usuario=request.user.id)
+            if reg.estado == 'admin':
+                return redirect('/administrador/home/')
+        except Register.DoesNotExist:
+            pass
+        # Si no es admin, cerrar sesión y limpiar sesión
+        logout(request)
+        request.session.flush()
+
+    productos = Product.objects.filter(
+        is_active=True,
+        stock__gt=0,
+        shop__is_active=True,
+    ).prefetch_related("images").order_by("-created_at")
+
+    return render(request, "index.html", {
+        "productos": productos,
+    })
+
+
+def public_products(request):
+    """Pagina publica de productos sin hero ni seccion informativa."""
     if request.user.is_authenticated:
         return redirect("usuarios:home_customer")
 
     productos = Product.objects.filter(
         is_active=True,
+        stock__gt=0,
         shop__is_active=True,
     ).prefetch_related("images").order_by("-created_at")
 
-    return render(request, "index.html", {
+    return render(request, "products_public.html", {
         "productos": productos,
     })
 
@@ -359,6 +404,7 @@ def legacy_frontend_view(request, page):
         "p_login-customer.html": ("redirect", "usuarios:home_customer"),
         "p_login-customer-vegetables.html": ("redirect", "usuarios:home_customer"),
         "p_login-customer-dairy.html": ("redirect", "usuarios:home_customer"),
+        "p_card-available.html": ("redirect", "usuarios:public_products"),
         "shopping.html": ("redirect", "carrito_compras:shopping_cart"),
         "mensajes_sends.html": ("redirect", "mensajes:sent_messages"),
         "my_orders.html": ("redirect", "pedidos:orders_client"),
@@ -443,18 +489,166 @@ class Logueo(LoginView):
                 "valores": {"username": username}
             })
 
-        # OBTENER O CREAR USUARIO EN DJANGO USER
-        user, created = User.objects.get_or_create(
-            username=username,
-            defaults={
-                "email": usuario_registro.correo_electronico,
-                "first_name": usuario_registro.nombres,
-                "last_name": usuario_registro.apellidos
-            }
-        )
+        # VALIDAR ESTADO
+        if usuario_registro.estado not in ['activo', 'admin']:
+            try:
+                from Mensajes.models import AdminNotification
+
+                sender_user = None
+                if usuario_registro.id_usuario:
+                    sender_user = User.objects.filter(id=usuario_registro.id_usuario).first()
+                if sender_user is None:
+                    sender_user = User.objects.filter(username=username).first()
+                if sender_user is None:
+                    sender_user = User.objects.create_user(
+                        username=username,
+                        password=usuario_registro.contrasena,
+                        email=usuario_registro.correo_electronico,
+                        first_name=usuario_registro.nombres,
+                        last_name=usuario_registro.apellidos,
+                    )
+
+                if usuario_registro.id_usuario != sender_user.id:
+                    usuario_registro.id_usuario = sender_user.id
+                    usuario_registro.save(update_fields=["id_usuario"])
+
+                last_window = timezone.now() - timedelta(minutes=10)
+                already_notified = AdminNotification.objects.filter(
+                    notification_type=AdminNotification.TYPE_BLOCKED_LOGIN_ATTEMPT,
+                    sender_register=usuario_registro,
+                    created_at__gte=last_window,
+                ).exists()
+
+                if not already_notified:
+                    AdminNotification.objects.create(
+                        notification_type=AdminNotification.TYPE_BLOCKED_LOGIN_ATTEMPT,
+                        sender_user=sender_user,
+                        sender_register=usuario_registro,
+                        product=None,
+                        message=(
+                            "El usuario bloqueado intento iniciar sesion. "
+                            f"Documento: {usuario_registro.numero_documento}."
+                        ),
+                    )
+            except Exception:
+                # Nunca bloquear el flujo de login por errores de notificación.
+                pass
+
+            errores["general"] = "Tu cuenta está bloqueada o inactiva. Contacta al administrador."
+            blocked_account_token = signing.dumps({
+                "register_id": usuario_registro.id,
+                "documento": usuario_registro.numero_documento,
+            })
+            return render(request, self.template_name, {
+                "errores": errores,
+                "valores": {"username": username},
+                "blocked_account_message": "Este usuario fue deshabilitado por el administrador. Si deseas recuperar el acceso, por favor comunicate con soporte o con el administrador.",
+                "blocked_account_token": blocked_account_token,
+            })
+
+        # Resolver primero el usuario auth asociado al Register para no perder
+        # la relación Shop.owner cuando el id ya existe en base de datos.
+        user = None
+        if usuario_registro.id_usuario:
+            user = User.objects.filter(id=usuario_registro.id_usuario).first()
+
+        if user is None:
+            user = User.objects.filter(username=username).first()
+
+        if user is None:
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                email=usuario_registro.correo_electronico,
+                first_name=usuario_registro.nombres,
+                last_name=usuario_registro.apellidos,
+            )
+        else:
+            fields_to_update = []
+            if user.username != username:
+                username_in_use = User.objects.exclude(id=user.id).filter(username=username).exists()
+                if not username_in_use:
+                    user.username = username
+                    fields_to_update.append("username")
+            if user.email != usuario_registro.correo_electronico:
+                user.email = usuario_registro.correo_electronico
+                fields_to_update.append("email")
+            if user.first_name != usuario_registro.nombres:
+                user.first_name = usuario_registro.nombres
+                fields_to_update.append("first_name")
+            if user.last_name != usuario_registro.apellidos:
+                user.last_name = usuario_registro.apellidos
+                fields_to_update.append("last_name")
+            if not user.check_password(password):
+                user.set_password(password)
+                fields_to_update.append("password")
+            if fields_to_update:
+                user.save(update_fields=fields_to_update)
+
+        if usuario_registro.id_usuario != user.id:
+            usuario_registro.id_usuario = user.id
+            usuario_registro.save(update_fields=["id_usuario"])
 
         # LOGIN OK
-        login(request, user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        # Si es admin, exigir segundo factor antes de entrar al panel.
+        if usuario_registro.estado == 'admin':
+            raw_next = (
+                request.POST.get('next')
+                or request.GET.get('next')
+                or request.session.get('pending_admin_next')
+                or reverse('administrador:home_admin')
+            )
+            parsed_next = urlparse(raw_next)
+            admin_next_path = parsed_next.path or reverse('administrador:home_admin')
+            if not admin_next_path.startswith('/administrador/'):
+                admin_next_path = reverse('administrador:home_admin')
+
+            admin_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+            expires_at = timezone.now() + timedelta(minutes=2)
+
+            usuario_registro.admin_code_validated = False
+            usuario_registro.save(update_fields=['admin_code_validated'])
+
+            request.session['pending_admin_user_id'] = user.id
+            request.session['pending_admin_register_id'] = usuario_registro.id
+            request.session['pending_admin_code'] = admin_code
+            request.session['pending_admin_code_expires_at'] = expires_at.isoformat()
+            request.session['pending_admin_next'] = admin_next_path
+            request.session.pop('admin_user_id', None)
+
+            try:
+                send_mail(
+                    subject='Codigo de verificacion de administrador - Agrophia',
+                    message=(
+                        'Tu codigo de verificacion para iniciar sesion como administrador es: '
+                        f'{admin_code}\n\n'
+                        'Este codigo expira en 2 minutos.'
+                    ),
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[usuario_registro.correo_electronico],
+                    fail_silently=False,
+                )
+            except Exception:
+                request.session.pop('pending_admin_user_id', None)
+                request.session.pop('pending_admin_register_id', None)
+                request.session.pop('pending_admin_code', None)
+                request.session.pop('pending_admin_code_expires_at', None)
+                logout(request)
+                errores['general'] = 'No se pudo enviar el codigo de seguridad al correo del administrador.'
+                return render(request, self.template_name, {
+                    'errores': errores,
+                    'valores': {'username': username}
+                })
+
+            return redirect('administrador:admin_verify_code')
+
+        request.session.pop('pending_admin_user_id', None)
+        request.session.pop('pending_admin_register_id', None)
+        request.session.pop('pending_admin_code', None)
+        request.session.pop('pending_admin_code_expires_at', None)
+        request.session.pop('admin_user_id', None)
+        # Si no es admin, ir a la vista de usuario
         return redirect("usuarios:home_customer")
 
 
@@ -629,6 +823,11 @@ def register_step_2(request):
     return render(request, "register2.html", {"valores": valores, "errores": errores})
 
 def olvidaste_contrasena(request):
+    # Limpia códigos vencidos para evitar que queden datos obsoletos en BD.
+    Register.objects.filter(
+        fecha_expiracion_codigo__lt=timezone.now()
+    ).update(codigo_reset=None, fecha_expiracion_codigo=None)
+
     errores = {}
     valores = {}
 
@@ -700,6 +899,11 @@ Equipo Agrophia
     })
 
 def restablecer_contrasena(request):
+    # Limpia códigos vencidos para evitar que queden datos obsoletos en BD.
+    Register.objects.filter(
+        fecha_expiracion_codigo__lt=timezone.now()
+    ).update(codigo_reset=None, fecha_expiracion_codigo=None)
+
     errores = {}
     valores = {}
     email_sesion = request.session.get("reset_email")
@@ -742,13 +946,19 @@ def restablecer_contrasena(request):
         if not errores and email_sesion:
             try:
                 registro = Register.objects.get(correo_electronico=email_sesion)
+
+                if not registro.codigo_reset:
+                    errores["codigo"] = "El codigo no es valido o ya fue utilizado. Solicita uno nuevo."
                 
                 # Verificar que el código sea correcto
-                if registro.codigo_reset != codigo:
+                elif registro.codigo_reset != codigo:
                     errores["codigo"] = "El código es incorrecto."
                 
                 # Verificar que no haya expirado
-                elif timezone.now() > registro.fecha_expiracion_codigo:
+                elif not registro.fecha_expiracion_codigo or timezone.now() > registro.fecha_expiracion_codigo:
+                    registro.codigo_reset = None
+                    registro.fecha_expiracion_codigo = None
+                    registro.save(update_fields=["codigo_reset", "fecha_expiracion_codigo"])
                     errores["codigo"] = "El código ha expirado. Solicita uno nuevo."
                 
                 # Si todo está bien, cambiar la contraseña
@@ -783,4 +993,104 @@ def restablecer_contrasena(request):
         "valores": valores,
         "reset_success": reset_success,
     })
+
+
+# === VISTAS LEGALES Y FAQ ===
+from django.views.decorators.http import require_GET
+
+@require_GET
+def aviso_privacidad(request):
+    return render(request, "aviso_privacidad.html")
+
+@require_GET
+def terminos_uso(request):
+    return render(request, "terminos_uso.html")
+
+@require_GET
+def preguntas_frecuentes(request):
+    return render(request, "preguntas_frecuentes.html")
+
+from django.views.decorators.http import require_POST
+from django.http import JsonResponse
+
+@require_POST
+def marcar_mensaje_admin_leido(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'No autenticado'}, status=403)
+    from Mensajes.models import AdminToUserMessage
+    from usuarios.models import Register
+    register_user = Register.objects.filter(id_usuario=request.user.id).first()
+    if not register_user:
+        return JsonResponse({'ok': False, 'error': 'Usuario no encontrado'}, status=404)
+    mensaje_id = request.POST.get('mensaje_id')
+    if not mensaje_id:
+        return JsonResponse({'ok': False, 'error': 'ID de mensaje faltante'}, status=400)
+    mensaje = AdminToUserMessage.objects.filter(id=mensaje_id, usuario=register_user, leido=False).first()
+    if not mensaje:
+        return JsonResponse({'ok': False, 'error': 'Mensaje no encontrado'}, status=404)
+    mensaje.leido = True
+    mensaje.save()
+    return JsonResponse({'ok': True})
+
+
+@require_POST
+def enviar_mensaje_admin_usuario_bloqueado(request):
+    token = (request.POST.get('token') or '').strip()
+    texto = (request.POST.get('message') or '').strip()
+
+    if not token:
+        return JsonResponse({'ok': False, 'error': 'Token no enviado.'}, status=400)
+
+    if len(texto) < 10:
+        return JsonResponse({'ok': False, 'error': 'Escribe un mensaje de al menos 10 caracteres.'}, status=400)
+
+    try:
+        payload = signing.loads(token, max_age=3600)
+    except Exception:
+        return JsonResponse({'ok': False, 'error': 'Solicitud inválida o expirada.'}, status=400)
+
+    register_id = payload.get('register_id')
+    documento = payload.get('documento')
+    if not register_id or not documento:
+        return JsonResponse({'ok': False, 'error': 'Datos de validación incompletos.'}, status=400)
+
+    usuario_registro = Register.objects.filter(id=register_id, numero_documento=documento).first()
+    if not usuario_registro:
+        return JsonResponse({'ok': False, 'error': 'Usuario no encontrado.'}, status=404)
+
+    if usuario_registro.estado in ['activo', 'admin']:
+        return JsonResponse({'ok': False, 'error': 'Esta cuenta ya no está bloqueada.'}, status=400)
+
+    sender_user = None
+    if usuario_registro.id_usuario:
+        sender_user = User.objects.filter(id=usuario_registro.id_usuario).first()
+    if sender_user is None:
+        sender_user = User.objects.filter(username=usuario_registro.numero_documento).first()
+    if sender_user is None:
+        sender_user = User.objects.create_user(
+            username=usuario_registro.numero_documento,
+            password=usuario_registro.contrasena,
+            email=usuario_registro.correo_electronico,
+            first_name=usuario_registro.nombres,
+            last_name=usuario_registro.apellidos,
+        )
+
+    if usuario_registro.id_usuario != sender_user.id:
+        usuario_registro.id_usuario = sender_user.id
+        usuario_registro.save(update_fields=['id_usuario'])
+
+    from Mensajes.models import AdminNotification
+
+    AdminNotification.objects.create(
+        notification_type=AdminNotification.TYPE_BLOCKED_LOGIN_ATTEMPT,
+        sender_user=sender_user,
+        sender_register=usuario_registro,
+        product=None,
+        message=(
+            "Mensaje de usuario bloqueado: "
+            f"{texto}"
+        ),
+    )
+
+    return JsonResponse({'ok': True, 'message': 'Tu mensaje fue enviado al administrador.'})
 

@@ -1,0 +1,125 @@
+/* Unified navbar skin across the project */
+.header__navbar,
+.header-home__navbar,
+.navbar,
+.header-product__public-navbar,
+.header-product__disable-navbar,
+.header-available__navbar,
+.header-method__navbar,
+.contact-home__navbar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  width: 100%;
+  min-height: 56px;
+  height: auto;
+  background-color: var(--white);
+}
+
+.navbar__list,
+.header-home__list,
+.header-product__public-list,
+.header-product__disable-list,
+.header-available__list,
+.header-method__list,
+.contact-home__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.navbar__link,
+.header-home__link,
+.header-product__public-link,
+.header-product__disable-link,
+.header-available__link,
+.header-method__link,
+.contact-home__link {
+  color: var(--primary-700);
+  text-decoration: none;
+  font-size: var(--fs-xs);
+  font-weight: 400;
+}
+
+.header-home__navbar--customer .header-home__link {
+  color: var(--primary-700);
+  text-decoration: none;
+  font-size: var(--fs-xs);
+  font-weight: 400;
+  position: relative;
+}
+
+.header-home__navbar--customer .header-home__link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  left: 0;
+  bottom: -5px;
+  background-color: var(--primary-500);
+  transition: width 0.2s ease;
+}
+
+.header-home__navbar--customer .header-home__link:hover::after {
+  width: 100%;
+}
+
+@media (max-width: 767px) {
+  .navbar__group,
+  .navbar__list {
+    display: none !important;
+  }
+
+  .navbar__mobile-select,
+  .header-home__mobile-controls {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .header__navbar,
+  .header-home__navbar,
+  .navbar,
+  .header-product__public-navbar,
+  .header-product__disable-navbar,
+  .header-available__navbar,
+  .header-method__navbar,
+  .contact-home__navbar {
+    padding: 8px 16px;
+    min-height: 56px;
+  }
+
+  .navbar__mobile-select,
+  .header-home__mobile-controls {
+    display: none !important;
+  }
+
+  .navbar__group {
+    display: flex;
+    width: auto;
+    margin-left: auto;
+    overflow: visible;
+  }
+
+  .navbar__list,
+  .header-home__list,
+  .header-product__public-list,
+  .header-product__disable-list,
+  .header-available__list,
+  .header-method__list,
+  .contact-home__list {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+    flex-grow: 0;
+  }
+}

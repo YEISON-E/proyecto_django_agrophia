@@ -1,0 +1,73 @@
+.shop-detail-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  max-width: 520px;
+  margin: 32px auto 0 auto;
+  padding: 32px 28px 24px 28px;
+  font-family: var(--main-font, Arial, sans-serif);
+  display: flex;
+  flex-direction: column;
+}
+.shop-detail-card__header {
+  border-bottom: 2px solid var(--primary-100, #e0f2f1);
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  text-align: center;
+}
+.shop-detail-card__header h2 {
+  color: var(--primary-700, #16a34a);
+  font-size: 1.5em;
+  font-weight: 700;
+  margin: 0;
+}
+.shop-detail-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.shop-detail-card__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 6px 0;
+  border-bottom: 1px solid #f3f3f3;
+  font-size: 1.04em;
+}
+.shop-detail-card__label {
+  color: #16a34a;
+  font-weight: 600;
+  min-width: 120px;
+}
+.shop-detail-card__value {
+  color: #232323;
+  font-weight: 400;
+  text-align: right;
+  flex: 1;
+  margin-left: 18px;
+  word-break: break-word;
+}
+.shop-detail-card__footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  gap: 18px;
+  width: 100%;
+  position: static;
+}
+.shop-detail-back, .editar-tienda-btn {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.18s, color 0.18s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.shop-detail-back:hover, .editar-tienda-btn:hover {
+  background: #16a34a;
+  color: #fff;
+}

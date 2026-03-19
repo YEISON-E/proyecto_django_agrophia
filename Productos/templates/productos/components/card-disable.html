@@ -10,7 +10,15 @@
   </div>
   <div class="card-disable__button">
     <a href="{% url 'productos:review_product_farmer' product.id %}" class="card-disable__button-one">Ver detalle</a>
-    <form method="post" action="{% url 'productos:activate_product' product.id %}" data-enable-product-form>
+    <form
+      method="post"
+      action="{% url 'productos:activate_product' product.id %}"
+      data-enable-product-form
+      {% if product.disabled_by_admin %}
+      data-admin-disabled="true"
+      data-request-url="{% url 'productos:request_admin_product_reactivation' product.id %}"
+      {% endif %}
+    >
       {% csrf_token %}
       <button type="submit" class="card-disable__button-two">Habilitar</button>
     </form>

@@ -2,15 +2,56 @@
 <header class="header-home">
   <!-- <h1 class="header-home__title">Bienvenido</h1>
   <h2 class="header-home__subtitle">Explora productos y realiza tus solicitudes</h2> -->
-<nav class="header-home__navbar">
+<nav class="header-home__navbar header-home__navbar--customer">
   <div class="header-home__group header-home__group--left">
     <h1 class="header-home__title">Agrophia</h1>
     <img src="{% static 'icons/planta.png' %}" alt="Icon principal">
   </div>
   <div class="header-home__group header-home__group--right">
+    <div class="header-home__mobile-controls">
+      <details class="header-home__mobile-select">
+        <summary class="header-home__mobile-trigger" aria-label="Abrir menu">
+          <img src="{% static 'icons/menu.svg' %}" alt="Mas opciones" class="nav-menu__icon">
+        </summary>
+        <ul class="header-home__mobile-options">
+          <li><a href="{% url 'usuarios:home_customer' %}">Inicio</a></li>
+          <li>
+            <a href="{% url 'carrito_compras:shopping_cart' %}" class="header-home__cart-link">
+              Carrito de compras
+              {% if cart_items_count > 0 %}
+              <span class="header-home__cart-badge">{{ cart_items_count }}</span>
+              {% endif %}
+            </a>
+          </li>
+          <li><a href="{% url 'usuarios:profile' %}">Perfil</a></li>
+          <li><a href="{% url 'usuarios:update_perfil' %}">Editar perfil</a></li>
+          <li><a href="{% url 'mensajes:sent_messages' %}">Mensajes Enviados</a></li>
+          <li><a href="/frontend/public/views/my_orders.html">Tus pedidos</a></li>
+          {% if has_inactive_shop %}
+          <li>
+            <form method="post" action="{% url 'tiendas:activate_shop' %}">
+              {% csrf_token %}
+              <button type="submit" class="nav-menu__action-button">Activar Tienda</button>
+            </form>
+          </li>
+          {% elif not has_active_shop %}
+          <li><a href="{% url 'tiendas:create_farmer_perfil' %}">Crear Tienda</a></li>
+          {% endif %}
+          <li><a href="{% url 'usuarios:logout' %}">Cerrar Sesion</a></li>
+        </ul>
+      </details>
+    </div>
+
     <ul class="header-home__list">
       <li class="header-home__item"><a href="{% url 'usuarios:home_customer' %}" class="header-home__link">Inicio</a></li>
-      <li class="header-home__item"><a href="{% url 'carrito_compras:shopping_cart' %}" class="header-home__link">Carrito de compras</a></li>
+      <li class="header-home__item">
+        <a href="{% url 'carrito_compras:shopping_cart' %}" class="header-home__link header-home__cart-link">
+          Carrito de compras
+          {% if cart_items_count > 0 %}
+          <span class="header-home__cart-badge">{{ cart_items_count }}</span>
+          {% endif %}
+        </a>
+      </li>
       <li class="nav-menu">
       <details>
         <summary>

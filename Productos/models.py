@@ -32,26 +32,6 @@ class Product(models.Model):
 		(UNIDAD_LITRO, "Litro"),
 	]
 
-	METODO_PAGO_CONTADO = "contado"
-	METODO_PAGO_ENTREGA = "entrega"
-	METODO_PAGO_TRANSFERENCIA = "transferencia"
-
-	METODO_PAGO_CHOICES = [
-		(METODO_PAGO_CONTADO, "Pago de contado"),
-		(METODO_PAGO_ENTREGA, "Pago contra entrega"),
-		(METODO_PAGO_TRANSFERENCIA, "Transferencia"),
-	]
-
-	METODO_ENTREGA_DOMICILIO = "domicilio"
-	METODO_ENTREGA_TIENDA = "tienda"
-	METODO_ENTREGA_CITA = "cita"
-
-	METODO_ENTREGA_CHOICES = [
-		(METODO_ENTREGA_DOMICILIO, "Envío a domicilio"),
-		(METODO_ENTREGA_TIENDA, "Recogido en tienda"),
-		(METODO_ENTREGA_CITA, "Entrega bajo cita"),
-	]
-
 	UNIDADES_POR_TIPO = {
 		TIPO_FRUTAS: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA},
 		TIPO_VEGETALES: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA},
@@ -80,11 +60,11 @@ class Product(models.Model):
 	unidad = models.CharField(max_length=10, choices=UNIDAD_CHOICES)
 
 	precio = models.DecimalField(max_digits=12, decimal_places=2)
+	stock = models.PositiveIntegerField(default=1)
 	descripcion = models.TextField()
 	garantia = models.CharField(max_length=120)
-	metodo_pago = models.CharField(max_length=20, choices=METODO_PAGO_CHOICES)
-	metodo_entrega = models.CharField(max_length=20, choices=METODO_ENTREGA_CHOICES)
 	is_active = models.BooleanField(default=True)
+	disabled_by_admin = models.BooleanField(default=False)
 
 	created_at = models.DateTimeField(auto_now_add=True)
 
@@ -106,6 +86,9 @@ class Product(models.Model):
 
 		if self.precio is not None and self.precio <= 0:
 			errors["precio"] = "El precio debe ser mayor que 0."
+
+		if self.stock is None or self.stock < 0:
+			errors["stock"] = "La cantidad disponible no puede ser negativa."
 
 		if (self.nombre or "").strip() and len(self.nombre.strip()) < 3:
 			errors["nombre"] = "El nombre debe tener al menos 3 caracteres."

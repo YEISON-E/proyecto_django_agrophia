@@ -1,0 +1,41 @@
+from django.urls import path
+from . import views
+
+app_name = 'administrador'
+
+urlpatterns = [
+    path('verificar-codigo/', views.admin_verify_code_view, name='admin_verify_code'),
+    path('logout/', views.admin_logout_view, name='admin_logout'),
+    path('home/', views.home_admin_view, name='home_admin'),
+    path('home/reporte-actividad/', views.reporte_actividad_reciente_view, name='reporte_actividad_reciente'),
+    path('usuarios/', views.usuarios_admin_view, name='usuarios_admin'),
+    path('pedidos/', views.orders_page_view, name='orders_page'),
+    path('tiendas/', views.store_admin_view, name='store_admin'),
+    path('tiendas/crear/', views.tienda_admin_crear_view, name='tienda_admin_crear'),
+    path('tiendas/<int:tienda_id>/', views.tienda_admin_detalle_view, name='tienda_admin_detalle'),
+    path('tiendas/<int:tienda_id>/editar/', views.tienda_admin_editar_view, name='tienda_admin_editar'),
+    path('tiendas/<int:tienda_id>/block/', views.tienda_admin_block_view, name='tienda_admin_block'),
+    path('tiendas/<int:tienda_id>/unblock/', views.tienda_admin_unblock_view, name='tienda_admin_unblock'),
+    path('tiendas/reporte/', views.reporte_tiendas_view, name='reporte_tiendas'),
+    path('productos/', views.producs_page_view, name='producs_page'),
+    path('usuarios/<int:usuario_id>/', views.usuario_admin_detalle_view, name='usuario_admin_detalle'),
+    path('usuarios/<int:usuario_id>/editar/', views.usuario_admin_editar_view, name='usuario_admin_editar'),
+    path('usuarios/<int:usuario_id>/block/', views.usuario_admin_block_view, name='usuario_admin_block'),
+    path('usuarios/<int:usuario_id>/unblock/', views.usuario_admin_unblock_view, name='usuario_admin_unblock'),
+    path('usuarios/<int:usuario_id>/enviar_mensaje/', views.usuario_admin_enviar_mensaje_view, name='usuario_admin_enviar_mensaje'),
+    path('usuarios/enviar_mensaje/', views.usuario_admin_enviar_mensaje_general_view, name='usuario_admin_enviar_mensaje_general'),
+    path('productos/<int:product_id>/block/', views.producto_admin_block_view, name='producto_admin_block'),
+    path('productos/<int:product_id>/unblock/', views.producto_admin_unblock_view, name='producto_admin_unblock'),
+    path('usuarios/reporte/', views.reporte_usuarios_view, name='reporte_usuarios'),
+    path('usuarios/crear/', views.usuario_admin_crear_view, name='usuario_admin_crear'),
+    path('editar-perfil/', views.admin_editar_perfil_view, name='admin_editar_perfil'),
+    path('productos/crear/', views.producto_admin_crear_view, name='producto_admin_crear'),
+    path('productos/<int:product_id>/editar/', views.producto_admin_editar_view, name='producto_admin_editar'),
+    path('productos/<int:product_id>/detalle/', views.producto_admin_detalle_view, name='producto_admin_detalle'),
+    path('productos/reporte/', views.reporte_productos_view, name='reporte_productos'),
+    path('pedidos/<int:pedido_id>/', views.pedido_admin_detalle_view, name='pedido_admin_detalle'),
+    path('pedidos/<int:pedido_id>/editar/', views.pedido_admin_editar_view, name='pedido_admin_editar'),
+    path('pedidos/reporte/', views.reporte_pedidos_view, name='reporte_pedidos'),
+    path('notificaciones/', views.admin_notifications_view, name='admin_notifications'),
+    path('notificaciones/<int:notification_id>/leer/', views.admin_notification_mark_read_view, name='admin_notification_mark_read'),
+]

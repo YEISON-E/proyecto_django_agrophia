@@ -1,0 +1,60 @@
+.login-inline-back-form {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+.shop-created-alert {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-created-alert__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+}
+
+.shop-created-alert__card {
+  position: relative;
+  z-index: 1;
+  max-width: 420px;
+  width: 92%;
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px 20px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+  text-align: center;
+}
+
+.shop-created-alert__title {
+  margin: 0 0 10px;
+  color: #166534;
+  font-size: 1.2rem;
+}
+
+.shop-created-alert__message {
+  margin: 0 0 18px;
+  color: #1f2937;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.shop-created-alert__confirm {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 22px;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(90deg, #16a34a 60%, #22c55e 100%);
+  color: #fff;
+}
+
+.login-hidden-error,
+.login-hidden-field-error {
+  display: none;
+}

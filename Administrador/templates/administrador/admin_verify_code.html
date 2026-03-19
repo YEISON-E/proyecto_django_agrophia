@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificar Codigo Admin</title>
+  <link rel="icon" href="{% static 'icons/planta.png' %}">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin_security.css' %}">
+</head>
+<body>
+  <div class="admin-auth">
+    <div class="admin-auth__card">
+      <h1 class="admin-auth__title">Verificacion de seguridad</h1>
+      <p class="admin-auth__hint">Ingresa el codigo de 6 caracteres enviado a tu correo de administrador.</p>
+
+      {% if remaining_seconds >= 0 %}
+      <p
+        id="admin-code-timer"
+        class="admin-auth__timer"
+        data-remaining="{{ remaining_seconds }}"
+        data-login-url="{% url 'usuarios:login' %}"
+      >
+        El codigo expira en <strong id="admin-code-remaining">{{ remaining_seconds }}</strong> segundos.
+      </p>
+      {% endif %}
+
+      {% if messages %}
+        <div class="admin-auth__messages">
+          {% for message in messages %}
+            <p class="admin-auth__message admin-auth__message--{{ message.tags|default:'info' }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" class="admin-auth__form">
+        {% csrf_token %}
+        <label class="admin-auth__label" for="code">Codigo de verificacion</label>
+        <input class="admin-auth__input admin-auth__input--code" id="code" name="code" type="text" maxlength="6" minlength="6" required>
+
+        <button class="admin-auth__button" id="admin-code-submit" type="submit">Ingresar al panel</button>
+      </form>
+
+      <a class="admin-auth__link" href="{% url 'usuarios:login' %}">Volver al login</a>
+    </div>
+  </div>
+  <script src="{% static 'js/components/admin_verify_code.js' %}" defer></script>
+</body>
+</html>

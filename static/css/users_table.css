@@ -14,14 +14,15 @@
 }
 /* ====== TABLA DE USUARIOS ====== */
 .users-table {
-  width: auto;
-  max-width: auto;
-  margin: 24px;
+  width: 100%;
+  margin: 24px 0;
   background: var(--white);
-  box-shadow: 0 4px 12px var(--gray-100);
+  box-shadow: 0 6px 24px 0 rgba(0,0,0,0.08);
   font-size: var(--fs-xxxs);
-  border-radius: 10px;
-  border-collapse: collapse;
+  border-radius: 18px;
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
 }
 
 .tableorder__user {
@@ -37,12 +38,14 @@
 }
 
 .users-table__header {
-  background-color: var(--white);
+  background: linear-gradient(90deg, var(--primary-100) 0%, var(--primary-200) 100%);
   color: var(--black);
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   font-size: var(--fs-xxxs);
   text-align: center;
+  letter-spacing: 1px;
+  border-bottom: 2px solid var(--primary-200);
 }
 
 .users-table__row:nth-child(even) {
@@ -50,91 +53,109 @@
 }
 
 .users-table__row:hover {
-  background-color: var(--terciary-100);
+  background-color: var(--primary-50);
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
 }
 
 .users-table__cell--status,
 .users-table__cell--message {
   text-align: center;
   vertical-align: middle;
+  min-width: 100px;
 }
 
 .users-table__cell--actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 0px;
+  gap: 8px;
 }
 
 /* ====== ESTADOS ====== */
 .users-table__status {
-  width: 70px;
+  min-width: 70px;
   font-family: var(--main-font);
   display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 500;
+  padding: 4px 14px;
+  border-radius: 16px;
+  font-weight: 600;
   font-size: var(--fs-xxxs);
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
 }
 
 .users-table__status--active {
   background-color: var(--primary-200);
   color: var(--black);
+  border: 1px solid var(--primary-300);
 }
 
 .users-table__status--blocked {
   background-color: var(--gray-200);
-  color: var(--black);
+  color: var(--gray-600);
+  border: 1px solid var(--gray-300);
 }
 
 /* ====== BOTONES ====== */
+
 .users-table__button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
-  padding: 8px 14px;
+  gap: 0;
+  padding: 7px 10px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
   font-size: var(--fs-xxxs);
-  transition: transform 0.2s, background 0.3s;
+  background: transparent;
+  transition: transform 0.18s, box-shadow 0.18s, background 0.3s;
+  box-shadow: none;
 }
 
 .users-table__button:hover {
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.08);
+  background: var(--primary-50);
+  box-shadow: none;
 }
 
 /* Variantes */
 .users-table__button--block {
-  /* background-color: var(--secundary-400); */
+  background-color: #ffb3b3;
   color: var(--white);
+  border: 1px solid #ff7b7b;
 }
 
 .users-table__button--unblock {
-  /* background-color: var(--primary-600); */
+  background-color: #b3ffd1;
   color: var(--white);
+  border: 1px solid #4be38a;
 }
 
 .users-table__button--edit {
-  /* background-color: var(--terciary-400); */
-  color: var(--white );
+  background-color: #b3d1ff;
+  color: var(--white);
+  border: 1px solid #7bbcff;
 }
 
 .users-table__button--message {
-  /* background-color: var(--primary-600); */
+  background-color: #ffe0b3;
   color: var(--white);
+  border: 1px solid #ffc97b;
 }
 
 
 
 /* Icono dentro del botón */
-.users-table__button__icon {
-  width: 24px;
-  height: 24px;
-  display: inline-block;
+.users-table__button--block,
+.users-table__button--unblock,
+.users-table__button--edit,
+.users-table__button--message {
+  background: transparent;
+  color: var(--primary-600);
+  border: none;
+}
 }
 /* tablets */
 @media (width > 640px) {

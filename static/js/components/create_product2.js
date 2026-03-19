@@ -1,11 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
     const precioInput = document.getElementById("precio-producto");
+    const stockInput = document.getElementById("stock-producto");
     const descripcionInput = document.getElementById("descripcion-producto");
     const garantiaInput = document.getElementById("garantia-producto");
     const publicarButton = document.getElementById("btn-publicar-producto");
     const step2Form = document.getElementById("create-product-step2-form");
 
-    if (!precioInput || !descripcionInput || !garantiaInput || !publicarButton) {
+    if (!precioInput || !stockInput || !descripcionInput || !garantiaInput || !publicarButton) {
         return;
     }
 
@@ -38,6 +39,18 @@ document.addEventListener("DOMContentLoaded", function () {
             setError("error-precio-producto", "");
         }
 
+        const stockRaw = (stockInput.value || "").trim();
+        const stock = Number.parseInt(stockRaw, 10);
+        if (!stockRaw) {
+            setError("error-stock-producto", "La cantidad disponible es obligatoria.");
+            hasErrors = true;
+        } else if (!Number.isInteger(stock) || stock < 0) {
+            setError("error-stock-producto", "Ingresa una cantidad disponible válida.");
+            hasErrors = true;
+        } else {
+            setError("error-stock-producto", "");
+        }
+
         const descripcion = (descripcionInput.value || "").trim();
         if (!descripcion) {
             setError("error-descripcion-producto", "La descripción es obligatoria.");
@@ -63,7 +76,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return !hasErrors;
     };
 
-    [precioInput, descripcionInput, garantiaInput].forEach((field) => {
+    [precioInput, stockInput, descripcionInput, garantiaInput].forEach((field) => {
         field.addEventListener("input", validateStep2);
         field.addEventListener("change", validateStep2);
     });

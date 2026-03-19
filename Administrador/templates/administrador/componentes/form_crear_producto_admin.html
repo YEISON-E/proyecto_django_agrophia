@@ -1,0 +1,72 @@
+{% load static %}
+<div class="crear-producto-container">
+  <a href="{% url 'administrador:producs_page' %}" style="display:inline-block;margin-bottom:18px;color:#16a34a;font-weight:600;text-decoration:none;font-size:1.08em;">
+    ← Volver al listado
+  </a>
+  <div class="crear-producto-title">Crear nuevo producto</div>
+  {% if success %}
+    <div class="crear-producto-success">Producto creado exitosamente.</div>
+  {% endif %}
+  <form method="post" class="crear-producto-form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div>
+      <label for="nombre">Nombre</label>
+      <input type="text" name="nombre" id="nombre" value="{{ valores.nombre|default:'' }}" required>
+      {% if errores.nombre %}<div class="form-error">{{ errores.nombre }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="tipo">Tipo</label>
+      <select name="tipo" id="tipo" required>
+        <option value="">Seleccione...</option>
+        {% for value, label in tipo_choices %}
+          <option value="{{ value }}" {% if valores.tipo == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if errores.tipo %}<div class="form-error">{{ errores.tipo }}</div>{% endif %}
+    </div>
+    <div id="group-tipo-otro" style="display:{% if valores.tipo == 'Otros' %}block{% else %}none{% endif %};">
+      <label for="tipo_otro">Tipo (si seleccionaste Otros)</label>
+      <input type="text" name="tipo_otro" id="tipo_otro" value="{{ valores.tipo_otro|default:'' }}">
+      {% if errores.tipo_otro %}<div class="form-error">{{ errores.tipo_otro }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="unidad">Unidad</label>
+      <select name="unidad" id="unidad" required>
+        <option value="">Seleccione...</option>
+        {% for value, label in unidad_choices %}
+          <option value="{{ value }}" {% if valores.unidad == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      {% if errores.unidad %}<div class="form-error">{{ errores.unidad }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="precio">Precio</label>
+      <input type="number" name="precio" id="precio" value="{{ valores.precio|default:'' }}" min="1" step="0.01" required>
+      {% if errores.precio %}<div class="form-error">{{ errores.precio }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="stock">Cantidad disponible (stock)</label>
+      <input type="number" name="stock" id="stock" value="{{ valores.stock|default:'' }}" min="0" step="1" required>
+      {% if errores.stock %}<div class="form-error">{{ errores.stock }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="descripcion">Descripción</label>
+      <textarea name="descripcion" id="descripcion" required>{{ valores.descripcion|default:'' }}</textarea>
+      {% if errores.descripcion %}<div class="form-error">{{ errores.descripcion }}</div>{% endif %}
+    </div>
+    <div>
+      <label for="garantia">Garantía</label>
+      <input type="text" name="garantia" id="garantia" value="{{ valores.garantia|default:'' }}" required>
+      {% if errores.garantia %}<div class="form-error">{{ errores.garantia }}</div>{% endif %}
+    </div>
+    <div>
+    <!-- Campos de método de pago y entrega eliminados -->
+    <div>
+      <label for="fotos">Imágenes</label>
+      <input type="file" name="fotos" id="fotos" accept="image/*" multiple required>
+      {% if errores.fotos %}<div class="form-error">{{ errores.fotos }}</div>{% endif %}
+    </div>
+    <button type="submit" class="crear-producto-btn">Crear producto</button>
+  </form>
+</div>
+<script src="{% static 'js/productos_crear_admin.js' %}"></script>

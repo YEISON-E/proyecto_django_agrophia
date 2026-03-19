@@ -44,6 +44,7 @@
 
 th,
 td {
+    color: black;
     padding: 12px;
     text-align: center;
     font-size: var(--fs-xs);

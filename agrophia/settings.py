@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'carrito_compras',
     'Mensajes',
     'Pedidos',
+    'Administrador',
     # 'widget_tweaks',
 ]
 
@@ -54,6 +55,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'Administrador.middleware.AdminTwoFactorMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -70,6 +72,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'Tiendas.context_processors.shop_nav_context',
+                'carrito_compras.context_processors.cart_nav_context',
+                'Administrador.context_processors.admin_nav_context',
             ],
         },
     },
@@ -77,12 +81,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'agrophia.wsgi.application'
 
-# Sesiones basadas en archivos (sin tocar la BD)
-SESSION_ENGINE = 'django.contrib.sessions.backends.file'
-SESSION_FILE_PATH = os.path.join(BASE_DIR, 'session_files')
 
-# Crear carpeta de sesiones si no existe
-os.makedirs(SESSION_FILE_PATH, exist_ok=True)
+# Sesiones en base de datos y seguridad
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+# Tiempo de expiración de sesión: 1 hora (3600 segundos)
+SESSION_COOKIE_AGE = 3600
+# La sesión NO expira al cerrar el navegador
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+# Seguridad extra: solo cookies seguras si usas HTTPS
+# SESSION_COOKIE_SECURE = True
+# SESSION_COOKIE_HTTPONLY = True
+# SESSION_SAVE_EVERY_REQUEST = True  # Opcional: renueva sesión en cada request
 
 
 # Database

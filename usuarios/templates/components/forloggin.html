@@ -27,7 +27,7 @@ Si deseas completar o actualizar la informacion de tu tienda, ingresa a la secci
         </div>
       {% endif %}
 
-      <form method="POST" class="login-form">
+      <form method="POST" class="login-form" autocomplete="on">
         {% csrf_token %}
 
         {% if errores.general and not blocked_account_message %}
@@ -38,7 +38,7 @@ Si deseas completar o actualizar la informacion de tu tienda, ingresa a la secci
 
         <div class="login-form__container">
           <label for="id_username" class="login-form__container__label">Número de documento</label>
-          <input type="text" id="id_username" class="login-form__container__input" name="username" placeholder="Número de documento" value="{{ valores.username|default:'' }}" required />
+          <input type="text" id="id_username" class="login-form__container__input" name="username" placeholder="Número de documento" value="{{ valores.username|default:'' }}" autocomplete="username" inputmode="numeric" spellcheck="false" required />
           <div id="error-username" class="input-error login-hidden-field-error">
             {% if errores.username %}{{ errores.username }}{% endif %}
           </div>
@@ -46,7 +46,7 @@ Si deseas completar o actualizar la informacion de tu tienda, ingresa a la secci
 
         <div class="login-form__container">
           <label for="id_password" class="login-form__container__label">Contraseña</label>
-          <input type="password" id="id_password" class="login-form__container__input" name="password" placeholder="Contraseña" required />
+          <input type="password" id="id_password" class="login-form__container__input" name="password" placeholder="Contraseña" autocomplete="current-password" required />
         </div>
 
         <div class="login__show-password">

@@ -7,7 +7,7 @@
 
   <div class="form-content__register-row">
 
-  <form id="register-form-step1" method="POST" onsubmit="return validarRegistroStep1(event)" class="form-content__group" enctype="multipart/form-data">
+  <form id="register-form-step1" method="POST" onsubmit="return validarRegistroStep1(event)" class="form-content__group" enctype="multipart/form-data" autocomplete="on">
   {% csrf_token %}
 
     <div class="profile-update__group-file__photo">
@@ -35,17 +35,17 @@
       </div>
       <div class="form__group">
         <label for="documento" class="form__label">Número de Documento</label>
-        <input type="text" name="documento" class="form__input" placeholder="Número de documento">
+        <input type="text" name="documento" class="form__input" placeholder="Número de documento" autocomplete="username" inputmode="numeric" spellcheck="false">
       </div>
       
       <div class="form__group">
         <label for="nombres" class="form__label">Nombres</label>
-        <input type="text" name="nombres" class="form__input" placeholder="Nombres">
+        <input type="text" name="nombres" class="form__input" placeholder="Nombres" autocomplete="given-name">
       </div>
       
       <div class="form__group">
         <label for="apellidos" class="form__label">Apellidos</label>
-        <input type="text" name="apellidos" class="form__input" placeholder="Apellidos">
+        <input type="text" name="apellidos" class="form__input" placeholder="Apellidos" autocomplete="family-name">
       </div>
     </div>
   </form>

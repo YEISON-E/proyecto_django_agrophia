@@ -78,6 +78,12 @@
         </div>
 
         <div class="product-form__group">
+          <label for="stock" class="product-form__label">Cantidad disponible (stock)</label>
+          <input id="stock" name="stock" type="number" step="1" min="0" class="product-form__input" value="{{ valores.stock }}" required>
+          <div class="input-error"{% if not errores.stock %} style="display: none;"{% endif %}>{{ errores.stock }}</div>
+        </div>
+
+        <div class="product-form__group">
           <label for="descripcion" class="product-form__label">Descripcion</label>
           <textarea id="descripcion" name="descripcion" class="product-form__input product-form__input--textarea" rows="4" required>{{ valores.descripcion }}</textarea>
           <div class="input-error"{% if not errores.descripcion %} style="display: none;"{% endif %}>{{ errores.descripcion }}</div>
@@ -89,27 +95,7 @@
           <div class="input-error"{% if not errores.garantia %} style="display: none;"{% endif %}>{{ errores.garantia }}</div>
         </div>
 
-        <div class="product-form__group">
-          <label for="metodo_pago" class="product-form__label">Metodo de pago</label>
-          <select id="metodo_pago" name="metodo_pago" class="product-form__input" required>
-            <option value="">Selecciona un metodo</option>
-            {% for value, label in metodo_pago_choices %}
-              <option value="{{ value }}" {% if valores.metodo_pago == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-          <div class="input-error"{% if not errores.metodo_pago %} style="display: none;"{% endif %}>{{ errores.metodo_pago }}</div>
-        </div>
 
-        <div class="product-form__group">
-          <label for="metodo_entrega" class="product-form__label">Metodo de entrega</label>
-          <select id="metodo_entrega" name="metodo_entrega" class="product-form__input" required>
-            <option value="">Selecciona un metodo</option>
-            {% for value, label in metodo_entrega_choices %}
-              <option value="{{ value }}" {% if valores.metodo_entrega == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-          <div class="input-error"{% if not errores.metodo_entrega %} style="display: none;"{% endif %}>{{ errores.metodo_entrega }}</div>
-        </div>
       </div>
     </div>
   </form>

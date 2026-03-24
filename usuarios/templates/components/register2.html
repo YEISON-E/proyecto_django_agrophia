@@ -8,13 +8,13 @@
   {% if errores.documento %}
   <div class="input-error" style="display: block; margin-bottom: 20px; padding: 10px; background-color: var(--gray-800); border-left: 4px solid var(--black); border-radius: 4px;"> {{ errores.documento }}</div>
   {% endif %}
-  <form id="register-form" method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group2">
+  <form id="register-form" method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group2" autocomplete="on">
   {% csrf_token %}
     
 
     <div class="form__group">
       <label for="email" class="form__label">Correo Electrónico</label>
-      <input type="email" name="email" class="form__input" placeholder="Correo Electrónico" value="{{ valores.email }}">
+      <input type="email" name="email" class="form__input" placeholder="Correo Electrónico" value="{{ valores.email }}" autocomplete="email">
       {% if errores.email %}
       <div class="input-error">{{ errores.email }}</div>
       {% endif %}
@@ -22,7 +22,7 @@
 
     <div class="form__group">
       <label for="telefono" class="form__label">Teléfono</label>
-      <input type="tel" name="telefono" class="form__input" placeholder="Teléfono" value="{{ valores.telefono }}">
+      <input type="tel" name="telefono" class="form__input" placeholder="Teléfono" value="{{ valores.telefono }}" autocomplete="tel">
       {% if errores.telefono %}
       <div class="input-error">{{ errores.telefono }}</div>
       {% endif %}
@@ -48,7 +48,7 @@
       
     <div class="form__group">
       <label for="direccion" class="form__label">Dirección completa</label>
-      <input type="text" class="form__input" name="direccion" placeholder="Dirección completa" value="{{ valores.direccion }}">
+      <input type="text" class="form__input" name="direccion" placeholder="Dirección completa" value="{{ valores.direccion }}" autocomplete="street-address">
     </div>
     
     <div class="register__group-textarea">
@@ -60,7 +60,7 @@
         </div>
     <div class="form__group">
       <label for="id_password" class="form__label">Contraseña</label>
-      <input id="id_password" type="password" name="password" class="form__input" placeholder="Contraseña" required>
+      <input id="id_password" type="password" name="password" class="form__input" placeholder="Contraseña" autocomplete="new-password" required>
       <div id="error-password" class="input-error" style="display: none;">
         {% if errores.password %}{{ errores.password }}{% endif %}
       </div>
@@ -73,7 +73,7 @@
   
     <div class="form__group">
         <label for="id_confirm_password" class="form__label">Confirmar Contraseña</label>
-        <input id="id_confirm_password" type="password" name="confirm_password" class="form__input" placeholder="Confirmar Contraseña" required>
+        <input id="id_confirm_password" type="password" name="confirm_password" class="form__input" placeholder="Confirmar Contraseña" autocomplete="new-password" required>
         <div id="error-confirm-password" class="input-error" style="display: none;">
           {% if errores.confirm_password %}{{ errores.confirm_password }}{% endif %}
         </div>

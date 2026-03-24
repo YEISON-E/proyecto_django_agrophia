@@ -1,12 +1,46 @@
-# --- Gestión de tiendas admin ---
+"""
+Vistas del panel administrativo de Agrophia.
+
+Este archivo centraliza operaciones de administración para:
+- Tiendas
+- Productos
+- Usuarios
+- Pedidos
+- Reportes (Excel e impresión)
+- Actividad reciente
+
+Nota:
+El archivo conserva una organización histórica por bloques funcionales.
+Los comentarios agregados delimitan secciones y explican flujos críticos.
+"""
+
+# ============================================================
+# BLOQUE 1: GESTION DE TIENDAS (ADMIN)
+# ============================================================
 from Tiendas.models import Shop
 from django.views.decorators.http import require_POST
 
 def store_admin_view(request):
+    """Renderiza la tabla administrativa de tiendas.
+
+    Args:
+        request: Solicitud HTTP del panel admin.
+
+    Returns:
+        HttpResponse con la plantilla de listado de tiendas.
+    """
+    # Lista general de tiendas ordenadas por creación reciente.
     tiendas = Shop.objects.all().order_by('-created_at')
     return render(request, 'administrador/store_admin.html', {'tiendas': tiendas})
 
 def tienda_admin_detalle_view(request, tienda_id):
+    """Muestra el detalle de una tienda y de su propietario asociado.
+
+    Args:
+        request: Solicitud HTTP.
+        tienda_id: ID de la tienda a consultar.
+    """
+    # Detalle completo de tienda + datos del propietario (si existe).
     tienda = get_object_or_404(Shop, id=tienda_id)
     usuario = tienda.owner if tienda.owner else None
     usuario_info = None
@@ -19,6 +53,11 @@ def tienda_admin_detalle_view(request, tienda_id):
     })
 
 def tienda_admin_crear_view(request):
+    """Crea una tienda desde administración enlazándola a un cliente existente.
+
+    También prepara datos para autocompletado del formulario.
+    """
+    # Crea una tienda enlazándola a un usuario cliente disponible.
     from usuarios.models import Register
     success = False
     errores = {}
@@ -108,6 +147,11 @@ def tienda_admin_crear_view(request):
     })
 
 def tienda_admin_editar_view(request, tienda_id):
+    """Edita información de una tienda existente.
+
+    Incluye validación de municipio contra departamento.
+    """
+    # Edita datos administrativos de tienda con validación básica de ubicación.
     tienda = get_object_or_404(Shop, id=tienda_id)
     success = False
     errores = {}
@@ -186,6 +230,8 @@ def tienda_admin_editar_view(request, tienda_id):
 
 @require_POST
 def tienda_admin_block_view(request, tienda_id):
+    """Bloquea (desactiva) una tienda por ID."""
+    # Deshabilita tienda (soft-disable) para ocultarla de flujos activos.
     tienda = get_object_or_404(Shop, id=tienda_id)
     tienda.is_active = False
     tienda.save(update_fields=["is_active"])
@@ -193,13 +239,21 @@ def tienda_admin_block_view(request, tienda_id):
 
 @require_POST
 def tienda_admin_unblock_view(request, tienda_id):
+    """Desbloquea (activa) una tienda por ID."""
+    # Rehabilita tienda previamente bloqueada.
     tienda = get_object_or_404(Shop, id=tienda_id)
     tienda.is_active = True
     tienda.save(update_fields=["is_active"])
     return JsonResponse({'ok': True})
 
+# ============================================================
+# BLOQUE 2: REPORTES DE TIENDAS Y PRODUCTOS
+# ============================================================
+
 # Reporte de tiendas
 def reporte_tiendas_view(request):
+    """Genera reporte de tiendas en formato Excel o imprimible."""
+    # Exporta reporte de tiendas en formato Excel o vista imprimible.
     output_format = request.GET.get('output_format', 'excel')
     tiendas = Shop.objects.all().order_by('-created_at')
     headers = ['ID', 'Nombre', 'Teléfono', 'Correo', 'Departamento', 'Municipio', 'Dirección', 'Horario', 'Estado', 'Fecha creación']
@@ -241,6 +295,8 @@ def reporte_tiendas_view(request):
     return response
 # Reporte de productos
 def reporte_productos_view(request):
+    """Genera reporte de productos en formato Excel o imprimible."""
+    # Exporta reporte de productos con formato equivalente a tiendas.
     from Productos.models import Product
     output_format = request.GET.get('output_format', 'excel')
     productos = Product.objects.all().order_by('-created_at')
@@ -281,8 +337,14 @@ def reporte_productos_view(request):
     response['Content-Disposition'] = 'attachment; filename="productos_agrophia.xlsx"'
     wb.save(response)
     return response
+# ============================================================
+# BLOQUE 3: PRODUCTOS (DETALLE / CREACION / EDICION / ESTADO)
+# ============================================================
+
 # Vista detalle producto admin
 def producto_admin_detalle_view(request, product_id):
+    """Muestra el detalle administrativo de un producto."""
+    # Muestra ficha detallada del producto para revisión administrativa.
     from Productos.models import Product
     producto = get_object_or_404(Product, id=product_id)
     return render(request, 'administrador/producto_detalle_admin.html', {'producto': producto})
@@ -291,6 +353,14 @@ from django.core.exceptions import ValidationError
 from decimal import Decimal, InvalidOperation
 # --- Vistas para crear y editar productos desde el admin ---
 def producto_admin_crear_view(request):
+    """Crea un producto desde el panel admin con validaciones completas.
+
+    Controla:
+    - Campos obligatorios.
+    - Rango/precio válido.
+    - Tipos de imagen permitidos y límite de cantidad.
+    """
+    # Alta administrativa de producto con validaciones de contenido e imágenes.
     success = False
     errores = {}
     valores = {}
@@ -300,6 +370,7 @@ def producto_admin_crear_view(request):
         tipo_otro = request.POST.get('tipo_otro', '').strip()
         unidad = request.POST.get('unidad', '').strip()
         precio = request.POST.get('precio', '').strip()
+        stock = request.POST.get('stock', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()
         garantia = request.POST.get('garantia', '').strip()
         fotos = request.FILES.getlist('fotos')
@@ -309,6 +380,7 @@ def producto_admin_crear_view(request):
             'tipo_otro': tipo_otro,
             'unidad': unidad,
             'precio': precio,
+            'stock': stock,
             'descripcion': descripcion,
             'garantia': garantia,
         }
@@ -330,6 +402,15 @@ def producto_admin_crear_view(request):
                     errores['precio'] = 'El precio debe ser mayor que 0.'
             except (InvalidOperation, ValueError):
                 errores['precio'] = 'Precio inválido.'
+        if not stock:
+            errores['stock'] = 'La cantidad disponible es obligatoria.'
+        else:
+            try:
+                stock_val = int(stock)
+                if stock_val < 0:
+                    errores['stock'] = 'La cantidad disponible no puede ser negativa.'
+            except (TypeError, ValueError):
+                errores['stock'] = 'Cantidad disponible inválida.'
         if not descripcion:
             errores['descripcion'] = 'La descripción es obligatoria.'
         if not garantia:
@@ -351,9 +432,10 @@ def producto_admin_crear_view(request):
                 tipo_otro=tipo_otro,
                 unidad=unidad,
                 precio=precio,
+                stock=stock,
                 descripcion=descripcion,
                 garantia=garantia,
-                is_active=True,
+                is_active=(int(stock) > 0),
                 owner=request.user if request.user.is_authenticated else None
             )
             try:
@@ -376,6 +458,11 @@ def producto_admin_crear_view(request):
     })
 
 def producto_admin_editar_view(request, product_id):
+    """Edita un producto y administra sus imágenes asociadas.
+
+    Permite eliminar imágenes actuales y cargar nuevas respetando límites.
+    """
+    # Edición administrativa con control de imágenes (máximo y mínimos permitidos).
     producto = get_object_or_404(Product, id=product_id)
     success = False
     errores = {}
@@ -385,6 +472,7 @@ def producto_admin_editar_view(request, product_id):
         'tipo_otro': producto.tipo_otro,
         'unidad': producto.unidad,
         'precio': producto.precio,
+        'stock': producto.stock,
         'descripcion': producto.descripcion,
         'garantia': producto.garantia,
     }
@@ -396,6 +484,7 @@ def producto_admin_editar_view(request, product_id):
         tipo_otro = request.POST.get('tipo_otro', '').strip()
         unidad = request.POST.get('unidad', '').strip()
         precio = request.POST.get('precio', '').strip()
+        stock = request.POST.get('stock', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()
         garantia = request.POST.get('garantia', '').strip()
         # método de pago y entrega eliminados
@@ -407,6 +496,7 @@ def producto_admin_editar_view(request, product_id):
             'tipo_otro': tipo_otro,
             'unidad': unidad,
             'precio': precio,
+            'stock': stock,
             'descripcion': descripcion,
             'garantia': garantia,
         }
@@ -428,6 +518,15 @@ def producto_admin_editar_view(request, product_id):
                     errores['precio'] = 'El precio debe ser mayor que 0.'
             except (InvalidOperation, ValueError):
                 errores['precio'] = 'Precio inválido.'
+        if not stock:
+            errores['stock'] = 'La cantidad disponible es obligatoria.'
+        else:
+            try:
+                stock_val = int(stock)
+                if stock_val < 0:
+                    errores['stock'] = 'La cantidad disponible no puede ser negativa.'
+            except (TypeError, ValueError):
+                errores['stock'] = 'Cantidad disponible inválida.'
         if not descripcion:
             errores['descripcion'] = 'La descripción es obligatoria.'
         if not garantia:
@@ -455,8 +554,11 @@ def producto_admin_editar_view(request, product_id):
             producto.tipo_otro = tipo_otro
             producto.unidad = unidad
             producto.precio = precio
+            producto.stock = stock
             producto.descripcion = descripcion
             producto.garantia = garantia
+            if int(stock) <= 0:
+                producto.is_active = False
             # método de pago y entrega eliminados
             try:
                 producto.full_clean()
@@ -490,67 +592,144 @@ from django.views.decorators.http import require_POST
 
 @require_POST
 def producto_admin_block_view(request, product_id):
+    """Marca un producto como inactivo."""
+    # Cambia el estado del producto a inactivo.
     producto = get_object_or_404(Product, id=product_id)
     producto.is_active = False
-    producto.save(update_fields=["is_active"])
+    producto.disabled_by_admin = True
+    producto.save(update_fields=["is_active", "disabled_by_admin"])
     return JsonResponse({'ok': True})
 
 @require_POST
 def producto_admin_unblock_view(request, product_id):
+    """Marca un producto como activo."""
+    # Cambia el estado del producto a activo.
     producto = get_object_or_404(Product, id=product_id)
     producto.is_active = True
-    producto.save(update_fields=["is_active"])
+    producto.disabled_by_admin = False
+    producto.save(update_fields=["is_active", "disabled_by_admin"])
     return JsonResponse({'ok': True})
+
+
+def admin_notifications_view(request):
+    if not request.user.is_authenticated:
+        return redirect('usuarios:login')
+
+    from usuarios.models import Register
+    register_admin = Register.objects.filter(id_usuario=request.user.id, estado='admin').first()
+    if not register_admin:
+        return redirect('usuarios:home_customer')
+
+    from Mensajes.models import AdminNotification
+
+    notifications = AdminNotification.objects.select_related(
+        'sender_register',
+        'sender_user',
+        'product',
+    ).order_by('-created_at')
+
+    return render(request, 'administrador/admin_notifications.html', {
+        'notifications': notifications,
+    })
+
+
+@require_POST
+def admin_notification_mark_read_view(request, notification_id):
+    if not request.user.is_authenticated:
+        return redirect('usuarios:login')
+
+    from usuarios.models import Register
+    register_admin = Register.objects.filter(id_usuario=request.user.id, estado='admin').first()
+    if not register_admin:
+        return redirect('usuarios:home_customer')
+
+    from Mensajes.models import AdminNotification
+
+    notification = get_object_or_404(AdminNotification, id=notification_id)
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save(update_fields=['is_read'])
+
+    return redirect('administrador:admin_notifications')
+# ============================================================
+# BLOQUE 4: MENSAJERIA ADMINISTRATIVA
+# ============================================================
+
 # Enviar mensaje general (a todos, solo usuarios o solo tiendas)
-from django.views.decorators.csrf import csrf_exempt
-@csrf_exempt
+@require_POST
 def usuario_admin_enviar_mensaje_general_view(request):
-    if request.method == 'POST':
-        import json
-        from Mensajes.models import AdminToUserMessage
-        from usuarios.models import Register
-        from Tiendas.models import Shop
-        from django.core.mail import send_mail
-        data = json.loads(request.body)
-        texto = data.get('mensaje', '').strip()
-        destinatario = data.get('destinatario', 'all')
-        if not texto:
-            return JsonResponse({'ok': False, 'error': 'Mensaje vacío'}, status=400)
-        usuarios = []
-        if destinatario == 'all':
-            usuarios = list(Register.objects.all())
-        elif destinatario == 'users':
-            # Excluir usuarios que son dueños de tienda
-            usuarios_con_tienda = Shop.objects.values_list('owner__id', flat=True)
-            usuarios = list(Register.objects.exclude(id_usuario__in=usuarios_con_tienda))
-        elif destinatario == 'shops':
-            # Solo dueños de tienda
-            usuarios_con_tienda = Shop.objects.values_list('owner__id', flat=True)
-            usuarios = list(Register.objects.filter(id_usuario__in=usuarios_con_tienda))
-        else:
-            return JsonResponse({'ok': False, 'error': 'Destinatario inválido'}, status=400)
-        for usuario in usuarios:
-            AdminToUserMessage.objects.create(
-                usuario=usuario,
-                texto=texto,
-                enviado=True
-            )
-            send_mail(
-                'Mensaje importante de Agrophia',
-                texto,
-                'no-reply@agrophia.com',
-                [usuario.correo_electronico],
-                fail_silently=True
-            )
-        return JsonResponse({'ok': True, 'enviados': len(usuarios)})
-    return JsonResponse({'ok': False}, status=400)
+    """Envía un mensaje masivo a usuarios, tiendas o ambos segmentos.
+
+    El mensaje se registra en AdminToUserMessage y también se intenta enviar por email.
+    """
+    # Envía mensaje masivo segmentado y registra trazabilidad en base de datos.
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'No autenticado'}, status=403)
+
+    from usuarios.models import Register
+
+    register_admin = Register.objects.filter(id_usuario=request.user.id, estado='admin').first()
+    if not register_admin:
+        return JsonResponse({'ok': False, 'error': 'No autorizado'}, status=403)
+
+    import json
+    from Mensajes.models import AdminToUserMessage
+    from Tiendas.models import Shop
+    from django.core.mail import send_mail
+
+    try:
+        data = json.loads(request.body or '{}')
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'error': 'JSON inválido'}, status=400)
+
+    texto = (data.get('mensaje') or '').strip()
+    destinatario = data.get('destinatario', 'all')
+
+    if not texto:
+        return JsonResponse({'ok': False, 'error': 'Mensaje vacío'}, status=400)
+
+    usuarios = []
+    if destinatario == 'all':
+        usuarios = list(Register.objects.all())
+    elif destinatario == 'users':
+        # Excluir usuarios que son dueños de tienda
+        usuarios_con_tienda = Shop.objects.values_list('owner__id', flat=True)
+        usuarios = list(Register.objects.exclude(id_usuario__in=usuarios_con_tienda))
+    elif destinatario == 'shops':
+        # Solo dueños de tienda
+        usuarios_con_tienda = Shop.objects.values_list('owner__id', flat=True)
+        usuarios = list(Register.objects.filter(id_usuario__in=usuarios_con_tienda))
+    else:
+        return JsonResponse({'ok': False, 'error': 'Destinatario inválido'}, status=400)
+
+    for usuario in usuarios:
+        AdminToUserMessage.objects.create(
+            usuario=usuario,
+            texto=texto,
+            enviado=True
+        )
+        send_mail(
+            'Mensaje importante de Agrophia',
+            texto,
+            'no-reply@agrophia.com',
+            [usuario.correo_electronico],
+            fail_silently=True
+        )
+
+    return JsonResponse({'ok': True, 'enviados': len(usuarios)})
+# ============================================================
+# BLOQUE 5: PERFIL ADMIN Y FORMULARIO DE USUARIO ADMIN
+# ============================================================
+
 # Vista para editar el perfil del admin autenticado
 from django.contrib.auth.decorators import login_required
 def admin_editar_perfil_view(request):
+    """Permite al admin editar su perfil y datos de tienda relacionados."""
+    # Permite al admin actualizar sus datos y, si aplica, datos de su tienda.
     from usuarios.models import Register
     admin_id = request.session.get('admin_user_id')
     if not admin_id:
-        return redirect('administrador:admin_login')
+        return redirect('usuarios:login')
     usuario = get_object_or_404(Register, id_usuario=admin_id)
     tienda = Shop.objects.filter(owner__id=usuario.id_usuario).first()
     if request.method == 'POST':
@@ -584,108 +763,183 @@ from Tiendas.models import Shop
 from django.contrib.auth.models import User
 
 class UsuarioAdminForm(forms.ModelForm):
-	contrasena = forms.CharField(label='Contraseña', widget=forms.TextInput(attrs={'type': 'text'}), required=False)
-	class Meta:
-		from usuarios.models import Register
-		model = Register
-		fields = [
-			'foto', 'tipo_documento', 'numero_documento', 'nombres', 'apellidos',
-			'correo_electronico', 'telefono', 'departamento', 'municipio',
-			'direccion_completa', 'descripcion_perfil', 'estado', 'contrasena'
-		]
-		widgets = {
-			'estado': forms.Select(choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')]),
-			'descripcion_perfil': forms.Textarea(attrs={'rows': 2}),
-		}
+    """Formulario de edición de perfil de usuario en administración."""
+    # Formulario técnico para edición de usuarios desde el panel admin.
+    contrasena = forms.CharField(label='Contraseña', widget=forms.TextInput(attrs={'type': 'text'}), required=False)
 
-	def save(self, commit=True):
-		instance = super().save(commit=False)
-		if self.cleaned_data.get('contrasena'):
-			instance.contrasena = self.cleaned_data['contrasena']
-		if commit:
-			instance.save()
-		return instance
+    class Meta:
+        from usuarios.models import Register
+        model = Register
+        fields = [
+            'foto', 'tipo_documento', 'numero_documento', 'nombres', 'apellidos',
+            'correo_electronico', 'telefono', 'departamento', 'municipio',
+            'direccion_completa', 'descripcion_perfil', 'estado', 'contrasena'
+        ]
+        widgets = {
+            'estado': forms.Select(choices=[('activo', 'Activo'), ('inactivo', 'Inactivo')]),
+            'descripcion_perfil': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def save(self, commit=True):
+        """Persiste el formulario y sincroniza contraseña personalizada si fue enviada."""
+        instance = super().save(commit=False)
+        if self.cleaned_data.get('contrasena'):
+            instance.contrasena = self.cleaned_data['contrasena']
+        if commit:
+            instance.save()
+        return instance
 
 def usuario_admin_editar_view(request, usuario_id):
-	from usuarios.models import Register
-	usuario = get_object_or_404(Register, id=usuario_id)
-	tienda = Shop.objects.filter(owner__id=usuario.id_usuario).first()
-	if request.method == 'POST':
-		form = UsuarioAdminForm(request.POST, instance=usuario)
-		if form.is_valid():
-			form.save()
-			# Guardar datos de tienda si existen
-			if tienda:
-				tienda.nombre = request.POST.get('tienda_nombre', tienda.nombre)
-				tienda.email = request.POST.get('tienda_email', tienda.email)
-				tienda.telefono = request.POST.get('tienda_telefono', tienda.telefono)
-				tienda.departamento = request.POST.get('tienda_departamento', tienda.departamento)
-				tienda.municipio = request.POST.get('tienda_municipio', tienda.municipio)
-				tienda.direccion = request.POST.get('tienda_direccion', tienda.direccion)
-				tienda.descripcion = request.POST.get('tienda_descripcion', tienda.descripcion)
-				tienda.horario = request.POST.get('tienda_horario', tienda.horario)
-				tienda.punto_fisico = request.POST.get('tienda_punto_fisico', 'True') == 'True'
-				tienda.is_active = request.POST.get('tienda_is_active', 'True') == 'True'
-				tienda.save()
-			return redirect('administrador:usuario_admin_detalle', usuario_id=usuario.id)
-	else:
-		form = UsuarioAdminForm(instance=usuario)
-	return render(request, 'administrador/usuario_editar_admin.html', {'form': form, 'usuario': usuario, 'tienda': tienda})
+    """Edita un usuario y, si aplica, su tienda asociada."""
+    # Edición integral de usuario y sincronización de tienda asociada.
+    from usuarios.models import Register
+    usuario = get_object_or_404(Register, id=usuario_id)
+    tienda = Shop.objects.filter(owner__id=usuario.id_usuario).first()
+    if request.method == 'POST':
+        form = UsuarioAdminForm(request.POST, instance=usuario)
+        if form.is_valid():
+            form.save()
+            # Guardar datos de tienda si existen
+            if tienda:
+                tienda.nombre = request.POST.get('tienda_nombre', tienda.nombre)
+                tienda.email = request.POST.get('tienda_email', tienda.email)
+                tienda.telefono = request.POST.get('tienda_telefono', tienda.telefono)
+                tienda.departamento = request.POST.get('tienda_departamento', tienda.departamento)
+                tienda.municipio = request.POST.get('tienda_municipio', tienda.municipio)
+                tienda.direccion = request.POST.get('tienda_direccion', tienda.direccion)
+                tienda.descripcion = request.POST.get('tienda_descripcion', tienda.descripcion)
+                tienda.horario = request.POST.get('tienda_horario', tienda.horario)
+                tienda.punto_fisico = request.POST.get('tienda_punto_fisico', 'True') == 'True'
+                tienda.is_active = request.POST.get('tienda_is_active', 'True') == 'True'
+                tienda.save()
+            return redirect('administrador:usuario_admin_detalle', usuario_id=usuario.id)
+    else:
+        form = UsuarioAdminForm(instance=usuario)
+    return render(request, 'administrador/usuario_editar_admin.html', {'form': form, 'usuario': usuario, 'tienda': tienda})
 # Vista para detalle de usuario admin
 from django.shortcuts import get_object_or_404
 
 def usuario_admin_detalle_view(request, usuario_id):
-	from usuarios.models import Register
-	usuario = get_object_or_404(Register, id=usuario_id)
-	tienda = Shop.objects.filter(owner__id=usuario.id_usuario).first()
-	return render(request, 'administrador/usuario_detalle_admin.html', {'usuario': usuario, 'tienda': tienda})
+    """Renderiza detalle de usuario para consulta administrativa."""
+    # Vista de solo lectura para perfil de usuario y su tienda vinculada.
+    from usuarios.models import Register
+    usuario = get_object_or_404(Register, id=usuario_id)
+    tienda = Shop.objects.filter(owner__id=usuario.id_usuario).first()
+    return render(request, 'administrador/usuario_detalle_admin.html', {'usuario': usuario, 'tienda': tienda})
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.contrib import messages
-from django.utils.crypto import get_random_string
 from django.utils import timezone
 from django.http import HttpResponse
+from datetime import datetime
 import csv
 
-def admin_login_view(request):
-	if request.method == 'POST':
-		documento = request.POST.get('documento')
-		password = request.POST.get('password')
-		try:
-			reg = Register.objects.get(numero_documento=documento)
-			user = User.objects.get(id=reg.id_usuario)
-		except (Register.DoesNotExist, User.DoesNotExist):
-			messages.error(request, 'Credenciales incorrectas')
-			return render(request, 'administrador/admin_login.html')
-			user_auth = authenticate(request, username=user.username, password=password)
-			if user_auth and reg.estado == 'admin':
-				login(request, user_auth)
-				return redirect('home_admin')
-		else:
-			messages.error(request, 'Credenciales incorrectas o no es administrador')
-	return render(request, 'administrador/admin_login.html')
+def admin_verify_code_view(request):
+    pending_user_id = request.session.get('pending_admin_user_id')
+    pending_register_id = request.session.get('pending_admin_register_id')
+    pending_code = request.session.get('pending_admin_code')
+    expires_iso = request.session.get('pending_admin_code_expires_at')
+
+    if not pending_user_id or not pending_register_id or not pending_code or not expires_iso:
+        messages.error(request, 'Primero debes iniciar sesion como administrador para generar tu codigo de seguridad.')
+        return redirect('usuarios:login')
+
+    try:
+        expires_at = datetime.fromisoformat(expires_iso)
+    except (TypeError, ValueError):
+        request.session.pop('pending_admin_user_id', None)
+        request.session.pop('pending_admin_register_id', None)
+        request.session.pop('pending_admin_code', None)
+        request.session.pop('pending_admin_code_expires_at', None)
+        messages.error(request, 'El codigo no es valido. Inicia sesion nuevamente.')
+        return redirect('usuarios:login')
+
+    if timezone.now() > expires_at:
+        reg_expired = Register.objects.filter(id=pending_register_id).first()
+        if reg_expired and reg_expired.admin_code_validated:
+            reg_expired.admin_code_validated = False
+            reg_expired.save(update_fields=['admin_code_validated'])
+        request.session.pop('pending_admin_user_id', None)
+        request.session.pop('pending_admin_register_id', None)
+        request.session.pop('pending_admin_code', None)
+        request.session.pop('pending_admin_code_expires_at', None)
+        messages.error(request, 'El codigo expiro. Debes iniciar sesion nuevamente.')
+        return redirect('usuarios:login')
+
+    if request.method == 'POST':
+        code_input = (request.POST.get('code') or '').strip().upper()
+        if len(code_input) != 6:
+            messages.error(request, 'El codigo debe tener 6 caracteres.')
+            return render(request, 'administrador/admin_verify_code.html', {
+                'remaining_seconds': int((expires_at - timezone.now()).total_seconds()),
+            })
+
+        if code_input != pending_code:
+            messages.error(request, 'Codigo incorrecto.')
+            return render(request, 'administrador/admin_verify_code.html', {
+                'remaining_seconds': int((expires_at - timezone.now()).total_seconds()),
+            })
+
+        user = User.objects.filter(id=pending_user_id).first()
+        reg = Register.objects.filter(id=pending_register_id, estado='admin').first()
+        if not user or not reg:
+            request.session.pop('pending_admin_user_id', None)
+            request.session.pop('pending_admin_register_id', None)
+            request.session.pop('pending_admin_code', None)
+            request.session.pop('pending_admin_code_expires_at', None)
+            messages.error(request, 'No se pudo validar el administrador.')
+            return redirect('usuarios:login')
+
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        request.session['admin_user_id'] = user.id
+        reg.admin_code_validated = True
+        reg.save(update_fields=['admin_code_validated'])
+
+        request.session.pop('pending_admin_user_id', None)
+        request.session.pop('pending_admin_register_id', None)
+        request.session.pop('pending_admin_code', None)
+        request.session.pop('pending_admin_code_expires_at', None)
+        next_admin_path = request.session.pop('pending_admin_next', '/administrador/home/')
+        if not next_admin_path.startswith('/administrador/'):
+            next_admin_path = '/administrador/home/'
+
+        return redirect(next_admin_path)
+
+    return render(request, 'administrador/admin_verify_code.html', {
+        'remaining_seconds': max(0, int((expires_at - timezone.now()).total_seconds())),
+    })
 
 
 def admin_logout_view(request):
-		# Al cerrar sesión, limpiar validación en la base de datos
-		user_id = request.session.get('admin_user_id')
-		if user_id:
-			try:
-				reg = Register.objects.get(id_usuario=user_id)
-				reg.admin_code_validated = False
-				reg.save()
-			except Register.DoesNotExist:
-				pass
-		logout(request)
-		request.session.flush()
-		return redirect('/')
+    """Cierra sesión admin y limpia banderas de validación del código admin."""
+    # Logout limpio + limpieza de bandera de validación de código admin.
+    # Al cerrar sesión, limpiar validación en la base de datos
+    user_id = request.session.get('admin_user_id')
+    if user_id:
+        try:
+            reg = Register.objects.get(id_usuario=user_id)
+            reg.admin_code_validated = False
+            reg.save()
+        except Register.DoesNotExist:
+            pass
+    logout(request)
+    request.session.flush()
+    return redirect('/')
+
+# ============================================================
+# BLOQUE 7: UTILIDADES DE ACTIVIDAD Y ORDENAMIENTO
+# ============================================================
 
 def safe_fecha(fecha):
+    """Devuelve una fecha formateada de manera segura para UI/reportes."""
+    # Formatea fecha de forma segura para UI/reportes.
     if hasattr(fecha, 'strftime'):
         return fecha.strftime('%d/%m/%Y %H:%M')
     return 'Sin fecha'
 
 def activity_category_label(category):
+    """Mapea la categoría interna de actividad a una etiqueta visible."""
+    # Convierte clave técnica de categoría a etiqueta legible.
     labels = {
         'all': 'Toda la actividad',
         'users': 'Usuarios',
@@ -696,19 +950,34 @@ def activity_category_label(category):
     return labels.get(category, 'Actividad')
 
 def _activity_timestamp(fecha):
+    """Convierte una fecha a timestamp numérico para ordenamiento estable."""
+    # Obtiene timestamp numérico para llaves de ordenamiento robustas.
     if hasattr(fecha, 'timestamp'):
         return fecha.timestamp()
     return 0
 
 def activity_latest_sort_key(evento):
+    """Clave de ordenamiento para eventos del más reciente al más antiguo."""
+    # Orden descendente por fecha (más reciente primero).
     fecha = evento.get('occurred_at')
     return (0 if fecha else 1, -_activity_timestamp(fecha), evento.get('sequence', 0))
 
 def activity_first_sort_key(evento):
+    """Clave de ordenamiento para eventos del más antiguo al más reciente."""
+    # Orden ascendente por fecha (más antiguo primero).
     fecha = evento.get('occurred_at')
     return (0 if fecha else 1, _activity_timestamp(fecha), evento.get('sequence', 0))
 
 def build_activity_events():
+    """Construye una colección unificada de eventos del sistema.
+
+    Fuentes incluidas:
+    - Register (altas y bloqueos).
+    - Shop (creación y deshabilitación).
+    - Product (creación y deshabilitación).
+    - Order (nuevos pedidos).
+    """
+    # Construye una línea de tiempo unificada desde usuarios, tiendas, productos y pedidos.
     eventos = []
     sequence = 0
 
@@ -794,6 +1063,17 @@ def build_activity_events():
     return eventos
 
 def filter_activity_events(events, category='all', scope='all', count_mode='latest', count_value=100, period='month'):
+    """Filtra eventos según criterios de reporte.
+
+    Args:
+        events: Lista de eventos preconstruidos.
+        category: Categoria deseada (all/users/shops/products/orders).
+        scope: Alcance (all/count/period).
+        count_mode: latest o first.
+        count_value: Cantidad a retornar cuando scope=count.
+        period: month o year para scope=period.
+    """
+    # Filtra y recorta eventos según categoría, alcance temporal y modo de conteo.
     valid_categories = {'all', 'users', 'shops', 'products', 'orders'}
     valid_scopes = {'all', 'count', 'period'}
     valid_count_modes = {'latest', 'first'}
@@ -841,6 +1121,8 @@ def filter_activity_events(events, category='all', scope='all', count_mode='late
     return sorted(filtrados, key=activity_latest_sort_key)
 
 def activity_scope_label(scope, count_mode='latest', count_value=100, period='month'):
+    """Genera el subtítulo legible del alcance aplicado al reporte."""
+    # Etiqueta human-readable del alcance aplicado al reporte de actividad.
     if scope == 'count':
         prefix = 'Ultimas' if count_mode == 'latest' else 'Primeras'
         return f"{prefix} {count_value} actividades"
@@ -849,6 +1131,8 @@ def activity_scope_label(scope, count_mode='latest', count_value=100, period='mo
     return 'Toda la actividad disponible'
 
 def autofit_worksheet_columns(ws):
+    """Ajusta anchos de columna en una hoja openpyxl según contenido."""
+    # Ajusta automáticamente anchos de columna para exportaciones Excel.
     from openpyxl.utils import get_column_letter
 
     for col_index, col in enumerate(ws.iter_cols(min_col=1, max_col=ws.max_column), start=1):
@@ -863,6 +1147,8 @@ def autofit_worksheet_columns(ws):
         ws.column_dimensions[get_column_letter(col_index)].width = min(max_length + 2, 60)
 
 def render_generic_report_print(request, title, headers, rows, subtitle=''):
+    """Renderiza una plantilla de impresión genérica para reportes tabulares."""
+    # Render genérico para reportes imprimibles en HTML.
     return render(request, 'administrador/reporte_generico_print.html', {
         'title': title,
         'headers': headers,
@@ -870,7 +1156,26 @@ def render_generic_report_print(request, title, headers, rows, subtitle=''):
         'subtitle': subtitle,
     })
 
+# ============================================================
+# BLOQUE 8: HOME ADMIN Y REPORTE DE ACTIVIDAD RECIENTE
+# ============================================================
+
 def home_admin_view(request):
+    """Renderiza el home admin con los últimos eventos de actividad."""
+    # Home administrativa mostrando resumen de actividad reciente.
+    if not request.user.is_authenticated:
+        return redirect('usuarios:login')
+
+    register_admin = Register.objects.filter(id_usuario=request.user.id, estado='admin').first()
+    if not register_admin:
+        logout(request)
+        request.session.flush()
+        return redirect('usuarios:login')
+
+    if request.session.get('admin_user_id') != request.user.id or not register_admin.admin_code_validated:
+        messages.error(request, 'Debes completar la verificacion de seguridad para ingresar al panel.')
+        return redirect('administrador:admin_verify_code')
+
     eventos = [
         {
             'fecha': safe_fecha(evento['occurred_at']),
@@ -887,6 +1192,11 @@ def home_admin_view(request):
     return render(request, 'administrador/home_admin.html', {'eventos': eventos})
 
 def reporte_actividad_reciente_view(request):
+    """Genera reporte de actividad reciente en impresión o Excel.
+
+    Admite filtros por categoría, alcance, periodo y modo de conteo.
+    """
+    # Genera reporte de actividad reciente (Excel o impresión).
     activity_type = request.GET.get('activity_type', 'all')
     scope = request.GET.get('scope', 'all')
     count_mode = request.GET.get('count_mode', 'latest')
@@ -960,19 +1270,31 @@ def reporte_actividad_reciente_view(request):
     wb.save(response)
     return response
 
+# ============================================================
+# BLOQUE 9: USUARIOS, PEDIDOS Y REPORTES ADMIN
+# ============================================================
+
 def usuarios_admin_view(request):
+    """Renderiza listado de usuarios administrables (excluye admins)."""
+    # Lista general de usuarios no administradores.
     usuarios = Register.objects.exclude(estado='admin').order_by('nombres', 'apellidos')
     return render(request, 'administrador/usuarios_admin.html', {'usuarios': usuarios})
 
 def orders_page_view(request):
+    """Renderiza vista administrativa de pedidos."""
+    # Vista tabla de pedidos para administración.
     pedidos = Order.objects.select_related('customer').order_by('-created_at')
     return render(request, 'administrador/orders_page.html', {'pedidos': pedidos})
 
 def producs_page_view(request):
+    """Renderiza vista administrativa de productos."""
+    # Vista tabla de productos para administración.
     productos = Product.objects.all().order_by('-created_at')
     return render(request, 'administrador/producs_page.html', {'productos': productos})
 
 def usuario_admin_block_view(request, usuario_id):
+    """Bloquea un usuario (estado=inactivo) vía endpoint POST."""
+    # Bloquea usuario cambiando estado a inactivo.
     if request.method != 'POST':
         return JsonResponse({'ok': False}, status=400)
 
@@ -982,6 +1304,8 @@ def usuario_admin_block_view(request, usuario_id):
     return JsonResponse({'ok': True})
 
 def usuario_admin_unblock_view(request, usuario_id):
+    """Desbloquea un usuario (estado=activo) vía endpoint POST."""
+    # Desbloquea usuario cambiando estado a activo.
     if request.method != 'POST':
         return JsonResponse({'ok': False}, status=400)
 
@@ -991,6 +1315,8 @@ def usuario_admin_unblock_view(request, usuario_id):
     return JsonResponse({'ok': True})
 
 def usuario_admin_enviar_mensaje_view(request, usuario_id):
+    """Envía mensaje administrativo individual a un usuario."""
+    # Envío individual de mensaje administrativo a un usuario.
     if request.method != 'POST':
         return JsonResponse({'ok': False}, status=400)
 
@@ -1024,6 +1350,8 @@ def usuario_admin_enviar_mensaje_view(request, usuario_id):
     return JsonResponse({'ok': True})
 
 def reporte_usuarios_view(request):
+    """Genera reporte de usuarios en Excel o impresión."""
+    # Exporta listado de usuarios en Excel o versión imprimible.
     output_format = request.GET.get('output_format', 'excel')
     usuarios = Register.objects.exclude(estado='admin').order_by('nombres', 'apellidos')
     headers = ['ID', 'Nombres', 'Apellidos', 'Correo', 'Teléfono', 'Departamento', 'Municipio', 'Estado']
@@ -1055,6 +1383,8 @@ def reporte_usuarios_view(request):
     return response
 
 def usuario_admin_crear_view(request):
+    """Crea un usuario desde admin con validaciones de datos y duplicados."""
+    # Registro manual de usuario desde panel administrativo.
     from usuarios.models import Register
     from django.contrib.auth.models import User
     success = False
@@ -1148,7 +1478,13 @@ def usuario_admin_crear_view(request):
 from Pedidos.models import Order, OrderItem
 from django.shortcuts import get_object_or_404, render
 
+# ============================================================
+# BLOQUE 10: PEDIDOS (DETALLE / EDICION / REPORTE)
+# ============================================================
+
 def pedido_admin_detalle_view(request, pedido_id):
+    """Muestra detalle de un pedido y sus ítems asociados."""
+    # Detalle de pedido y sus ítems con producto/agricultor relacionados.
     pedido = get_object_or_404(Order, id=pedido_id)
     items = pedido.items.select_related('product', 'farmer').all()
     return render(request, 'administrador/pedido_detalle_card.html', {
@@ -1157,6 +1493,8 @@ def pedido_admin_detalle_view(request, pedido_id):
     })
 
 def pedido_admin_editar_view(request, pedido_id):
+    """Permite editar estado y dirección de entrega de un pedido."""
+    # Edición administrativa del estado y dirección de entrega del pedido.
     pedido = get_object_or_404(Order, id=pedido_id)
     errores = {}
     if request.method == 'POST':
@@ -1185,6 +1523,8 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from django.http import HttpResponse
 
 def reporte_pedidos_view(request):
+    """Genera reporte de pedidos filtrable por estado (Excel o impresión)."""
+    # Reporte de pedidos filtrable por estado (Excel/print).
     estado = request.GET.get('estado', 'todos')
     output_format = request.GET.get('output_format', 'excel')
     queryset = Order.objects.select_related('customer').all()

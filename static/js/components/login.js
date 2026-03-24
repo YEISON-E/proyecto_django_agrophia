@@ -16,7 +16,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (usernameInput && errorUsername) {
     // Si hay error del servidor, mostrarlo
     if (errorUsername.textContent.trim()) {
-      errorUsername.style.display = 'flex';
+      errorUsername.classList.add('is-visible');
+    } else {
+      errorUsername.classList.remove('is-visible');
     }
 
     usernameInput.addEventListener('input', () => {
@@ -34,9 +36,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (errorMsg) {
         errorUsername.textContent = errorMsg;
-        errorUsername.style.display = 'flex';
+        errorUsername.classList.add('is-visible');
       } else {
-        errorUsername.style.display = 'none';
+        errorUsername.textContent = '';
+        errorUsername.classList.remove('is-visible');
       }
     });
   }
@@ -59,9 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const valor = passwordInput.value;
       if (valor.length > 0 && valor.length < 8) {
         errorPassword.textContent = 'La contraseña debe tener mínimo 8 caracteres';
-        errorPassword.style.display = 'flex';
+        errorPassword.classList.add('is-visible');
       } else {
-        errorPassword.style.display = 'none';
+        errorPassword.textContent = '';
+        errorPassword.classList.remove('is-visible');
       }
     });
   }
@@ -98,8 +102,7 @@ function mostrarAlerta(mensaje) {
     text-align: center;
     word-wrap: break-word;
   `;
-  alertaDiv.innerHTML = `<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-<i class="fas fa-exclamation-circle" style="color: blue;"></i><br>${mensaje} <br>`;
+  alertaDiv.innerHTML = `<span style="font-size: 22px; line-height: 1; color: #2563eb;">⚠</span><br>${mensaje}<br>`;
   document.body.appendChild(alertaDiv);
 
   // Remover alerta después de 5 segundos

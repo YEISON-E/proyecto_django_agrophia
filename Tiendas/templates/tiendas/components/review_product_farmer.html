@@ -19,8 +19,6 @@
       <p class="product-detail__unit"><strong>Unidad de medida:</strong> {{ product.get_unidad_display }}</p>
       <p class="product-detail__description"><strong>Descripcion:</strong> {{ product.descripcion }}</p>
       <p class="product-detail__warranty"><strong>Garantia:</strong> {{ product.garantia }}</p>
-      <p class="product-detail__payment"><strong>Metodo de pago:</strong> {{ product.get_metodo_pago_display }}</p>
-      <p class="product-detail__delivery"><strong>Metodo de entrega:</strong> {{ product.get_metodo_entrega_display }}</p>
 
       <div class="product-detail__actions">
         <a href="{% url 'tiendas:interface_farmer' %}" class="product-detail__btn--back">Volver</a>

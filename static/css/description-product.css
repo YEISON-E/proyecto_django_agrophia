@@ -173,6 +173,65 @@
   opacity: 60%;
 }
 
+/* ====== SELLER CARD (mini perfil en descripción) ====== */
+.seller-card {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  background: var(--primary-50);
+  border: 1px solid var(--primary-100);
+  border-radius: 14px;
+  padding: 0.9rem 1rem;
+  margin-top: 0.4rem;
+}
+
+.seller-card__avatar-wrap {
+  flex-shrink: 0;
+}
+
+.seller-card__avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-700);
+}
+
+.seller-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.seller-card__name {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--primary-900);
+  line-height: 1.2;
+}
+
+.seller-card__location {
+  font-size: var(--fs-xxs);
+  color: #6b7280;
+}
+
+.seller-card__link {
+  font-size: var(--fs-xxs);
+  font-weight: 600;
+  color: var(--primary-700);
+  text-decoration: none;
+  margin-top: 0.25rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  transition: color 0.2s;
+}
+
+.seller-card__link:hover {
+  color: var(--primary-900);
+  text-decoration: underline;
+}
+
 /* ====== SELLER MESSAGE MODAL ====== */
 .seller-message-modal {
   display: none;

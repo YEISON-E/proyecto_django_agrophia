@@ -55,6 +55,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'Administrador.middleware.AdminTwoFactorMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -72,6 +73,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'Tiendas.context_processors.shop_nav_context',
                 'carrito_compras.context_processors.cart_nav_context',
+                'Administrador.context_processors.admin_nav_context',
             ],
         },
     },

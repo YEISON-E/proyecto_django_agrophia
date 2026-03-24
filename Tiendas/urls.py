@@ -15,6 +15,7 @@ from .views import (
     create_product2,
     create_shop_step1,
     create_shop_step2,
+    seller_profile,
 )
 
 app_name = "tiendas"
@@ -34,4 +35,5 @@ urlpatterns = [
     path("create-farmer-perfil/", create_farmer_perfil, name="create_farmer_perfil"),
     path("create-shop/", create_shop_step1, name="create_shop_step1"),
     path("create-shop/step2/", create_shop_step2, name="create_shop_step2"),
+    path("seller/<int:shop_id>/", seller_profile, name="seller_profile"),
 ]

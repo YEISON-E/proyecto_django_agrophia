@@ -51,7 +51,7 @@
       </div>
     </div>
     {% if errores %}
-      <div class="form-error" style="margin-top:12px;">{{ errores.fotos }}{{ errores.nombre }}{{ errores.tipo }}{{ errores.tipo_otro }}{{ errores.unidad }}{{ errores.precio }}{{ errores.descripcion }}{{ errores.garantia }}{{ errores.metodo_pago }}{{ errores.metodo_entrega }}</div>
+      <div class="form-error" style="margin-top:12px;">{{ errores.fotos }}{{ errores.nombre }}{{ errores.tipo }}{{ errores.tipo_otro }}{{ errores.unidad }}{{ errores.precio }}{{ errores.descripcion }}{{ errores.garantia }}</div>
     {% endif %}
     <div class="shop-edit-footer">
       <a href="{% url 'administrador:producs_page' %}" class="shop-edit-cancel">&larr; Cancelar</a>

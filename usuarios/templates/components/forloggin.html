@@ -1,8 +1,9 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
+<link rel="stylesheet" href="{% static 'css/login_modals.css' %}">
 
 <div class="login-container">
-  <form method="POST" action="{% url 'usuarios:logout' %}" style="display: inline; margin: 0; padding: 0;">
+  <form method="POST" action="{% url 'usuarios:logout' %}" class="login-inline-back-form">
     {% csrf_token %}
     <button type="submit" class="login__back">← Volver al inicio</button>
   </form>
@@ -12,40 +13,40 @@
       <h1 class="login__title">Iniciar Sesión</h1>
 
       {% if request.GET.shop_created == '1' %}
-        <div id="shop-created-alert" style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;">
-          <div style="position:absolute;inset:0;background:rgba(15,23,42,0.45);"></div>
-          <div style="position:relative;z-index:1;max-width:420px;width:92%;background:#fff;border-radius:12px;padding:22px 20px;box-shadow:0 10px 30px rgba(15,23,42,0.25);text-align:center;">
-            <h3 style="margin:0 0 10px 0;color:#166534;font-size:1.2rem;">Informacion importante</h3>
-            <p style="margin:0 0 18px 0;color:#1f2937;line-height:1.45;white-space:pre-line;">Tu tienda fue creada exitosamente.
+        <div id="shop-created-alert" class="shop-created-alert">
+          <div class="shop-created-alert__backdrop"></div>
+          <div class="shop-created-alert__card">
+            <h3 class="shop-created-alert__title">Informacion importante</h3>
+            <p class="shop-created-alert__message">Tu tienda fue creada exitosamente.
 
 Para continuar, inicia sesion nuevamente con tu usuario y contrasena.
 
 Si deseas completar o actualizar la informacion de tu tienda, ingresa a la seccion Perfil.</p>
-            <button id="shop-created-confirm" type="button" style="border:none;border-radius:8px;padding:10px 22px;font-weight:700;cursor:pointer;background:linear-gradient(90deg,#16a34a 60%,#22c55e 100%);color:#fff;">Confirmar</button>
+            <button id="shop-created-confirm" type="button" class="shop-created-alert__confirm">Confirmar</button>
           </div>
         </div>
       {% endif %}
 
-      <form method="POST" class="login-form">
+      <form method="POST" class="login-form" autocomplete="on">
         {% csrf_token %}
 
-        {% if errores.general %}
-          <div class="error-box" style="display: none;">
+        {% if errores.general and not blocked_account_message %}
+          <div class="error-box login-hidden-error">
             {{ errores.general|safe }}
           </div>
         {% endif %}
 
         <div class="login-form__container">
           <label for="id_username" class="login-form__container__label">Número de documento</label>
-          <input type="text" id="id_username" class="login-form__container__input" name="username" placeholder="Número de documento" value="{{ valores.username|default:'' }}" required />
-          <div id="error-username" class="input-error" style="display: none;">
+          <input type="text" id="id_username" class="login-form__container__input" name="username" placeholder="Número de documento" value="{{ valores.username|default:'' }}" autocomplete="username" inputmode="numeric" spellcheck="false" required />
+          <div id="error-username" class="input-error login-hidden-field-error">
             {% if errores.username %}{{ errores.username }}{% endif %}
           </div>
         </div>
 
         <div class="login-form__container">
           <label for="id_password" class="login-form__container__label">Contraseña</label>
-          <input type="password" id="id_password" class="login-form__container__input" name="password" placeholder="Contraseña" required />
+          <input type="password" id="id_password" class="login-form__container__input" name="password" placeholder="Contraseña" autocomplete="current-password" required />
         </div>
 
         <div class="login__show-password">
@@ -63,22 +64,46 @@ Si deseas completar o actualizar la informacion de tu tienda, ingresa a la secci
   </div>
 </div>
 
-<script src="{% static 'js/components/login.js' %}"></script>
-{% if request.GET.shop_created == '1' %}
-<script>
-  (function () {
-    const alertEl = document.getElementById('shop-created-alert');
-    const confirmBtn = document.getElementById('shop-created-confirm');
-    if (!alertEl || !confirmBtn) {
-      return;
-    }
+{% if blocked_account_message %}
+<div class="reset-success-overlay profile-shop-alert-overlay profile-shop-alert-overlay--open" id="blocked-account-overlay" aria-hidden="false">
+  <div class="reset-success-alert profile-shop-alert" role="dialog" aria-modal="true" aria-labelledby="blocked-account-title">
+    <h3 id="blocked-account-title" class="profile-shop-alert__title">Informacion importante</h3>
+    <p class="profile-shop-alert__message">{{ blocked_account_message }}</p>
+    <div class="profile-shop-alert__actions">
+      <button type="button" class="profile-shop-alert__button profile-shop-alert__button--danger" id="blocked-account-open-message">Enviar mensaje al administrador</button>
+      <button type="button" class="profile-shop-alert__button profile-shop-alert__button--secondary" id="blocked-account-close">Aceptar</button>
+    </div>
+  </div>
+</div>
 
-    confirmBtn.addEventListener('click', function () {
-      alertEl.remove();
-      const cleanUrl = window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
-    });
-  })();
-</script>
+<div class="seller-message-modal" id="blocked-account-message-modal" aria-hidden="true">
+  <div class="seller-message-modal__backdrop" id="blocked-account-message-backdrop"></div>
+  <div class="seller-message-modal__content" role="dialog" aria-modal="true" aria-labelledby="blocked-account-message-title">
+    <h2 class="seller-message-modal__title" id="blocked-account-message-title">Mensaje al administrador</h2>
+    <form id="blocked-account-message-form" class="seller-message-modal__form" data-endpoint="{% url 'usuarios:enviar_mensaje_admin_usuario_bloqueado' %}">
+      {% csrf_token %}
+      <input type="hidden" id="blocked-account-token" name="token" value="{{ blocked_account_token|default:'' }}">
+      <label for="blocked-account-message-text" class="seller-message-modal__label">Escribe tu mensaje</label>
+      <textarea id="blocked-account-message-text" class="seller-message-modal__textarea" name="message" maxlength="500" placeholder="Hola, deseo solicitar la reactivacion de mi cuenta..." required></textarea>
+      <div class="seller-message-modal__actions">
+        <button type="button" class="seller-message-modal__btn seller-message-modal__btn--secondary" id="blocked-account-message-close">Cancelar</button>
+        <button type="submit" class="seller-message-modal__btn seller-message-modal__btn--primary">Enviar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="reset-success-overlay profile-shop-alert-overlay" id="blocked-account-feedback-overlay" aria-hidden="true">
+  <div class="reset-success-alert profile-shop-alert" role="dialog" aria-modal="true" aria-labelledby="blocked-account-feedback-title">
+    <h3 id="blocked-account-feedback-title" class="profile-shop-alert__title">Informacion</h3>
+    <p class="profile-shop-alert__message" id="blocked-account-feedback-message">Mensaje</p>
+    <div class="profile-shop-alert__actions">
+      <button type="button" class="profile-shop-alert__button profile-shop-alert__button--secondary" id="blocked-account-feedback-close">Aceptar</button>
+    </div>
+  </div>
+</div>
 {% endif %}
+
+<script src="{% static 'js/components/login.js' %}"></script>
+<script src="{% static 'js/components/login_modals.js' %}" defer></script>
 

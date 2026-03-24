@@ -1,0 +1,77 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mensajes Recibidos</title>
+  <link rel="icon" href="{% static 'icons/planta.png' %}">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/admin_notifications.css' %}">
+</head>
+<body>
+  <div class="govco-container__one">
+    {% include 'components/gov-co__one.html' %}
+  </div>
+
+  {% include 'administrador/componentes/toolbar_home.html' %}
+
+  <main class="admin-notifications">
+    <div class="admin-notifications__header">
+      <h1 class="admin-notifications__title">Mensajes recibidos</h1>
+      <p class="admin-notifications__subtitle">Solicitudes enviadas por agricultores sobre productos deshabilitados.</p>
+    </div>
+
+    <section class="admin-notifications__list">
+      {% for notification in notifications %}
+      <article class="admin-notifications__card {% if not notification.is_read %}admin-notifications__card--unread{% endif %}">
+        <div class="admin-notifications__meta">
+          <span class="admin-notifications__type">{{ notification.get_notification_type_display }}</span>
+          <span class="admin-notifications__date">{{ notification.created_at|date:'d/m/Y H:i' }}</span>
+        </div>
+
+        <h2 class="admin-notifications__sender">
+          {% if notification.sender_register %}
+            {{ notification.sender_register.nombres }} {{ notification.sender_register.apellidos }}
+          {% else %}
+            Usuario #{{ notification.sender_user_id }}
+          {% endif %}
+        </h2>
+
+        {% if notification.product %}
+        <p class="admin-notifications__product">
+          <strong>Producto:</strong> {{ notification.product.nombre }}
+        </p>
+        {% endif %}
+
+        <p class="admin-notifications__message">{{ notification.message }}</p>
+
+        <div class="admin-notifications__actions">
+          {% if notification.product %}
+          <a href="{% url 'administrador:producto_admin_detalle' notification.product.id %}" class="admin-notifications__btn admin-notifications__btn--secondary">Ver producto</a>
+          {% endif %}
+          {% if not notification.is_read %}
+          <form method="post" action="{% url 'administrador:admin_notification_mark_read' notification.id %}">
+            {% csrf_token %}
+            <button type="submit" class="admin-notifications__btn admin-notifications__btn--primary">Marcar como leído</button>
+          </form>
+          {% else %}
+          <span class="admin-notifications__read-label">Leído</span>
+          {% endif %}
+        </div>
+      </article>
+      {% empty %}
+      <p class="admin-notifications__empty">No hay mensajes recibidos por ahora.</p>
+      {% endfor %}
+    </section>
+  </main>
+
+  <footer class="footer-container">
+    {% include 'components/footer.html' %}
+  </footer>
+
+  <div class="govco-container__two">
+    {% include 'components/gov-co__one.html' %}
+  </div>
+</body>
+</html>

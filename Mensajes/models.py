@@ -75,3 +75,44 @@ class AdminToUserMessage(models.Model):
 
     def __str__(self):
         return f"Mensaje admin para {self.usuario} - {self.creado:%Y-%m-%d %H:%M}"
+
+
+class AdminNotification(models.Model):
+	TYPE_PRODUCT_REACTIVATION = "product_reactivation"
+	TYPE_BLOCKED_LOGIN_ATTEMPT = "blocked_login_attempt"
+
+	TYPE_CHOICES = [
+		(TYPE_PRODUCT_REACTIVATION, "Solicitud de activacion de producto"),
+		(TYPE_BLOCKED_LOGIN_ATTEMPT, "Intento de inicio de sesion de usuario bloqueado"),
+	]
+
+	notification_type = models.CharField(max_length=40, choices=TYPE_CHOICES)
+	sender_user = models.ForeignKey(
+		User,
+		on_delete=models.CASCADE,
+		related_name="admin_notifications_sent",
+	)
+	sender_register = models.ForeignKey(
+		Register,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name="admin_notifications_sent",
+	)
+	product = models.ForeignKey(
+		Product,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name="admin_notifications",
+	)
+	message = models.TextField()
+	is_read = models.BooleanField(default=False)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		db_table = "mensajes_admin_notification"
+		ordering = ["-created_at"]
+
+	def __str__(self):
+		return f"Notificacion #{self.id} - {self.get_notification_type_display()}"

@@ -9,6 +9,7 @@ from .views import (
     disable_product,
     disabled_products,
     activate_product,
+    request_admin_product_reactivation,
 )
 
 app_name = "productos"
@@ -21,5 +22,6 @@ urlpatterns = [
     path("update-product/<int:product_id>/", update_product, name="update_product"),
     path("review-product-farmer/<int:product_id>/disable/", disable_product, name="disable_product"),
     path("disabled-products/<int:product_id>/activate/", activate_product, name="activate_product"),
+    path("disabled-products/<int:product_id>/request-admin-reactivation/", request_admin_product_reactivation, name="request_admin_product_reactivation"),
     path("descripcion-product/<int:product_id>/", descripcion_product, name="descripcion_product"),
 ]

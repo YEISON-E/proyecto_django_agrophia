@@ -81,7 +81,7 @@ def interface_farmer(request):
 	if not user_has_shop(request.user):
 		return redirect("usuarios:home_customer")
 
-	productos = Product.objects.filter(owner=request.user, is_active=True).prefetch_related("images").order_by("-created_at")
+	productos = Product.objects.filter(owner=request.user, is_active=True, stock__gt=0).prefetch_related("images").order_by("-created_at")
 
 	# Lógica de mensaje importante admin
 	from Mensajes.models import AdminToUserMessage
@@ -187,6 +187,22 @@ def mensajes_farmer(request):
 		return redirect("usuarios:login")
 
 	return redirect("mensajes:farmer_messages")
+
+
+@never_cache
+def seller_profile(request, shop_id):
+	shop = get_object_or_404(Shop, id=shop_id, is_active=True)
+	register_user = Register.objects.filter(id_usuario=shop.owner_id).first()
+	productos = (
+		Product.objects.filter(shop=shop, is_active=True, stock__gt=0)
+		.prefetch_related("images")
+		.order_by("-created_at")
+	)
+	return render(request, "tiendas/seller_profile.html", {
+		"shop": shop,
+		"register_user": register_user,
+		"productos": productos,
+	})
 
 
 @never_cache
@@ -477,7 +493,7 @@ def update_shop_step2(request):
 		shop.save()
 
 		request.session.pop("update_shop_step1", None)
-		return redirect("tiendas:profile_shop")
+		return redirect("tiendas:interface_farmer")
 
 	return render(request, "tiendas/update_shop2.html", {
 		"shop": shop,

@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const STEP1_STORAGE_KEY = "agrophia.create_product.step1";
     const input = document.getElementById("input-fotos-producto");
     const dropzone = document.getElementById("dropzone-fotos-producto");
     const previewGrid = document.getElementById("fotos-preview");
@@ -18,6 +19,45 @@ document.addEventListener("DOMContentLoaded", function () {
     const unidadSelect = document.getElementById("unidad-producto");
     const nextStepButton = document.getElementById("btn-next-step-producto");
     const step1Form = document.getElementById("create-product-step1-form");
+    const existingTempImagesCount = Number(step1Form?.dataset.existingTempImages || 0);
+
+    const persistStep1Fields = () => {
+        try {
+            const payload = {
+                nombre: nombreInput?.value || "",
+                tipo: tipoSelect?.value || "",
+                tipo_otro: tipoOtroInput?.value || "",
+                unidad: unidadSelect?.value || "",
+            };
+            sessionStorage.setItem(STEP1_STORAGE_KEY, JSON.stringify(payload));
+        } catch (error) {
+            console.warn("No se pudo guardar el paso 1 del producto en sessionStorage.", error);
+        }
+    };
+
+    const restoreStep1Fields = () => {
+        try {
+            const raw = sessionStorage.getItem(STEP1_STORAGE_KEY);
+            if (!raw) {
+                return;
+            }
+            const saved = JSON.parse(raw);
+            if (nombreInput && !nombreInput.value && saved.nombre) {
+                nombreInput.value = saved.nombre;
+            }
+            if (tipoSelect && !tipoSelect.value && saved.tipo) {
+                tipoSelect.value = saved.tipo;
+            }
+            if (tipoOtroInput && !tipoOtroInput.value && saved.tipo_otro) {
+                tipoOtroInput.value = saved.tipo_otro;
+            }
+            if (unidadSelect && !unidadSelect.value && saved.unidad) {
+                unidadSelect.value = saved.unidad;
+            }
+        } catch (error) {
+            console.warn("No se pudo restaurar el paso 1 del producto desde sessionStorage.", error);
+        }
+    };
 
     const unidadesPorTipo = {
         Frutas: ["Libra", "Kilo", "Arroba"],
@@ -45,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const validateStep1 = () => {
         let hasErrors = false;
 
-        if (selectedFiles.length === 0) {
+        if (selectedFiles.length === 0 && existingTempImagesCount === 0) {
             setError("error-fotos-producto", "Debes cargar al menos una imagen.");
             hasErrors = true;
         } else {
@@ -122,7 +162,8 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     const updateCounter = () => {
-        counter.textContent = `${selectedFiles.length}/${maxFotos} fotos cargadas`;
+        const total = selectedFiles.length + existingTempImagesCount;
+        counter.textContent = `${selectedFiles.length} nuevas | ${existingTempImagesCount} guardadas | total ${total}/${maxFotos}`;
     };
 
     const renderPreview = () => {
@@ -163,7 +204,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         incoming.forEach((file) => {
             const exists = selectedFiles.some((item) => isSameFile(item, file));
-            if (!exists && selectedFiles.length < maxFotos) {
+            if (!exists && (existingTempImagesCount + selectedFiles.length) < maxFotos) {
                 selectedFiles.push(file);
             }
         });
@@ -206,6 +247,8 @@ document.addEventListener("DOMContentLoaded", function () {
     [nombreInput, tipoSelect, tipoOtroInput, unidadSelect].forEach((field) => {
         field?.addEventListener("input", validateStep1);
         field?.addEventListener("change", validateStep1);
+        field?.addEventListener("input", persistStep1Fields);
+        field?.addEventListener("change", persistStep1Fields);
     });
 
     tipoSelect?.addEventListener("change", () => {
@@ -222,7 +265,9 @@ document.addEventListener("DOMContentLoaded", function () {
     step1Form?.addEventListener("submit", (event) => {
         if (!validateStep1()) {
             event.preventDefault();
+            return;
         }
+        persistStep1Fields();
     });
 
     ["dragenter", "dragover"].forEach((eventName) => {
@@ -248,6 +293,24 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
+    restoreStep1Fields();
     updateUnidadOptions();
+
+    try {
+        const raw = sessionStorage.getItem(STEP1_STORAGE_KEY);
+        if (raw) {
+            const saved = JSON.parse(raw);
+            if (unidadSelect && !unidadSelect.value && saved.unidad) {
+                unidadSelect.value = saved.unidad;
+            }
+        }
+    } catch (error) {
+        console.warn("No se pudo restaurar la unidad del paso 1 del producto.", error);
+    }
+
+    if (tipoSelect?.value === "Otros" && tipoOtroGroup) {
+        tipoOtroGroup.style.display = "flex";
+    }
+
     updateCounter();
 });

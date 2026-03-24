@@ -7,6 +7,7 @@
  * - Hora de cierre mayor que la apertura
  */
 document.addEventListener("DOMContentLoaded", function () {
+    const STEP2_STORAGE_KEY = "agrophia.create_shop.step2";
     // Formulario de paso 2
     const form = document.getElementById("create-shop-step2-form");
     if (!form) {
@@ -18,6 +19,52 @@ document.addEventListener("DOMContentLoaded", function () {
     const horaAperturaInput = document.getElementById("hora_apertura");
     const horaCierreInput = document.getElementById("hora_cierre");
     const direccionInput = document.getElementById("direccion");
+    const descripcionInput = form.querySelector("textarea[name='descripcion']");
+
+    const persistStep2Fields = () => {
+        try {
+            const payload = {
+                tiene_punto_fisico: puntoFisicoSelect?.value || "no",
+                hora_apertura: horaAperturaInput?.value || "",
+                hora_cierre: horaCierreInput?.value || "",
+                direccion: direccionInput?.value || "",
+                descripcion: descripcionInput?.value || "",
+            };
+            sessionStorage.setItem(STEP2_STORAGE_KEY, JSON.stringify(payload));
+        } catch (error) {
+            console.warn("No se pudo guardar el paso 2 de la tienda en sessionStorage.", error);
+        }
+    };
+
+    const restoreStep2Fields = () => {
+        try {
+            const raw = sessionStorage.getItem(STEP2_STORAGE_KEY);
+            if (!raw) {
+                return;
+            }
+            const saved = JSON.parse(raw);
+            if (puntoFisicoSelect && !puntoFisicoSelect.value && saved.tiene_punto_fisico) {
+                puntoFisicoSelect.value = saved.tiene_punto_fisico;
+            }
+            if (puntoFisicoSelect && saved.tiene_punto_fisico) {
+                puntoFisicoSelect.value = saved.tiene_punto_fisico;
+            }
+            if (horaAperturaInput && !horaAperturaInput.value && saved.hora_apertura) {
+                horaAperturaInput.value = saved.hora_apertura;
+            }
+            if (horaCierreInput && !horaCierreInput.value && saved.hora_cierre) {
+                horaCierreInput.value = saved.hora_cierre;
+            }
+            if (direccionInput && !direccionInput.value && saved.direccion) {
+                direccionInput.value = saved.direccion;
+            }
+            if (descripcionInput && !descripcionInput.value && saved.descripcion) {
+                descripcionInput.value = saved.descripcion;
+            }
+        } catch (error) {
+            console.warn("No se pudo restaurar el paso 2 de la tienda desde sessionStorage.", error);
+        }
+    };
 
     const usaPuntoFisico = () => puntoFisicoSelect?.value !== "no";
 
@@ -101,6 +148,12 @@ document.addEventListener("DOMContentLoaded", function () {
     puntoFisicoSelect?.addEventListener("change", togglePhysicalFields);
     horaAperturaInput?.addEventListener("input", validateHorario);
     horaCierreInput?.addEventListener("input", validateHorario);
+    [puntoFisicoSelect, horaAperturaInput, horaCierreInput, direccionInput, descripcionInput].forEach((field) => {
+        field?.addEventListener("input", persistStep2Fields);
+        field?.addEventListener("change", persistStep2Fields);
+    });
+
+    restoreStep2Fields();
 
     togglePhysicalFields();
 
@@ -108,6 +161,8 @@ document.addEventListener("DOMContentLoaded", function () {
     form.addEventListener("submit", function (event) {
         if (!validateHorario()) {
             event.preventDefault();
+            return;
         }
+        persistStep2Fields();
     });
 });

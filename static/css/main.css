@@ -92,3 +92,27 @@
 @import url('navbar-unified.css');
 @import url('services-public.css');
 
+.header__navbar,
+.header-home,
+.header-home__navbar,
+.header-home__navbar--customer,
+.navbar,
+.header-product__public-navbar,
+.header-product__disable-navbar,
+.header-available__navbar,
+.header-method__navbar,
+.contact-home__navbar {
+	position: -webkit-sticky !important;
+	position: sticky !important;
+	top: 0 !important;
+	z-index: 1300 !important;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.govco-container__one,
+.govco-content {
+	position: static !important;
+	top: auto !important;
+	z-index: auto !important;
+}
+

@@ -283,7 +283,7 @@ select.profile-update__input--locked:disabled {
     padding: 24px;
     gap: 12px;
     width: 712px;
-    margin: 0 auto;
+    margin: 12px auto;
   }
 
   .profile-update__form {

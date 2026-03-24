@@ -25,7 +25,7 @@
 
       <div class="product-form__group">
         <label for="stock-producto" class="product-form__label">Cantidad disponible (stock)</label>
-        <input id="stock-producto" name="stock" type="number" min="0" step="1" class="product-form__input" placeholder="Ej: 20" value="{{ valores.stock|default:'' }}" required>
+        <input id="stock-producto" name="stock" type="number" min="1" step="1" class="product-form__input" placeholder="Ej: 20" value="{{ valores.stock|default:'' }}" required>
         <div id="error-stock-producto" class="input-error"{% if not errores.stock %} style="display: none;"{% endif %}>{{ errores.stock }}</div>
       </div>
 

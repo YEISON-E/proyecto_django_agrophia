@@ -4,7 +4,7 @@
   <div class="product-form__container">
     <h2 class="product-form__subtitle">Subir producto</h2>
   </div> 
-  <form id="create-product-step1-form" class="product-form" method="POST" enctype="multipart/form-data" action="{% url 'productos:create_product' %}">
+  <form id="create-product-step1-form" class="product-form" method="POST" enctype="multipart/form-data" action="{% url 'productos:create_product' %}" data-existing-temp-images="{{ existing_temp_images_count|default:0 }}">
     {% csrf_token %}
 
     <div class="product-form__upload">

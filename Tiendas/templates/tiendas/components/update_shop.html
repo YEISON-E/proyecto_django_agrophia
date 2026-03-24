@@ -66,13 +66,60 @@
 <script src="{% static 'js/components/location-utils.js' %}" defer></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    const STEP1_STORAGE_KEY = "agrophia.update_shop.step1";
     const departamentoSelect = document.getElementById("departamento");
     const municipioSelect = document.getElementById("municipio");
+    const form = document.getElementById("update-shop-step1-form");
+    const nombreInput = document.getElementById("nombre");
+    const telefonoInput = document.getElementById("telefono");
+    const emailInput = document.getElementById("email");
     if (!departamentoSelect || !municipioSelect || !window.LocationUtils) {
         return;
     }
 
-    const currentMunicipio = municipioSelect.dataset.current || "";
+    let currentMunicipio = municipioSelect.dataset.current || "";
+
+    const persistStep1Fields = () => {
+        try {
+            const payload = {
+                nombre: nombreInput?.value || "",
+                telefono: telefonoInput?.value || "",
+                email: emailInput?.value || "",
+                departamento: departamentoSelect?.value || "",
+                municipio: municipioSelect?.value || "",
+            };
+            sessionStorage.setItem(STEP1_STORAGE_KEY, JSON.stringify(payload));
+        } catch (error) {
+            console.warn("No se pudo guardar el paso 1 de edición de tienda en sessionStorage.", error);
+        }
+    };
+
+    const restoreStep1Fields = () => {
+        try {
+            const raw = sessionStorage.getItem(STEP1_STORAGE_KEY);
+            if (!raw) {
+                return;
+            }
+            const saved = JSON.parse(raw);
+            if (nombreInput && !nombreInput.value && saved.nombre) {
+                nombreInput.value = saved.nombre;
+            }
+            if (telefonoInput && !telefonoInput.value && saved.telefono) {
+                telefonoInput.value = saved.telefono;
+            }
+            if (emailInput && !emailInput.value && saved.email) {
+                emailInput.value = saved.email;
+            }
+            if (departamentoSelect && !departamentoSelect.value && saved.departamento) {
+                departamentoSelect.value = saved.departamento;
+            }
+            if (saved.municipio) {
+                currentMunicipio = saved.municipio;
+            }
+        } catch (error) {
+            console.warn("No se pudo restaurar el paso 1 de edición de tienda desde sessionStorage.", error);
+        }
+    };
 
     const setMunicipio = (value) => {
         if (!value) {
@@ -102,8 +149,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     departamentoSelect.addEventListener("change", function () {
         window.LocationUtils.poblarMunicipios(departamentoSelect.value, municipioSelect);
+        currentMunicipio = municipioSelect.value || "";
+        persistStep1Fields();
     });
 
+    [nombreInput, telefonoInput, emailInput, departamentoSelect, municipioSelect].forEach((field) => {
+        field?.addEventListener("input", persistStep1Fields);
+        field?.addEventListener("change", persistStep1Fields);
+    });
+
+    form?.addEventListener("submit", persistStep1Fields);
+
+    restoreStep1Fields();
     refreshMunicipios();
 });
 </script>

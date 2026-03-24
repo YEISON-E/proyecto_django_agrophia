@@ -8,6 +8,7 @@
  * - Relación válida Departamento/Municipio
  */
 document.addEventListener("DOMContentLoaded", function () {
+    const STEP1_STORAGE_KEY = "agrophia.create_shop.step1";
     // Formulario principal del paso 1
     const form = document.querySelector(".form-shop__body");
     if (!form) {
@@ -19,7 +20,50 @@ document.addEventListener("DOMContentLoaded", function () {
     const emailInput = document.getElementById("email");
     const departamentoSelect = document.getElementById("departamento");
     const municipioSelect = document.getElementById("municipio");
-    const municipioPrevio = municipioSelect?.dataset.selectedMunicipio || "";
+    let municipioPrevio = municipioSelect?.dataset.selectedMunicipio || "";
+
+    const persistStep1Fields = () => {
+        try {
+            const payload = {
+                nombre: nombreInput?.value || "",
+                telefono: telefonoInput?.value || "",
+                email: emailInput?.value || "",
+                departamento: departamentoSelect?.value || "",
+                municipio: municipioSelect?.value || "",
+            };
+            sessionStorage.setItem(STEP1_STORAGE_KEY, JSON.stringify(payload));
+        } catch (error) {
+            console.warn("No se pudo guardar el paso 1 de la tienda en sessionStorage.", error);
+        }
+    };
+
+    const restoreStep1Fields = () => {
+        try {
+            const raw = sessionStorage.getItem(STEP1_STORAGE_KEY);
+            if (!raw) {
+                return;
+            }
+            const saved = JSON.parse(raw);
+            if (nombreInput && !nombreInput.value && saved.nombre) {
+                nombreInput.value = saved.nombre;
+            }
+            if (telefonoInput && !telefonoInput.value && saved.telefono) {
+                telefonoInput.value = saved.telefono;
+            }
+            if (emailInput && !emailInput.value && saved.email) {
+                emailInput.value = saved.email;
+            }
+            if (departamentoSelect && !departamentoSelect.value && saved.departamento) {
+                departamentoSelect.value = saved.departamento;
+            }
+            if (municipioSelect && !municipioSelect.value && saved.municipio) {
+                municipioSelect.dataset.selectedMunicipio = saved.municipio;
+                municipioPrevio = saved.municipio;
+            }
+        } catch (error) {
+            console.warn("No se pudo restaurar el paso 1 de la tienda desde sessionStorage.", error);
+        }
+    };
 
     // Normaliza texto para comparar municipios (manejo de tildes y espacios)
     const normalizarTexto = (valor) =>
@@ -144,20 +188,33 @@ document.addEventListener("DOMContentLoaded", function () {
     ].forEach((field) => {
         field?.addEventListener("input", validate);
         field?.addEventListener("change", validate);
+        field?.addEventListener("input", persistStep1Fields);
+        field?.addEventListener("change", persistStep1Fields);
     });
 
     departamentoSelect?.addEventListener("change", function () {
         poblarMunicipios();
+        municipioPrevio = municipioSelect?.value || "";
         validate();
     });
 
+    restoreStep1Fields();
+
     // Inicializa municipios al cargar
     poblarMunicipios();
+
+    if (municipioSelect?.dataset.selectedMunicipio) {
+        municipioSelect.value = municipioSelect.dataset.selectedMunicipio;
+    }
+
+    validate();
 
     // Bloquea envío si hay errores
     form.addEventListener("submit", function (event) {
         if (!validate()) {
             event.preventDefault();
+            return;
         }
+        persistStep1Fields();
     });
 });

@@ -70,6 +70,16 @@ class Product(models.Model):
 
 	class Meta:
 		db_table = "productos_product"
+		constraints = [
+			models.CheckConstraint(
+				check=models.Q(precio__gte=0),
+				name="product_price_non_negative",
+			),
+			models.CheckConstraint(
+				check=models.Q(stock__gte=0),
+				name="product_stock_non_negative",
+			),
+		]
 
 	def clean(self):
 		errors = {}

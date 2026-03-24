@@ -24,6 +24,17 @@ def sent_messages(request):
 	})
 
 
+@require_POST
+def delete_sent_message(request, message_id):
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	message = get_object_or_404(CustomerMessage, pk=message_id, sender=request.user)
+	message.delete()
+
+	return redirect("mensajes:sent_messages")
+
+
 @never_cache
 def farmer_messages(request):
 	if not request.user.is_authenticated:

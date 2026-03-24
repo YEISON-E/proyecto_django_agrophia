@@ -34,7 +34,7 @@ def _remove_temp_files(paths):
 			pass
 
 
-def _validate_step1(data, files):
+def _validate_step1(data, files, allow_existing_images=False):
 	errors = {}
 
 	nombre = (data.get("nombre") or "").strip()
@@ -42,7 +42,7 @@ def _validate_step1(data, files):
 	tipo_otro = (data.get("tipo_otro") or "").strip()
 	unidad = (data.get("unidad") or "").strip()
 
-	if not files:
+	if not files and not allow_existing_images:
 		errors["fotos"] = "Debes cargar al menos una imagen."
 	elif len(files) > 8:
 		errors["fotos"] = "Solo puedes cargar máximo 8 imágenes."
@@ -107,8 +107,8 @@ def _validate_step2(data):
 		except (TypeError, ValueError):
 			errors["stock"] = "Ingresa una cantidad disponible válida."
 		else:
-			if stock_value < 0:
-				errors["stock"] = "La cantidad disponible no puede ser negativa."
+			if stock_value < 1:
+				errors["stock"] = "La cantidad disponible debe ser al menos 1."
 
 	if not descripcion:
 		errors["descripcion"] = "La descripción es obligatoria."
@@ -130,7 +130,8 @@ def create_product(request):
 
 	if request.method == "POST":
 		photos = request.FILES.getlist("fotos")
-		errors = _validate_step1(request.POST, photos)
+		existing_temp_paths = request.session.get("product_temp_images", [])
+		errors = _validate_step1(request.POST, photos, allow_existing_images=bool(existing_temp_paths))
 
 		valores = {
 			"nombre": (request.POST.get("nombre") or "").strip(),
@@ -143,33 +144,40 @@ def create_product(request):
 			return render(request, "productos/create_product.html", {
 				"errores": errors,
 				"valores": valores,
+				"existing_temp_images_count": len(existing_temp_paths),
 			})
 
-		old_paths = request.session.get("product_temp_images", [])
-		_remove_temp_files(old_paths)
+		temp_paths = existing_temp_paths
+		if photos:
+			old_paths = request.session.get("product_temp_images", [])
+			_remove_temp_files(old_paths)
 
-		temp_dir = _temp_product_dir()
-		temp_paths = []
-		for photo in photos:
-			safe_name = f"{request.user.id}_{photo.name}"
-			temp_path = os.path.join(temp_dir, safe_name)
-			base_name, ext = os.path.splitext(temp_path)
-			counter = 1
-			while os.path.exists(temp_path):
-				temp_path = f"{base_name}_{counter}{ext}"
-				counter += 1
+			temp_dir = _temp_product_dir()
+			temp_paths = []
+			for photo in photos:
+				safe_name = f"{request.user.id}_{photo.name}"
+				temp_path = os.path.join(temp_dir, safe_name)
+				base_name, ext = os.path.splitext(temp_path)
+				counter = 1
+				while os.path.exists(temp_path):
+					temp_path = f"{base_name}_{counter}{ext}"
+					counter += 1
 
-			with open(temp_path, "wb") as temp_file:
-				for chunk in photo.chunks():
-					temp_file.write(chunk)
-			temp_paths.append(temp_path)
+				with open(temp_path, "wb") as temp_file:
+					for chunk in photo.chunks():
+						temp_file.write(chunk)
+				temp_paths.append(temp_path)
 
 		request.session["product_step1"] = valores
 		request.session["product_temp_images"] = temp_paths
 		return redirect("productos:create_product2")
 
 	valores = request.session.get("product_step1", {})
-	return render(request, "productos/create_product.html", {"valores": valores})
+	existing_temp_images_count = len(request.session.get("product_temp_images", []))
+	return render(request, "productos/create_product.html", {
+		"valores": valores,
+		"existing_temp_images_count": existing_temp_images_count,
+	})
 
 
 @never_cache
@@ -412,6 +420,9 @@ def update_product(request, product_id):
 		except (InvalidOperation, ValueError):
 			errores["precio"] = "Ingresa un precio valido mayor que 0."
 			precio_value = None
+		else:
+			if precio_value <= 0:
+				errores["precio"] = "Ingresa un precio valido mayor que 0."
 
 		try:
 			stock_value = int(valores["stock"])
@@ -419,8 +430,8 @@ def update_product(request, product_id):
 			errores["stock"] = "Ingresa una cantidad disponible válida."
 			stock_value = None
 		else:
-			if stock_value < 0:
-				errores["stock"] = "La cantidad disponible no puede ser negativa."
+			if stock_value < 1:
+				errores["stock"] = "La cantidad disponible debe ser al menos 1."
 
 		for photo in new_images:
 			if not (photo.content_type or "").startswith("image/"):

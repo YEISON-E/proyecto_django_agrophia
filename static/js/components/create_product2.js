@@ -1,4 +1,14 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const STEP1_STORAGE_KEY = "agrophia.create_product.step1";
+    const STEP2_STORAGE_KEY = "agrophia.create_product.step2";
+    const successFlash = document.getElementById("flash-product-created");
+
+    if (successFlash) {
+        sessionStorage.removeItem(STEP1_STORAGE_KEY);
+        sessionStorage.removeItem(STEP2_STORAGE_KEY);
+        return;
+    }
+
     const precioInput = document.getElementById("precio-producto");
     const stockInput = document.getElementById("stock-producto");
     const descripcionInput = document.getElementById("descripcion-producto");
@@ -9,6 +19,44 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!precioInput || !stockInput || !descripcionInput || !garantiaInput || !publicarButton) {
         return;
     }
+
+    const persistStep2Fields = () => {
+        try {
+            const payload = {
+                precio: precioInput.value || "",
+                stock: stockInput.value || "",
+                descripcion: descripcionInput.value || "",
+                garantia: garantiaInput.value || "",
+            };
+            sessionStorage.setItem(STEP2_STORAGE_KEY, JSON.stringify(payload));
+        } catch (error) {
+            console.warn("No se pudo guardar el paso 2 del producto en sessionStorage.", error);
+        }
+    };
+
+    const restoreStep2Fields = () => {
+        try {
+            const raw = sessionStorage.getItem(STEP2_STORAGE_KEY);
+            if (!raw) {
+                return;
+            }
+            const saved = JSON.parse(raw);
+            if (!precioInput.value && saved.precio) {
+                precioInput.value = saved.precio;
+            }
+            if (!stockInput.value && saved.stock) {
+                stockInput.value = saved.stock;
+            }
+            if (!descripcionInput.value && saved.descripcion) {
+                descripcionInput.value = saved.descripcion;
+            }
+            if (!garantiaInput.value && saved.garantia) {
+                garantiaInput.value = saved.garantia;
+            }
+        } catch (error) {
+            console.warn("No se pudo restaurar el paso 2 del producto desde sessionStorage.", error);
+        }
+    };
 
     const setError = (id, message) => {
         const el = document.getElementById(id);
@@ -44,8 +92,8 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!stockRaw) {
             setError("error-stock-producto", "La cantidad disponible es obligatoria.");
             hasErrors = true;
-        } else if (!Number.isInteger(stock) || stock < 0) {
-            setError("error-stock-producto", "Ingresa una cantidad disponible válida.");
+        } else if (!Number.isInteger(stock) || stock < 1) {
+            setError("error-stock-producto", "La cantidad disponible debe ser al menos 1.");
             hasErrors = true;
         } else {
             setError("error-stock-producto", "");
@@ -79,6 +127,8 @@ document.addEventListener("DOMContentLoaded", function () {
     [precioInput, stockInput, descripcionInput, garantiaInput].forEach((field) => {
         field.addEventListener("input", validateStep2);
         field.addEventListener("change", validateStep2);
+        field.addEventListener("input", persistStep2Fields);
+        field.addEventListener("change", persistStep2Fields);
     });
 
     publicarButton.addEventListener("click", (event) => {
@@ -90,6 +140,11 @@ document.addEventListener("DOMContentLoaded", function () {
     step2Form?.addEventListener("submit", (event) => {
         if (!validateStep2()) {
             event.preventDefault();
+            return;
         }
+        persistStep2Fields();
     });
+
+    restoreStep2Fields();
+    validateStep2();
 });

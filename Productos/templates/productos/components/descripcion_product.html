@@ -26,7 +26,7 @@
     <p class="product-view__unit">Unidad de medida: {{ product.unidad }}</p>
     <p class="product-view__price">$ {{ product.precio }} / {{ product.unidad }}</p>
     <p class="product-view__stock">Cantidad disponible: {{ product.stock }}</p>
-    <p class="product-view__guarantee">Garantía: {{ product.garantia }}</p>
+    <p class="product-view__guarantee">Durabilidad del producto: {{ product.garantia }}</p>
 
     <div class="product-view__buttons">
       <a href="{% url 'carrito_compras:add_to_cart' %}" class="product-view__btn product-view__btn--add" id="add-to-cart-from-description" data-product-id="{{ product.id }}" data-product-stock="{{ product.stock }}">Agregar al carrito</a>
@@ -44,17 +44,18 @@
       <h2 class="product-view__subtitle">Vendedor</h2>
       {% if product.shop %}
       <div class="seller-card">
-        <div class="seller-card__avatar-wrap">
-          {% if product.shop.owner and product.shop.owner.register_set.all.0.foto %}
-            <img src="{{ product.shop.owner.register_set.all.0.foto.url }}" alt="{{ product.shop.nombre }}" class="seller-card__avatar">
-          {% else %}
-            <img src="{% static 'icons/planta.png' %}" alt="{{ product.shop.nombre }}" class="seller-card__avatar">
-          {% endif %}
-        </div>
-        <div class="seller-card__info">
-          <span class="seller-card__name">{{ product.shop.nombre }}</span>
-          <span class="seller-card__location">{{ product.shop.municipio }}, {{ product.shop.departamento }}</span>
-          <a href="{% url 'tiendas:seller_profile' product.shop.id %}" class="seller-card__link">Ver vendedor</a>
+        <div class="seller-card__top">
+          <div class="seller-card__avatar-wrap">
+            {% if product.shop.owner and product.shop.owner.register_set.all.0.foto %}
+              <img src="{{ product.shop.owner.register_set.all.0.foto.url }}" alt="{{ product.shop.nombre }}" class="seller-card__avatar">
+            {% else %}
+              <img src="{% static 'icons/planta.png' %}" alt="{{ product.shop.nombre }}" class="seller-card__avatar">
+            {% endif %}
+          </div>
+          <div class="seller-card__identity">
+            <span class="seller-card__name">{{ product.shop.nombre }}</span>
+          </div>
+          <a href="{% url 'tiendas:seller_profile' product.shop.id %}?next={{ request.get_full_path|urlencode }}" class="seller-card__link">Visualizar</a>
         </div>
       </div>
       {% else %}

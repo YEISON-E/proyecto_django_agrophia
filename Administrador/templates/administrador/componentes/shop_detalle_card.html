@@ -56,18 +56,50 @@
   </div>
 
   {% if usuario_info %}
-  <div style="margin-top:24px;padding:16px 20px;background:#f3f4f8;border-radius:8px;border:1px solid #e5e7eb;grid-column: 1 / 3;">
-    <strong style="color:#6366f1;">Propietario de la tienda</strong><br>
-    <strong>ID usuario:</strong> {{ usuario_info.id_usuario }}<br>
-    <strong>Nombre:</strong> {{ usuario_info.nombres }} {{ usuario_info.apellidos }}<br>
-    <strong>Correo:</strong> {{ usuario_info.correo_electronico }}<br>
-    <strong>Teléfono:</strong> {{ usuario_info.telefono }}<br>
-    <strong>Tipo documento:</strong> {{ usuario_info.tipo_documento }}<br>
-    <strong>Número documento:</strong> {{ usuario_info.numero_documento }}<br>
-    <strong>Departamento:</strong> {{ usuario_info.departamento }}<br>
-    <strong>Municipio:</strong> {{ usuario_info.municipio }}<br>
-    <strong>Dirección:</strong> {{ usuario_info.direccion_completa }}<br>
-    <strong>Estado:</strong> {{ usuario_info.estado|title }}
+  <div class="user-detail-owner-card">
+    <div class="user-detail-owner-card__title">Propietario de la tienda</div>
+    <div class="user-detail-grid user-detail-grid--owner">
+      <div>
+        <div class="user-detail-label">ID usuario</div>
+        <div class="user-detail-value">{{ usuario_info.id_usuario }}</div>
+      </div>
+      <div>
+        <div class="user-detail-label">Nombre</div>
+        <div class="user-detail-value">{{ usuario_info.nombres }} {{ usuario_info.apellidos }}</div>
+      </div>
+      <div>
+        <div class="user-detail-label">Correo</div>
+        <div class="user-detail-value">{{ usuario_info.correo_electronico }}</div>
+      </div>
+      <div>
+        <div class="user-detail-label">Teléfono</div>
+        <div class="user-detail-value">{{ usuario_info.telefono }}</div>
+      </div>
+      <div>
+        <div class="user-detail-label">Tipo documento</div>
+        <div class="user-detail-value">{{ usuario_info.tipo_documento }}</div>
+      </div>
+      <div>
+        <div class="user-detail-label">Número documento</div>
+        <div class="user-detail-value">{{ usuario_info.numero_documento }}</div>
+      </div>
+      <div>
+        <div class="user-detail-label">Departamento</div>
+        <div class="user-detail-value">{{ usuario_info.departamento }}</div>
+      </div>
+      <div>
+        <div class="user-detail-label">Municipio</div>
+        <div class="user-detail-value">{{ usuario_info.municipio }}</div>
+      </div>
+      <div style="grid-column: 1 / 3;">
+        <div class="user-detail-label">Dirección</div>
+        <div class="user-detail-value">{{ usuario_info.direccion_completa|default:'-' }}</div>
+      </div>
+      <div>
+        <div class="user-detail-label">Estado</div>
+        <div class="user-detail-value">{{ usuario_info.estado|title }}</div>
+      </div>
+    </div>
   </div>
   {% endif %}
 

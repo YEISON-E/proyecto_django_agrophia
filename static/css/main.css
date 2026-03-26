@@ -92,10 +92,12 @@
 @import url('navbar-unified.css');
 @import url('services-public.css');
 
+.header,
 .header__navbar,
 .header-home,
 .header-home__navbar,
 .header-home__navbar--customer,
+.navbar-container,
 .navbar,
 .header-product__public-navbar,
 .header-product__disable-navbar,
@@ -114,5 +116,93 @@
 	position: static !important;
 	top: auto !important;
 	z-index: auto !important;
+}
+
+.navbar-container {
+	background: var(--white);
+}
+
+/* Estilo global admin alineado a login__back y login__button */
+.shop-edit-cancel,
+.user-detail-back {
+	background-color: var(--gray-700) !important;
+	border-radius: 4px !important;
+	padding: 9px 16px !important;
+	height: 36px !important;
+	font-size: var(--fs-xs) !important;
+	color: var(--white) !important;
+	text-decoration: none !important;
+	transition: background-color 0.2s ease !important;
+	border: none !important;
+	cursor: pointer !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	font-family: inherit !important;
+	font-weight: inherit !important;
+	box-shadow: none !important;
+}
+
+.shop-edit-btn,
+.user-detail-save,
+.user-detail-edit {
+	font-weight: 600 !important;
+	height: 40px !important;
+	margin: 0 !important;
+	padding: 10px 16px !important;
+	background: linear-gradient(135deg, var(--primary-500), var(--primary-700)) !important;
+	color: var(--white) !important;
+	font-size: var(--fs-xs) !important;
+	border: none !important;
+	border-radius: 8px !important;
+	cursor: pointer !important;
+	text-decoration: none !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	justify-content: center !important;
+	box-shadow: none !important;
+}
+
+.shop-edit-cancel:hover,
+.user-detail-back:hover {
+	background-color: var(--gray-800) !important;
+	text-decoration: none !important;
+	transform: none !important;
+}
+
+.shop-edit-btn:hover,
+.user-detail-save:hover,
+.user-detail-edit:hover {
+	background: linear-gradient(135deg, var(--primary-700), var(--primary-900)) !important;
+	transform: none !important;
+}
+
+/* Keep bottom gov.co/footer anchored on short or empty pages. */
+html,
+body {
+	min-height: 100%;
+}
+
+body {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+body > .govco-container__two,
+body > .footer-content,
+body > .footer-container,
+body > footer.footer,
+body > footer.footer-content,
+body > footer.footer-container {
+	margin-top: auto;
+}
+
+body > .govco-container__two + .footer-content,
+body > .govco-container__two + .footer-container,
+body > .govco-container__two + footer.footer,
+body > .govco-container__two + footer.footer-content,
+body > .govco-container__two + footer.footer-container {
+	margin-top: 0;
 }
 

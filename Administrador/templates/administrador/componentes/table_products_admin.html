@@ -27,11 +27,11 @@
       </td>
       <td class="products-table__cell products-table__cell--actions">
         {% if producto.is_active %}
-        <button class="products-table__button products-table__button--block" title="Bloquear" data-product-id="{{ producto.id }}" data-action="block">
+        <button class="products-table__button products-table__button--block" title="Bloquear" data-product-id="{{ producto.id }}" data-product-name="{{ producto.nombre }}" data-action="block">
           <img src="{% static 'icons/lock.svg' %}" alt="Bloquear" width="20" height="20">
         </button>
         {% else %}
-        <button class="products-table__button products-table__button--unblock" title="Desbloquear" data-product-id="{{ producto.id }}" data-action="unblock">
+        <button class="products-table__button products-table__button--unblock" title="Desbloquear" data-product-id="{{ producto.id }}" data-product-name="{{ producto.nombre }}" data-action="unblock">
           <img src="{% static 'icons/unlock.svg' %}" alt="Desbloquear" width="20" height="20">
         </button>
         {% endif %}

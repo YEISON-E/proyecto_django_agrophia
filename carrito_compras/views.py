@@ -1,3 +1,18 @@
+"""
+Vistas del modulo de carrito de compras.
+
+Cobertura funcional:
+- Visualizacion del carrito con saneamiento de productos no validos.
+- Agregar, eliminar y actualizar cantidades de productos.
+- Validaciones de stock en tiempo real y durante checkout.
+- Generacion de pedido y detalle de items en transaccion atomica.
+- Descuento de inventario con bloqueo de filas para evitar sobreventa.
+
+Garantia de consistencia:
+El checkout usa `transaction.atomic()` y `select_for_update()` para confirmar
+existencias finales justo antes de crear el pedido.
+"""
+
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.http import JsonResponse
@@ -14,6 +29,13 @@ from usuarios.models import Register
 
 @never_cache
 def shopping_cart(request):
+	"""Renderiza el carrito del usuario saneando items invalidos.
+
+	Durante el render:
+	- Elimina productos inexistentes/inactivos.
+	- Ajusta cantidades al stock real.
+	- Calcula subtotal y total final.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -102,6 +124,7 @@ def shopping_cart(request):
 
 @require_POST
 def add_to_cart(request):
+	"""Agrega un producto activo al carrito validando cantidad y stock."""
 	if not request.user.is_authenticated:
 		return JsonResponse({"ok": False, "message": "No autenticado."}, status=401)
 
@@ -160,6 +183,7 @@ def add_to_cart(request):
 
 @require_POST
 def remove_from_cart(request, product_id):
+	"""Quita un producto del carrito por su ID."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -174,6 +198,7 @@ def remove_from_cart(request, product_id):
 
 @require_POST
 def update_cart_quantity(request, product_id):
+	"""Actualiza la cantidad de un item respetando disponibilidad."""
 	if not request.user.is_authenticated:
 		if request.headers.get("X-Requested-With") == "XMLHttpRequest":
 			return JsonResponse({"ok": False, "message": "No autenticado."}, status=401)
@@ -234,9 +259,15 @@ def update_cart_quantity(request, product_id):
 @require_POST
 @never_cache
 def checkout(request):
+	"""Convierte el carrito en pedido usando validacion final de inventario.
+
+	La operacion se ejecuta en una transaccion para prevenir inconsistencias
+	y descuenta stock de cada producto confirmado.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
+	# 1) Verifica precondiciones basicas del checkout.
 	cart = request.session.get("shopping_cart", {})
 	if not cart:
 		return redirect("carrito_compras:shopping_cart")
@@ -250,6 +281,7 @@ def checkout(request):
 	if payment_method not in valid_payment_methods or delivery_method not in valid_delivery_methods:
 		return redirect("carrito_compras:shopping_cart")
 
+	# 2) Carga productos vigentes y valida reglas de entrega.
 	product_ids = []
 	for product_id in cart.keys():
 		try:
@@ -276,6 +308,7 @@ def checkout(request):
 	elif not delivery_address:
 		return redirect("carrito_compras:shopping_cart")
 
+	# 3) Recalcula montos y valida stock antes de bloquear filas.
 	total_amount = 0
 	items_data = []
 	for product_id_str, quantity_value in cart.items():
@@ -308,6 +341,7 @@ def checkout(request):
 	if not items_data:
 		return redirect("carrito_compras:shopping_cart")
 
+	# 4) Confirma inventario bajo bloqueo transaccional y crea pedido/items.
 	with transaction.atomic():
 		locked_products = Product.objects.select_for_update().filter(id__in=[item["product"].id for item in items_data])
 		locked_map = {product.id: product for product in locked_products}
@@ -343,6 +377,7 @@ def checkout(request):
 			for item in items_data
 		])
 
+		# 5) Descuenta inventario y desactiva productos agotados.
 		for item in items_data:
 			locked_product = locked_map[item["product"].id]
 			locked_product.stock -= item["quantity"]
@@ -353,6 +388,7 @@ def checkout(request):
 			else:
 				locked_product.save(update_fields=["stock"])
 
+	# 6) Limpia carrito en sesion y redirige a pedidos del cliente.
 	request.session["shopping_cart"] = {}
 	request.session.modified = True
 

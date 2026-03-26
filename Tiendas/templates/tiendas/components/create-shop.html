@@ -7,14 +7,14 @@
         <div class="shop">
             <h2 class="form-shop__subtitle">Crea tu tienda</h2>
             <div class="form-shop">
-                <form id="create-shop-form" method="POST" action="{% url 'tiendas:create_shop_step1' %}" class="form-shop__body">
+                <form id="create-shop-form" method="POST" action="{% url 'tiendas:create_shop_step1' %}" class="form-shop__body" data-shop-flow-id="{{ shop_flow_id|default:'' }}" autocomplete="off">
                     {% csrf_token %}
                     <input type="hidden" name="owner_token" value="{{ shop_owner_token|default:'' }}">
 
                     <div class="form-shop__group">
                         <label for="nombre" class="form-shop__label">Nombre de la tienda</label>
-                        <input type="text" id="nombre" name="nombre" class="form-shop__input" placeholder="Nombre tienda" value="{{ valores.nombre|default:'' }}" required>
-                        <div id="error-nombre" class="input-error" style="display: none;"></div>
+                        <input type="text" id="nombre" name="nombre" class="form-shop__input" placeholder="Nombre tienda" value="{{ valores.nombre|default:'' }}" maxlength="50" required>
+                        <div id="error-nombre" class="input-error" style="display: none;" data-server-error="{{ errores.nombre|default:'' }}"></div>
                     </div>
 
                     <div class="form-shop__group">
@@ -49,7 +49,12 @@
                     </div>
                 </form>
                 <div class="form-content__register--row-buttons">
-                    <a href="{% url 'usuarios:login' %}" class="form-content__register--row-buttons__back">Volver</a>
+                    <a
+                        href="{% url 'usuarios:home_customer' %}"
+                        class="form-content__register--row-buttons__back"
+                        data-history-back="true"
+                        data-fallback-url="{% url 'usuarios:home_customer' %}"
+                    >Volver</a>
                     <button type="submit" form="create-shop-form" class="form-shop__button">Siguiente</button>
                 </div>
             </div>

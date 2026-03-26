@@ -1,6 +1,20 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
 <div class="user-detail-main">
+  {% if request.GET.recovery_mail == 'sent' %}
+    <div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:#ecfdf3;border:1px solid #86d3ab;color:#0f5132;font-weight:600;">
+      Se envio el correo de recuperacion al usuario.
+    </div>
+  {% elif request.GET.recovery_mail == 'error' %}
+    <div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:#fff4ee;border:1px solid #ffc29a;color:#8a2f00;font-weight:600;">
+      No se pudo enviar el correo de recuperacion. Intenta nuevamente.
+    </div>
+  {% elif request.GET.recovery_mail == 'missing_email' %}
+    <div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:#fff4ee;border:1px solid #ffc29a;color:#8a2f00;font-weight:600;">
+      El usuario no tiene correo registrado para enviar recuperacion.
+    </div>
+  {% endif %}
+
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="user-detail-grid">
@@ -124,9 +138,16 @@
         <div class="user-detail-label">Descripción perfil</div>
         <div class="user-detail-value">{{ form.descripcion_perfil }}</div>
       </div>
-      <div style="grid-column: 1 / 4;">
-        <div class="user-detail-label">Contraseña</div>
-        <div class="user-detail-value">{{ form.contrasena }}</div>
+      <div style="grid-column: 1 / 4; display:flex; align-items:center; justify-content:space-between; gap:12px; background:#f8fafc; border:1px solid #dbe3ee; border-radius:8px; padding:12px 14px;">
+        <div>
+          <div class="user-detail-label">Recuperación de contraseña</div>
+          <div class="user-detail-value" style="font-size:.95em; color:#45556c;">El administrador no puede editar directamente la contraseña.</div>
+        </div>
+        <button
+          type="submit"
+          form="send-recovery-mail-form"
+          style="background:#0f766e;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;"
+        >Enviar correo de recuperación</button>
       </div>
     </div>
     {% if tienda %}
@@ -164,5 +185,9 @@
       <a href="{% url 'administrador:usuario_admin_detalle' usuario.id %}" class="shop-edit-cancel">&larr; Cancelar</a>
       <button type="submit" class="shop-edit-btn">Guardar cambios</button>
     </div>
+  </form>
+
+  <form id="send-recovery-mail-form" method="post" action="{% url 'administrador:usuario_admin_enviar_recuperacion' usuario.id %}">
+    {% csrf_token %}
   </form>
 </div>

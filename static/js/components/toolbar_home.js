@@ -9,7 +9,68 @@ document.addEventListener("DOMContentLoaded", function () {
     const countFields = document.getElementById("toolbar-home-count-fields");
     const periodFields = document.getElementById("toolbar-home-period-fields");
     const reportForm = document.getElementById("toolbar-home-report-form");
-    const outputFormat = document.getElementById("toolbar-home-output-format");
+    const searchInput = document.getElementById("toolbar-home-search-input");
+
+    function bindExclusiveFieldSelection(form) {
+        if (!form) {
+            return;
+        }
+        const allFieldsCheckbox = form.querySelector('input[name="all_fields"]');
+        const fieldCheckboxes = Array.from(form.querySelectorAll('input[name="fields"]'));
+
+        if (!allFieldsCheckbox || !fieldCheckboxes.length) {
+            return;
+        }
+
+        function syncFromAll() {
+            if (allFieldsCheckbox.checked) {
+                fieldCheckboxes.forEach(function (checkbox) {
+                    checkbox.checked = false;
+                });
+            }
+        }
+
+        allFieldsCheckbox.addEventListener("change", syncFromAll);
+
+        fieldCheckboxes.forEach(function (checkbox) {
+            checkbox.addEventListener("change", function () {
+                if (checkbox.checked) {
+                    allFieldsCheckbox.checked = false;
+                }
+            });
+        });
+
+        syncFromAll();
+    }
+
+    function normalizeSearchText(value) {
+        return (value || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+    }
+
+    function setupTableSearch(input, rowSelector) {
+        if (!input) {
+            return;
+        }
+
+        const rows = Array.from(document.querySelectorAll(rowSelector));
+        if (!rows.length) {
+            return;
+        }
+
+        input.addEventListener("input", function () {
+            const query = normalizeSearchText(input.value);
+
+            rows.forEach(function (row) {
+                const rowText = normalizeSearchText(row.textContent);
+                const shouldShow = !query || rowText.includes(query);
+                row.style.display = shouldShow ? "" : "none";
+            });
+        });
+    }
 
     if (!toggleButton || !menu) {
         return;
@@ -61,11 +122,12 @@ document.addEventListener("DOMContentLoaded", function () {
         scopeSelect.addEventListener("change", toggleReportSections);
         toggleReportSections();
     }
-    if (reportForm && outputFormat) {
-        reportForm.addEventListener("submit", function () {
-            reportForm.target = outputFormat.value === "print" ? "_blank" : "_self";
-        });
+    if (reportForm) {
+        reportForm.target = "_self";
+        bindExclusiveFieldSelection(reportForm);
     }
+
+    setupTableSearch(searchInput, ".home-table__body tr");
 
     window.addEventListener("click", function (event) {
         if (!event.target.closest(".toolbar-main__profile-dropdown")) {

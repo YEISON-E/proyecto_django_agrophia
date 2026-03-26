@@ -1,3 +1,21 @@
+"""
+Vistas del modulo de productos.
+
+Este archivo implementa el ciclo completo de gestion de productos para agricultores:
+- Creacion en dos pasos (datos basicos + datos comerciales).
+- Validaciones de negocio (stock, precio, unidades y formatos permitidos).
+- Manejo de imagenes temporales y definitivas.
+- Activacion/desactivacion de productos.
+- Solicitudes al administrador para reactivar productos bloqueados.
+- Edicion de productos con control de cantidad maxima/minima de imagenes.
+
+Reglas clave del modulo:
+- Un producto debe tener al menos una imagen y como maximo 8.
+- El producto se marca inactivo automaticamente cuando el stock llega a 0.
+- Si un producto fue deshabilitado por administracion, el agricultor no puede
+	reactivarlo directamente y debe enviar una solicitud.
+"""
+
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
@@ -9,6 +27,7 @@ from django.core.files import File
 from django.urls import reverse
 from decimal import Decimal, InvalidOperation
 from django.core.exceptions import ValidationError
+import re
 
 import os
 
@@ -16,16 +35,22 @@ from Tiendas.models import Shop
 
 from .models import Product, ProductImage
 
+
+PRODUCT_NAME_ALLOWED_RE = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,\-]+$")
+PRODUCT_GUARANTEE_ALLOWED_RE = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,:/%\-]+$")
+
 # Create your views here.
 
 
 def _temp_product_dir():
+	"""Retorna la ruta temporal para imagenes de producto y la garantiza existente."""
 	temp_dir = os.path.join(settings.MEDIA_ROOT, "temp_productos")
 	os.makedirs(temp_dir, exist_ok=True)
 	return temp_dir
 
 
 def _remove_temp_files(paths):
+	"""Elimina archivos temporales de forma segura ignorando errores de E/S."""
 	for path in paths or []:
 		try:
 			if path and os.path.exists(path):
@@ -35,6 +60,7 @@ def _remove_temp_files(paths):
 
 
 def _validate_step1(data, files, allow_existing_images=False):
+	"""Valida datos del paso 1 (identidad del producto e imagenes)."""
 	errors = {}
 
 	nombre = (data.get("nombre") or "").strip()
@@ -56,6 +82,10 @@ def _validate_step1(data, files, allow_existing_images=False):
 		errors["nombre"] = "El nombre del producto es obligatorio."
 	elif len(nombre) < 3:
 		errors["nombre"] = "El nombre debe tener al menos 3 caracteres."
+	elif len(nombre) > 120:
+		errors["nombre"] = "El nombre no debe superar 120 caracteres."
+	elif not PRODUCT_NAME_ALLOWED_RE.fullmatch(nombre):
+		errors["nombre"] = "El nombre contiene caracteres no permitidos."
 
 	tipos_validos = {choice[0] for choice in Product.TIPO_CHOICES}
 	if tipo not in tipos_validos:
@@ -79,6 +109,7 @@ def _validate_step1(data, files, allow_existing_images=False):
 
 
 def _validate_step2(data):
+	"""Valida datos del paso 2 (precio, stock, descripcion y garantia)."""
 	errors = {}
 
 	precio_raw = (data.get("precio") or "").strip()
@@ -114,17 +145,24 @@ def _validate_step2(data):
 		errors["descripcion"] = "La descripción es obligatoria."
 	elif len(descripcion) < 10:
 		errors["descripcion"] = "La descripción debe tener al menos 10 caracteres."
+	elif len(descripcion) > 255:
+		errors["descripcion"] = "La descripción no debe superar 255 caracteres."
 
 	if not garantia:
 		errors["garantia"] = "El tiempo de durabilidad es obligatorio."
 	elif len(garantia) < 3:
 		errors["garantia"] = "El tiempo de durabilidad debe tener al menos 3 caracteres."
+	elif len(garantia) > 120:
+		errors["garantia"] = "La garantía no debe superar 120 caracteres."
+	elif not PRODUCT_GUARANTEE_ALLOWED_RE.fullmatch(garantia):
+		errors["garantia"] = "La garantía contiene caracteres no permitidos."
 
 	return errors, precio_value, stock_value
 
 
 @never_cache
 def create_product(request):
+	"""Gestiona el paso 1 de creacion de producto con imagenes temporales."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -182,6 +220,7 @@ def create_product(request):
 
 @never_cache
 def create_product2(request):
+	"""Gestiona el paso 2 y persiste el producto con sus imagenes finales."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -218,7 +257,7 @@ def create_product2(request):
 
 		shop = Shop.objects.filter(owner=request.user).first()
 
-		product = Product.objects.create(
+		product = Product(
 			owner=request.user,
 			shop=shop,
 			nombre=step1.get("nombre", ""),
@@ -231,6 +270,18 @@ def create_product2(request):
 			garantia=valores["garantia"],
 			is_active=stock_value > 0,
 		)
+
+		try:
+			product.full_clean()
+		except ValidationError as exc:
+			for field, messages in exc.message_dict.items():
+				errors[field] = messages[0] if messages else "Valor invalido."
+			return render(request, "productos/create_product2.html", {
+				"errores": errors,
+				"valores": valores,
+			})
+
+		product.save()
 
 		for temp_path in temp_paths:
 			if not os.path.exists(temp_path):
@@ -253,6 +304,7 @@ def create_product2(request):
 
 @never_cache
 def descripcion_product(request, product_id):
+	"""Muestra la descripcion publica del producto cuando esta disponible."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -274,6 +326,7 @@ def descripcion_product(request, product_id):
 
 @never_cache
 def review_product_farmer(request, product_id):
+	"""Muestra al agricultor el detalle de uno de sus productos."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -293,6 +346,7 @@ def review_product_farmer(request, product_id):
 @require_POST
 @never_cache
 def disable_product(request, product_id):
+	"""Desactiva un producto del agricultor autenticado."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -306,6 +360,7 @@ def disable_product(request, product_id):
 
 @never_cache
 def disabled_products(request):
+	"""Lista productos inactivos del agricultor para posible reactivacion."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -322,6 +377,7 @@ def disabled_products(request):
 @require_POST
 @never_cache
 def activate_product(request, product_id):
+	"""Reactiva un producto si no fue bloqueado por admin y tiene stock."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -353,6 +409,7 @@ def activate_product(request, product_id):
 @require_POST
 @never_cache
 def request_admin_product_reactivation(request, product_id):
+	"""Envia una solicitud al admin para reactivar un producto bloqueado."""
 	if not request.user.is_authenticated:
 		return JsonResponse({"ok": False, "message": "Sesion no valida."}, status=401)
 
@@ -381,6 +438,7 @@ def request_admin_product_reactivation(request, product_id):
 
 @never_cache
 def update_product(request, product_id):
+	"""Actualiza datos de un producto y administra sus imagenes asociadas."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 

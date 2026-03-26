@@ -28,24 +28,24 @@
         <label for="tdocumento" class="form__label">Tipo de Documento</label>
         <select id="tdocumento" name="tdocumento" class="form__option" required>
           <option value="">-- Tipo de documento --</option>
-          <option value="cc">CC</option>
-          <option value="ti">TI</option>
+          <option value="cc" {% if valores.tdocumento == 'cc' %}selected{% endif %}>CC</option>
+          <option value="ti" {% if valores.tdocumento == 'ti' %}selected{% endif %}>TI</option>
         </select>
     
       </div>
       <div class="form__group">
         <label for="documento" class="form__label">Número de Documento</label>
-        <input type="text" name="documento" class="form__input" placeholder="Número de documento" autocomplete="username" inputmode="numeric" spellcheck="false">
+        <input type="text" name="documento" class="form__input" placeholder="Número de documento" value="{{ valores.documento|default:'' }}" autocomplete="username" inputmode="numeric" spellcheck="false">
       </div>
       
       <div class="form__group">
         <label for="nombres" class="form__label">Nombres</label>
-        <input type="text" name="nombres" class="form__input" placeholder="Nombres" autocomplete="given-name">
+        <input type="text" name="nombres" class="form__input" placeholder="Nombres" value="{{ valores.nombres|default:'' }}" autocomplete="given-name" minlength="2" maxlength="40" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s']+" title="Solo letras y espacios (2 a 40 caracteres)">
       </div>
       
       <div class="form__group">
         <label for="apellidos" class="form__label">Apellidos</label>
-        <input type="text" name="apellidos" class="form__input" placeholder="Apellidos" autocomplete="family-name">
+        <input type="text" name="apellidos" class="form__input" placeholder="Apellidos" value="{{ valores.apellidos|default:'' }}" autocomplete="family-name" minlength="2" maxlength="40" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s']+" title="Solo letras y espacios (2 a 40 caracteres)">
       </div>
     </div>
   </form>

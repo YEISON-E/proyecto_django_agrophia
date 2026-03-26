@@ -15,6 +15,7 @@
 function initializeRegisterStep2() {
   const departSelect = document.getElementById('input-departament');
   const munSelect = document.getElementById('input-municipality');
+  const telefonoField = document.querySelector('input[name="telefono"]');
 
   /**
    * Llena el select de municipios basado en el departamento seleccionado
@@ -49,6 +50,24 @@ function initializeRegisterStep2() {
 
   if (confirmPasswordField) {
     confirmPasswordField.addEventListener('input', validarCoincidenciaContrasenas);
+  }
+
+  // ===== VALIDACIÓN DE TELÉFONO EN TIEMPO REAL =====
+  if (telefonoField) {
+    telefonoField.addEventListener('input', function() {
+      const valorOriginal = telefonoField.value;
+      let soloDigitos = valorOriginal.replace(/\D/g, '');
+      if (soloDigitos.length > 10) {
+        soloDigitos = soloDigitos.slice(0, 10);
+      }
+
+      if (valorOriginal !== soloDigitos) {
+        telefonoField.value = soloDigitos;
+      }
+
+      const telefonoError = validarTelefonoDetallado(telefonoField.value.trim());
+      actualizarErrorEnInput(telefonoField, telefonoError);
+    });
   }
 
   // ===== TOGGLE PASSWORD VISIBILITY =====
@@ -98,7 +117,20 @@ function validarEmail(valor) {
  * @returns {boolean} true si el teléfono tiene 10 dígitos
  */
 function validarTelefono(valor) {
-  return /^\d{10}$/.test(valor);
+  return validarTelefonoDetallado(valor) === '';
+}
+
+function validarTelefonoDetallado(valor) {
+  if (!valor) {
+    return 'Telefono obligatorio.';
+  }
+  if (!/^\d+$/.test(valor)) {
+    return 'Solo numeros.';
+  }
+  if (valor.length !== 10) {
+    return 'Debe tener 10 digitos.';
+  }
+  return '';
 }
 
 /**
@@ -113,10 +145,14 @@ function validarFortalezaContrasena() {
   if (!password || !errorDiv) return;
 
   const valor = password.value;
+  const allowedPasswordPattern = /^[A-Za-z0-9!@#$%^&*(),.?":{}|<>]+$/;
   
   // Verificar cada requisito de seguridad
   const requisitos = {
     longitud: valor.length >= 8,                              // Mínimo 8 caracteres
+    maximo: valor.length <= 20,                               // Máximo 20 caracteres
+    sinEspacios: !/\s/.test(valor),                           // Sin espacios
+    permitidos: allowedPasswordPattern.test(valor),           // Sin emojis/tildes y otros no permitidos
     mayuscula: /[A-Z]/.test(valor),                           // Al menos una mayúscula
     minuscula: /[a-z]/.test(valor),                           // Al menos una minúscula
     numero: /[0-9]/.test(valor),                              // Al menos un número
@@ -136,6 +172,9 @@ function validarFortalezaContrasena() {
   // Construir lista HTML con cada requisito mostrando ✓ (cumplido) o ✗ (no cumplido)
   const requisitosLista = [
     `<li>${requisitos.longitud ? '✓' : '✗'} Mínimo 8 caracteres</li>`,
+    `<li>${requisitos.maximo ? '✓' : '✗'} Máximo 20 caracteres</li>`,
+    `<li>${requisitos.sinEspacios ? '✓' : '✗'} Sin espacios</li>`,
+    `<li>${requisitos.permitidos ? '✓' : '✗'} Sin caracteres no permitidos (emojis/tildes)</li>`,
     `<li>${requisitos.mayuscula ? '✓' : '✗'} Requiere mayúscula</li>`,
     `<li>${requisitos.minuscula ? '✓' : '✗'} Requiere minúscula</li>`,
     `<li>${requisitos.numero ? '✓' : '✗'} Requiere número</li>`,
@@ -200,13 +239,39 @@ function limpiarErrores() {
  */
 function mostrarErrorEnInput(input, mensaje) {
   if (!input || !input.parentNode) return;
+
+  const errorPrevio = input.parentNode.querySelector('.input-error[data-inline-error="true"]');
+  if (errorPrevio) {
+    errorPrevio.remove();
+  }
   
   // Crear div con la clase de estilos para errores
   const err = document.createElement('div');
   err.className = 'input-error';
+  err.classList.add('is-visible');
+  err.setAttribute('data-inline-error', 'true');
   err.textContent = mensaje;
   
   // Agregar el error debajo del input
+  input.parentNode.appendChild(err);
+}
+
+function actualizarErrorEnInput(input, mensaje) {
+  if (!input || !input.parentNode) return;
+
+  const errorPrevio = input.parentNode.querySelector('.input-error[data-inline-error="true"]');
+  if (errorPrevio) {
+    errorPrevio.remove();
+  }
+
+  if (!mensaje) {
+    return;
+  }
+
+  const err = document.createElement('div');
+  err.className = 'input-error is-visible';
+  err.setAttribute('data-inline-error', 'true');
+  err.textContent = mensaje;
   input.parentNode.appendChild(err);
 }
 
@@ -244,11 +309,9 @@ function mostrarAlerta(event) {
   }
 
   // Validar teléfono
-  if (!telefono || !telefono.value.trim()) {
-    mostrarErrorEnInput(telefono, 'El teléfono es obligatorio.');
-    hayErrores = true;
-  } else if (!validarTelefono(telefono.value.trim())) {
-    mostrarErrorEnInput(telefono, 'El teléfono debe tener exactamente 10 dígitos.');
+  const telefonoError = validarTelefonoDetallado(telefono ? telefono.value.trim() : '');
+  if (telefonoError) {
+    mostrarErrorEnInput(telefono, telefonoError);
     hayErrores = true;
   }
 
@@ -279,8 +342,12 @@ function mostrarAlerta(event) {
     hayErrores = true;
   } else {
     // Verificar todos los requisitos de seguridad
+    const allowedPasswordPattern = /^[A-Za-z0-9!@#$%^&*(),.?":{}|<>]+$/;
     const requisitos = {
       longitud: password.value.length >= 8,
+      maximo: password.value.length <= 20,
+      sinEspacios: !/\s/.test(password.value),
+      permitidos: allowedPasswordPattern.test(password.value),
       mayuscula: /[A-Z]/.test(password.value),
       minuscula: /[a-z]/.test(password.value),
       numero: /[0-9]/.test(password.value),

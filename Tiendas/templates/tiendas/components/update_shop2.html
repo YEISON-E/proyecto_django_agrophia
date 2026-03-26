@@ -10,9 +10,9 @@
                     {% csrf_token %}
 
                     <div class="shop-update__group">
-                        <label for="tiene_punto_fisico" class="shop-update__label">La tienda cuenta con punto fisico?</label>
+                        <label for="tiene_punto_fisico" class="shop-update__label">La tienda cuenta con punto físico?</label>
                         <select id="tiene_punto_fisico" name="tiene_punto_fisico" class="shop-update__option" required>
-                            <option value="si" {% if valores.tiene_punto_fisico != 'no' %}selected{% endif %}>Si</option>
+                            <option value="si" {% if valores.tiene_punto_fisico != 'no' %}selected{% endif %}>Sí</option>
                             <option value="no" {% if valores.tiene_punto_fisico == 'no' %}selected{% endif %}>No</option>
                         </select>
                     </div>
@@ -31,16 +31,16 @@
                     </div>
 
                     <div class="shop-update__textarea">
-                        <label for="direccion" class="shop-update__label">Direccion de la tienda</label>
-                        <textarea id="direccion" name="direccion" class="shop-update__description" placeholder="Direccion de la tienda">{{ valores.direccion|default:'' }}</textarea>
+                        <label for="direccion" class="shop-update__label">Dirección de la tienda</label>
+                        <textarea id="direccion" name="direccion" class="shop-update__description" placeholder="Dirección de la tienda">{{ valores.direccion|default:'' }}</textarea>
                         {% if errores.direccion %}<small class="form-error">{{ errores.direccion }}</small>{% endif %}
                     </div>
 
                     </div>
 
                     <div class="shop-update__textarea">
-                        <label for="descripcion" class="shop-update__label">Descripcion breve de la tienda (opcional)</label>
-                        <textarea id="descripcion" name="descripcion" class="shop-update__description" placeholder="Descripcion breve de la tienda">{{ valores.descripcion|default:'' }}</textarea>
+                        <label for="descripcion" class="shop-update__label">Descripción breve de la tienda (opcional)</label>
+                        <textarea id="descripcion" name="descripcion" class="shop-update__description" placeholder="Descripción breve de la tienda">{{ valores.descripcion|default:'' }}</textarea>
                     </div>
 
                 </form>

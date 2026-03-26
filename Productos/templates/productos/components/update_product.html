@@ -7,7 +7,7 @@
     {% csrf_token %}
 
     <div class="product-form__upload">
-      <label class="product-form__label">Imagenes actuales</label>
+      <label class="product-form__label">Imágenes actuales</label>
       <div class="product-form__preview-grid">
         {% for image in existing_images %}
           <div class="product-form__preview-item" data-existing-image-item>
@@ -16,18 +16,18 @@
             <button type="button" class="product-form__preview-remove" data-delete-image-button aria-label="Eliminar imagen">×</button>
           </div>
         {% empty %}
-          <p class="product-form__helper">No hay imagenes registradas.</p>
+          <p class="product-form__helper">No hay imágenes registradas.</p>
         {% endfor %}
       </div>
     </div>
 
     <div class="product-form__upload">
       <label for="update-input-fotos" class="product-form__dropzone" id="update-dropzone-fotos">
-        <strong>Agregar nuevas imagenes</strong>
+        <strong>Agregar nuevas imágenes</strong>
         {% if can_upload_more_images %}
         <span id="update-fotos-counter" class="product-form__counter">0 nuevas | {{ existing_images_count }}/8 actuales</span>
         {% else %}
-        <span id="update-fotos-counter" class="product-form__counter">Ya tienes 8/8 imagenes. Elimina alguna para agregar nuevas.</span>
+        <span id="update-fotos-counter" class="product-form__counter">Ya tienes 8/8 imágenes. Elimina alguna para agregar nuevas.</span>
         {% endif %}
       </label>
       <input id="update-input-fotos" name="new_images" type="file" accept="image/*" multiple class="product-form_input--file" {% if not can_upload_more_images %}disabled{% endif %}>
@@ -84,13 +84,13 @@
         </div>
 
         <div class="product-form__group">
-          <label for="descripcion" class="product-form__label">Descripcion</label>
+          <label for="descripcion" class="product-form__label">Descripción</label>
           <textarea id="descripcion" name="descripcion" class="product-form__input product-form__input--textarea" rows="4" required>{{ valores.descripcion }}</textarea>
           <div class="input-error"{% if not errores.descripcion %} style="display: none;"{% endif %}>{{ errores.descripcion }}</div>
         </div>
 
         <div class="product-form__group">
-          <label for="garantia" class="product-form__label">Garantia</label>
+          <label for="garantia" class="product-form__label">Garantía</label>
           <input id="garantia" name="garantia" class="product-form__input" value="{{ valores.garantia }}" required>
           <div class="input-error"{% if not errores.garantia %} style="display: none;"{% endif %}>{{ errores.garantia }}</div>
         </div>

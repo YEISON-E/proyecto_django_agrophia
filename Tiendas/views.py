@@ -1,3 +1,19 @@
+"""
+Vistas del modulo de tiendas.
+
+Este modulo gestiona el flujo del agricultor y su tienda:
+- Verificacion de existencia de tienda activa/inactiva.
+- Creacion de tienda en dos pasos con persistencia temporal en sesion.
+- Perfil de tienda y perfil publico del vendedor.
+- Activacion/desactivacion de tienda y sincronizacion con productos.
+- Redirecciones de rutas legacy del frontend estatico.
+
+Aspectos importantes:
+- El flujo de creacion usa token firmado para asociar propietario.
+- Al desactivar tienda, tambien se desactivan sus productos.
+- Las vistas del panel agricultor exigen autenticacion y tienda activa.
+"""
+
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
@@ -9,6 +25,8 @@ from django.urls import reverse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from datetime import datetime
+from urllib.parse import urlencode
+import uuid
 
 from .models import Shop
 from Productos.models import Product
@@ -16,18 +34,21 @@ from usuarios.models import Register
 
 
 def user_has_shop(user):
+	"""Retorna `True` si el usuario autenticado tiene una tienda activa."""
 	if not user or not user.is_authenticated:
 		return False
 	return Shop.objects.filter(owner=user, is_active=True).exists()
 
 
 def user_has_inactive_shop(user):
+	"""Retorna `True` si el usuario autenticado tiene tienda inactiva."""
 	if not user or not user.is_authenticated:
 		return False
 	return Shop.objects.filter(owner=user, is_active=False).exists()
 
 
 def resolve_legacy_tienda_route(page):
+	"""Mapea rutas legacy del frontend a nombres de rutas Django."""
 	legacy_routes = {
 		"create-shop.html": ("redirect", "tiendas:create_farmer_perfil"),
 		"create-farmer-perfil.html": ("redirect", "tiendas:create_farmer_perfil"),
@@ -43,6 +64,7 @@ def resolve_legacy_tienda_route(page):
 
 
 def _get_register_user(request):
+	"""Obtiene el perfil `Register` del usuario autenticado actual."""
 	register_user = Register.objects.filter(id_usuario=request.user.id).first()
 	if not register_user:
 		register_user = Register.objects.filter(numero_documento=request.user.username).first()
@@ -50,6 +72,11 @@ def _get_register_user(request):
 
 
 def _get_shop_flow_owner(request):
+	"""Resuelve el propietario del flujo de creacion de tienda.
+
+	Prioriza el usuario autenticado y, si no existe, usa el ID guardado
+	en sesion durante el flujo multi-paso.
+	"""
 	if request.user.is_authenticated:
 		request.session["shop_flow_owner_id"] = request.user.id
 		return request.user
@@ -61,21 +88,42 @@ def _get_shop_flow_owner(request):
 	return User.objects.filter(id=owner_id).first()
 
 
+def _resolve_owner_from_token(owner_token):
+	"""Resuelve el usuario propietario a partir de un token firmado."""
+	if not owner_token:
+		return None
+	try:
+		owner_data = signing.loads(owner_token, max_age=7200)
+		owner_user_id = owner_data.get("owner_user_id")
+		if owner_user_id:
+			return User.objects.filter(id=owner_user_id).first()
+	except (BadSignature, SignatureExpired, TypeError, ValueError):
+		return None
+	return None
+
+
 @never_cache
 def create_farmer_perfil(request):
+	"""Inicia el flujo de creacion de tienda para agricultor autenticado."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 	request.session["shop_flow_owner_id"] = request.user.id
+	flow_id = uuid.uuid4().hex
+	request.session["shop_flow_id"] = flow_id
+	request.session.pop("shop_step1", None)
 	if user_has_shop(request.user):
 		return redirect("tiendas:interface_farmer")
 	shop_owner_token = signing.dumps({"owner_user_id": request.user.id})
-	return render(request, "tiendas/create-farmer-perfil.html", {
+	return render(request, "tiendas/create-shop.html", {
 		"shop_owner_token": shop_owner_token,
+		"valores": {},
+		"shop_flow_id": flow_id,
 	})
 
 
 @never_cache
 def interface_farmer(request):
+	"""Renderiza el panel principal del agricultor con sus productos activos."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 	if not user_has_shop(request.user):
@@ -101,12 +149,14 @@ def interface_farmer(request):
 
 @never_cache
 def review_product_farmer(request, product_id):
+	"""Redireccion de compatibilidad al detalle de producto del agricultor."""
 	return redirect("productos:review_product_farmer", product_id=product_id)
 
 
 @require_POST
 @never_cache
 def disable_product_farmer(request, product_id):
+	"""Desactiva un producto del agricultor desde el panel de tienda."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -119,6 +169,7 @@ def disable_product_farmer(request, product_id):
 
 @never_cache
 def profile_shop(request):
+	"""Muestra el perfil de la tienda asociada al usuario autenticado."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -138,6 +189,7 @@ def profile_shop(request):
 @require_POST
 @never_cache
 def disable_shop(request):
+	"""Desactiva la tienda activa y deshabilita sus productos asociados."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -163,6 +215,7 @@ def disable_shop(request):
 @require_POST
 @never_cache
 def activate_shop(request):
+	"""Reactiva una tienda inactiva del usuario autenticado."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -183,6 +236,7 @@ def activate_shop(request):
 
 @never_cache
 def mensajes_farmer(request):
+	"""Redireccion al modulo de mensajes del agricultor."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -191,8 +245,12 @@ def mensajes_farmer(request):
 
 @never_cache
 def seller_profile(request, shop_id):
+	"""Muestra el perfil publico de un vendedor y sus productos activos."""
 	shop = get_object_or_404(Shop, id=shop_id, is_active=True)
 	register_user = Register.objects.filter(id_usuario=shop.owner_id).first()
+	back_url = (request.GET.get("next") or "").strip()
+	if not back_url.startswith("/"):
+		back_url = reverse("usuarios:home_customer")
 	productos = (
 		Product.objects.filter(shop=shop, is_active=True, stock__gt=0)
 		.prefetch_related("images")
@@ -202,70 +260,129 @@ def seller_profile(request, shop_id):
 		"shop": shop,
 		"register_user": register_user,
 		"productos": productos,
+		"back_url": back_url,
 	})
 
 
 @never_cache
 def create_product(request):
+	"""Redireccion de compatibilidad al paso 1 de creacion de producto."""
 	return redirect("productos:create_product")
 
 
 @never_cache
 def create_product2(request):
+	"""Redireccion de compatibilidad al paso 2 de creacion de producto."""
 	return redirect("productos:create_product2")
 
 
 @never_cache
 def create_shop_step1(request):
+	"""Procesa el primer paso de creacion de tienda.
+
+	Guarda en sesion los datos base (nombre, contacto y ubicacion) para
+	completar el alta en el segundo paso.
+	"""
+	# 1) Resuelve propietario del flujo (sesion o token firmado).
 	flow_owner = _get_shop_flow_owner(request)
+	if not flow_owner and request.method == "GET":
+		flow_owner = _resolve_owner_from_token(request.GET.get("owner_token", ""))
+		if flow_owner:
+			request.session["shop_flow_owner_id"] = flow_owner.id
+	flow_id = request.session.get("shop_flow_id")
+	if request.method == "GET":
+		flow_id = uuid.uuid4().hex
+		request.session["shop_flow_id"] = flow_id
+	elif not flow_id:
+		flow_id = uuid.uuid4().hex
+		request.session["shop_flow_id"] = flow_id
 	if not flow_owner and request.method == "POST":
-		owner_token = request.POST.get("owner_token", "")
-		if owner_token:
-			try:
-				owner_data = signing.loads(owner_token, max_age=7200)
-				owner_user_id = owner_data.get("owner_user_id")
-				if owner_user_id:
-					flow_owner = User.objects.filter(id=owner_user_id).first()
-					if flow_owner:
-						request.session["shop_flow_owner_id"] = flow_owner.id
-			except (BadSignature, SignatureExpired, TypeError, ValueError):
-				flow_owner = None
+		flow_owner = _resolve_owner_from_token(request.POST.get("owner_token", ""))
+		if flow_owner:
+			request.session["shop_flow_owner_id"] = flow_owner.id
 
 	if not flow_owner:
-		return redirect("usuarios:login")
+		return redirect("tiendas:create_farmer_perfil")
 	if user_has_shop(flow_owner):
 		return redirect("tiendas:interface_farmer")
 
+	# 2) Captura y valida datos base del formulario de tienda.
 	if request.method == "POST":
+		nombre = request.POST.get("nombre", "").strip()
+		telefono = request.POST.get("telefono", "").strip()
+		email = request.POST.get("email", "").strip()
+		departamento = request.POST.get("departamento", "").strip()
+		municipio = request.POST.get("municipio", "").strip()
+
+		errores = {}
+		if len(nombre) > 50:
+			errores["nombre"] = "El nombre de la tienda no puede superar 50 caracteres."
+
+		valores = {
+			"nombre": nombre,
+			"telefono": telefono,
+			"email": email,
+			"departamento": departamento,
+			"municipio": municipio,
+		}
+
+		if errores:
+			shop_owner_token = signing.dumps({"owner_user_id": flow_owner.id})
+			return render(request, "tiendas/create-shop.html", {
+				"shop_owner_token": shop_owner_token,
+				"valores": valores,
+				"errores": errores,
+				"shop_flow_id": flow_id,
+			})
+
+		# 3) Persiste paso 1 en sesion para continuar en el paso 2.
 		request.session["shop_step1"] = {
 			"owner_user_id": flow_owner.id,
-			"nombre": request.POST.get("nombre"),
-			"telefono": request.POST.get("telefono"),
-			"email": request.POST.get("email"),
-			"departamento": request.POST.get("departamento"),
-			"municipio": request.POST.get("municipio"),
+			"nombre": nombre,
+			"telefono": telefono,
+			"email": email,
+			"departamento": departamento,
+			"municipio": municipio,
 		}
 		return redirect("tiendas:create_shop_step2")
 
-	valores = request.session.get("shop_step1", {})
 	shop_owner_token = signing.dumps({"owner_user_id": flow_owner.id})
 	return render(request, "tiendas/create-shop.html", {
 		"shop_owner_token": shop_owner_token,
-		"valores": valores,
+		"valores": {},
+		"shop_flow_id": flow_id,
 	})
 
 
 @never_cache
 def create_shop_step2(request):
+	"""Completa la creacion de tienda con datos operativos adicionales.
+
+	Valida horarios y direccion cuando hay punto fisico, crea la tienda,
+	limpia la sesion del flujo y finaliza redirigiendo al login.
+	"""
+	# 1) Recupera contexto del paso 1 y propietario del flujo.
 	step1 = request.session.get("shop_step1")
+	flow_id = request.session.get("shop_flow_id", "")
 	owner_user_id = step1.get("owner_user_id") if step1 else request.session.get("shop_flow_owner_id")
 	owner_user = User.objects.filter(id=owner_user_id).first() if owner_user_id else None
+	request_owner_token = request.POST.get("owner_token", "") if request.method == "POST" else request.GET.get("owner_token", "")
+	if not owner_user and request_owner_token:
+		owner_user = _resolve_owner_from_token(request_owner_token)
+		if owner_user:
+			request.session["shop_flow_owner_id"] = owner_user.id
 	flow_user = request.user if request.user.is_authenticated else owner_user
+	shop_owner_token = signing.dumps({"owner_user_id": owner_user.id}) if owner_user else ""
 
 	if flow_user and user_has_shop(flow_user) and not step1:
 		return redirect("tiendas:interface_farmer")
+	# Si se pierde sesion del paso 1, redirige de forma segura al inicio del flujo.
 	if request.method == "GET" and not step1:
-		return redirect("tiendas:create_shop_step1") if request.user.is_authenticated else redirect("usuarios:login")
+		step1_url = reverse("tiendas:create_shop_step1")
+		if shop_owner_token:
+			query = urlencode({"owner_token": shop_owner_token})
+			return redirect(f"{step1_url}?{query}")
+		return redirect(step1_url)
 
 	errores = {}
 	valores = {
@@ -276,9 +393,15 @@ def create_shop_step2(request):
 		"descripcion": "",
 	}
 
+	# 2) Valida reglas operativas (horario/direccion) y aplica consistencia de owner.
 	if request.method == "POST":
 		if not step1:
 			return redirect("tiendas:create_shop_step1")
+		if not owner_user:
+			owner_user = _resolve_owner_from_token(request.POST.get("owner_token", ""))
+			if owner_user:
+				request.session["shop_flow_owner_id"] = owner_user.id
+				shop_owner_token = signing.dumps({"owner_user_id": owner_user.id})
 		if not owner_user:
 			request.session.pop("shop_step1", None)
 			return redirect("usuarios:login")
@@ -330,8 +453,11 @@ def create_shop_step2(request):
 			return render(request, "tiendas/create-shop2.html", {
 				"errores": errores,
 				"valores": valores,
+				"shop_flow_id": flow_id,
+				"shop_owner_token": shop_owner_token,
 			})
 
+		# 3) Crea tienda definitiva con datos combinados de ambos pasos.
 		Shop.objects.create(
 			owner=owner_user,
 			nombre=step1["nombre"],
@@ -345,19 +471,24 @@ def create_shop_step2(request):
 			descripcion=descripcion,
 		)
 
+		# 4) Limpia sesion del wizard y cierra sesion para forzar relogin limpio.
 		del request.session["shop_step1"]
 		request.session.pop("shop_flow_owner_id", None)
+		request.session.pop("shop_flow_id", None)
 		logout(request)
 		return redirect(f"{reverse('usuarios:login')}?shop_created=1")
 
 	return render(request, "tiendas/create-shop2.html", {
 		"errores": errores,
 		"valores": valores,
+		"shop_flow_id": flow_id,
+		"shop_owner_token": shop_owner_token,
 	})
 
 
 @never_cache
 def update_shop_step1(request):
+	"""Captura el primer paso de actualizacion de una tienda existente."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -423,6 +554,7 @@ def update_shop_step1(request):
 
 @never_cache
 def update_shop_step2(request):
+	"""Aplica el segundo paso de actualizacion y guarda cambios finales."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 

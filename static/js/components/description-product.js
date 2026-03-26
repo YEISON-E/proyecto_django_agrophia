@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
       window.setTimeout(() => {
         alertBox.remove();
       }, isError ? 0 : 250);
-    }, 1500);
+    }, 4000);
   };
 
   const requestProductQuantity = (maxStock) => new Promise((resolve) => {

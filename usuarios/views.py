@@ -1,4 +1,18 @@
-# Create your views here.
+"""
+Vistas del modulo de usuarios.
+
+Este archivo centraliza autenticacion, registro y gestion de perfil:
+- Inicio/cierre de sesion para clientes y administradores.
+- Control de seguridad de login (intentos fallidos, bloqueo temporal y 2FA admin).
+- Registro de usuarios en dos pasos con archivos temporales.
+- Actualizacion de perfil en dos pasos y cambio de contrasena.
+- Recuperacion de contrasena mediante codigo por correo.
+- Rutas publicas, compatibilidad legacy y vistas legales.
+
+Nota:
+Por su alcance, este archivo contiene utilidades auxiliares para validaciones,
+sincronizacion entre `Register` y `User`, y navegacion segura con parametro next.
+"""
 from django.http import HttpResponse
 
 from django.shortcuts import render, redirect
@@ -10,6 +24,7 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.views import LoginView
 
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import check_password, identify_hasher, make_password
 
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
@@ -22,6 +37,7 @@ from django.core.mail import send_mail
 from django.core import signing
 from django.utils import timezone
 from datetime import timedelta
+import math
 import random
 import string
 
@@ -36,7 +52,84 @@ from django.core.files.storage import FileSystemStorage
 # from django.contrib.auth.decorators import login_required
 
 
+PASSWORD_ALLOWED_RE = re.compile(r'^[A-Za-z0-9!@#$%^&*(),.?":{}|<>]+$')
+MAX_FAILED_LOGIN_ATTEMPTS = 3
+LOCKOUT_MINUTES = 30
+
+
+def _validate_password_policy(password):
+    """Valida la politica de contrasena y retorna mensaje de error o `None`."""
+    if not password:
+        return "La contraseña es obligatoria."
+    if len(password) < 8:
+        return "Debe tener al menos 8 caracteres."
+    if len(password) > 20:
+        return "La contraseña no debe superar 20 caracteres."
+    if re.search(r"\s", password):
+        return "La contraseña no puede contener espacios."
+    if not PASSWORD_ALLOWED_RE.fullmatch(password):
+        return "La contraseña contiene caracteres no permitidos."
+    if not re.search(r'[A-Z]', password):
+        return "Debe contener al menos una mayúscula."
+    if not re.search(r'[a-z]', password):
+        return "Debe contener al menos una minúscula."
+    if not re.search(r'[0-9]', password):
+        return "Debe contener al menos un número."
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return "Debe contener al menos un carácter especial (!@#$%^&*)."
+    return None
+
+
+def _is_hashed_password(value):
+    """Indica si una cadena corresponde a un hash reconocido por Django."""
+    if not value:
+        return False
+    try:
+        identify_hasher(value)
+        return True
+    except Exception:
+        return False
+
+
+def _verify_register_password(register_user, raw_password):
+    """Verifica contrasena contra `Register`, soportando hash o texto legacy."""
+    stored_password = (register_user.contrasena or "").strip()
+    if not stored_password:
+        return False
+    if _is_hashed_password(stored_password):
+        return check_password(raw_password, stored_password)
+    return stored_password == raw_password
+
+
+def _set_register_password(register_user, raw_password, save=True):
+    """Guarda la contrasena en `Register` usando hash seguro de Django."""
+    register_user.contrasena = make_password(raw_password)
+    if save:
+        register_user.save(update_fields=["contrasena"])
+
+
+def _send_temporary_lock_email(register_user, blocked_until):
+    """Envia correo notificando bloqueo temporal por intentos fallidos."""
+    local_blocked_until = timezone.localtime(blocked_until)
+    tz_name = timezone.get_current_timezone_name()
+
+    send_mail(
+        subject='Bloqueo temporal por intentos fallidos - Agrophia',
+        message=(
+            'Detectamos multiples intentos fallidos de inicio de sesion en tu cuenta.\n\n'
+            'Tu cuenta ha sido bloqueada temporalmente hasta: '
+            f'{local_blocked_until.strftime("%Y-%m-%d %H:%M:%S")} ({tz_name}).\n'
+            'Podras intentar iniciar sesion nuevamente despues de 30 minutos.\n\n'
+            'Si no reconoces esta actividad, te recomendamos cambiar tu contraseña cuando recuperes el acceso.'
+        ),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[register_user.correo_electronico],
+        fail_silently=False,
+    )
+
+
 def _get_register_user(request):
+    """Obtiene el perfil `Register` del usuario autenticado actual."""
     register_user = Register.objects.filter(id_usuario=request.user.id).first()
     if not register_user:
         register_user = Register.objects.filter(numero_documento=request.user.username).first()
@@ -44,6 +137,7 @@ def _get_register_user(request):
 
 
 def _resolve_safe_next_url(request, default_name="usuarios:profile"):
+    """Resuelve un destino `next` seguro y permitido para redireccion."""
     candidate = (
         request.POST.get("next")
         or request.GET.get("next")
@@ -225,16 +319,9 @@ def update_perfil2(request):
                 errores["current_password"] = "La contraseña actual es incorrecta."
 
             if new_password:
-                if len(new_password) < 8:
-                    errores["new_password"] = "Debe tener al menos 8 caracteres."
-                elif not re.search(r'[A-Z]', new_password):
-                    errores["new_password"] = "Debe contener al menos una mayúscula."
-                elif not re.search(r'[a-z]', new_password):
-                    errores["new_password"] = "Debe contener al menos una minúscula."
-                elif not re.search(r'[0-9]', new_password):
-                    errores["new_password"] = "Debe contener al menos un número."
-                elif not re.search(r'[!@#$%^&*(),.?\":{}|<>]', new_password):
-                    errores["new_password"] = "Debe contener al menos un carácter especial (!@#$%^&*)."
+                password_error = _validate_password_policy(new_password)
+                if password_error:
+                    errores["new_password"] = password_error
                 elif current_password and new_password == current_password:
                     errores["new_password"] = "La nueva contraseña debe ser diferente a la actual."
 
@@ -263,7 +350,7 @@ def update_perfil2(request):
         register_user.descripcion_perfil = descripcion
 
         if new_password:
-            register_user.contrasena = new_password
+            _set_register_password(register_user, new_password, save=False)
 
         foto_temp_path = request.session.get("update_foto_temp_path")
         if foto_temp_path and os.path.exists(foto_temp_path):
@@ -417,6 +504,8 @@ def legacy_frontend_view(request, page):
 
     action = legacy_routes.get(page)
     if not action:
+        if page.startswith("components/"):
+            return HttpResponse("", status=404)
         return redirect("usuarios:index")
 
     mode, target = action
@@ -441,11 +530,18 @@ class Logueo(LoginView):
     redirect_authenticated_user = False
 
     def post(self, request, *args, **kwargs):
+        """Procesa login con reglas de seguridad y flujo especial para admin.
+
+        Incluye validaciones de formato, control de intentos fallidos,
+        bloqueo temporal, sincronizacion `Register`/`User` y 2FA por codigo
+        para cuentas administrativas.
+        """
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "").strip()
 
         errores = {}
 
+        # 1) Validaciones de formato rapido de credenciales.
         # VALIDACIONES DOCUMENTO
         if not username:
             errores["username"] = "El número de documento es obligatorio."
@@ -470,6 +566,7 @@ class Logueo(LoginView):
                 "valores": {"username": username}
             })
 
+        # 2) Carga perfil de negocio (Register) asociado al documento.
         # BUSCAR EN TABLA REGISTER
         try:
             usuario_registro = Register.objects.get(numero_documento=username)
@@ -481,14 +578,72 @@ class Logueo(LoginView):
                 "valores": {"username": username}
             })
 
-        # VALIDAR CONTRASEÑA
-        if usuario_registro.contrasena != password:
-            errores["general"] = "Usuario o contraseña incorrectos."
+        now = timezone.now()
+
+    # 3) Gestiona ventana de bloqueo temporal por intentos fallidos.
+        # Si ya paso el tiempo de bloqueo, limpiar estado para reiniciar conteo.
+        if usuario_registro.blocked_until and usuario_registro.blocked_until <= now:
+            usuario_registro.blocked_until = None
+            usuario_registro.failed_login_attempts = 0
+            usuario_registro.save(update_fields=["blocked_until", "failed_login_attempts"])
+
+        if usuario_registro.blocked_until and usuario_registro.blocked_until > now:
+            remaining_seconds = (usuario_registro.blocked_until - now).total_seconds()
+            remaining_minutes = max(1, math.ceil(remaining_seconds / 60))
+            errores["general"] = (
+                "Tu cuenta esta bloqueada temporalmente por multiples intentos fallidos. "
+                f"Intenta nuevamente en {remaining_minutes} minuto(s)."
+            )
             return render(request, self.template_name, {
                 "errores": errores,
                 "valores": {"username": username}
             })
 
+        # 4) Verifica contrasena y actualiza contador/estado de bloqueo.
+        # VALIDAR CONTRASEÑA
+        if not _verify_register_password(usuario_registro, password):
+            failed_attempts = (usuario_registro.failed_login_attempts or 0) + 1
+
+            if failed_attempts >= MAX_FAILED_LOGIN_ATTEMPTS:
+                blocked_until = now + timedelta(minutes=LOCKOUT_MINUTES)
+                usuario_registro.failed_login_attempts = failed_attempts
+                usuario_registro.blocked_until = blocked_until
+                usuario_registro.save(update_fields=["failed_login_attempts", "blocked_until"])
+
+                try:
+                    _send_temporary_lock_email(usuario_registro, blocked_until)
+                except Exception:
+                    # No interrumpir el flujo de login si el correo falla.
+                    pass
+
+                errores["general"] = (
+                    "Has superado los 3 intentos de contraseña incorrecta. "
+                    "Tu cuenta fue bloqueada por 30 minutos y enviamos una notificacion a tu correo."
+                )
+            else:
+                usuario_registro.failed_login_attempts = failed_attempts
+                usuario_registro.save(update_fields=["failed_login_attempts"])
+                remaining_attempts = MAX_FAILED_LOGIN_ATTEMPTS - failed_attempts
+                errores["general"] = (
+                    "Usuario o contraseña incorrectos. "
+                    f"Te quedan {remaining_attempts} intento(s)."
+                )
+
+            return render(request, self.template_name, {
+                "errores": errores,
+                "valores": {"username": username}
+            })
+
+        if usuario_registro.failed_login_attempts or usuario_registro.blocked_until:
+            usuario_registro.failed_login_attempts = 0
+            usuario_registro.blocked_until = None
+            usuario_registro.save(update_fields=["failed_login_attempts", "blocked_until"])
+
+        # Migra en caliente cualquier contraseña legacy en texto plano.
+        if not _is_hashed_password(usuario_registro.contrasena):
+            _set_register_password(usuario_registro, password)
+
+        # 5) Si la cuenta esta inactiva/bloqueada, registra notificacion al admin.
         # VALIDAR ESTADO
         if usuario_registro.estado not in ['activo', 'admin']:
             try:
@@ -502,7 +657,7 @@ class Logueo(LoginView):
                 if sender_user is None:
                     sender_user = User.objects.create_user(
                         username=username,
-                        password=usuario_registro.contrasena,
+                        password=None,
                         email=usuario_registro.correo_electronico,
                         first_name=usuario_registro.nombres,
                         last_name=usuario_registro.apellidos,
@@ -546,6 +701,7 @@ class Logueo(LoginView):
                 "blocked_account_token": blocked_account_token,
             })
 
+        # 6) Sincroniza/crea usuario auth de Django vinculado al perfil Register.
         # Resolver primero el usuario auth asociado al Register para no perder
         # la relación Shop.owner cuando el id ya existe en base de datos.
         user = None
@@ -589,6 +745,7 @@ class Logueo(LoginView):
             usuario_registro.id_usuario = user.id
             usuario_registro.save(update_fields=["id_usuario"])
 
+        # 7) Login base exitoso; para admin exige segundo factor por correo.
         # LOGIN OK
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         # Si es admin, exigir segundo factor antes de entrar al panel.
@@ -653,6 +810,7 @@ class Logueo(LoginView):
 
 
 def register_step_1(request):
+    """Captura y persiste temporalmente los datos del primer paso de registro."""
     if request.method == "POST":
         documento = request.POST["documento"]
         
@@ -686,10 +844,14 @@ def register_step_1(request):
 
         return redirect("usuarios:register2")
 
-    return render(request, "register.html")
+    valores = request.session.get("register_step_1", {})
+    return render(request, "register.html", {
+        "valores": valores,
+    })
 
 
 def register_step_2(request):
+    """Completa el registro creando `User` y `Register` con validaciones."""
     valores = {}
     errores = {}
 
@@ -722,22 +884,9 @@ def register_step_2(request):
         }
 
         # Validar que las contraseñas coincidan
-        if password != confirm:
-            errores["password"] = "Las contraseñas no coinciden."
-        
-        # Validar contraseña
-        if not password:
-            errores["password"] = "La contraseña es obligatoria."
-        elif len(password) < 8:
-            errores["password"] = "Debe tener al menos 8 caracteres."
-        elif not re.search(r'[A-Z]', password):
-            errores["password"] = "Debe contener al menos una mayúscula."
-        elif not re.search(r'[a-z]', password):
-            errores["password"] = "Debe contener al menos una minúscula."
-        elif not re.search(r'[0-9]', password):
-            errores["password"] = "Debe contener al menos un número."
-        elif not re.search(r'[!@#$%^&*(),.?\":{}|<>]', password):
-            errores["password"] = "Debe contener al menos un carácter especial (!@#$%^&*)."
+        password_error = _validate_password_policy(password)
+        if password_error:
+            errores["password"] = password_error
         elif password != confirm:
             errores["password"] = "Las contraseñas no coinciden."
 
@@ -797,7 +946,7 @@ def register_step_2(request):
             municipio=municipio,
             direccion_completa=direccion,
             descripcion_perfil=descripcion,
-            contrasena=password,
+            contrasena=make_password(password),
         )
 
         # Guardar la foto si existe
@@ -823,6 +972,7 @@ def register_step_2(request):
     return render(request, "register2.html", {"valores": valores, "errores": errores})
 
 def olvidaste_contrasena(request):
+    """Inicia recuperacion de contrasena enviando codigo al correo registrado."""
     # Limpia códigos vencidos para evitar que queden datos obsoletos en BD.
     Register.objects.filter(
         fecha_expiracion_codigo__lt=timezone.now()
@@ -899,6 +1049,7 @@ Equipo Agrophia
     })
 
 def restablecer_contrasena(request):
+    """Valida codigo de recuperacion y actualiza la contrasena del usuario."""
     # Limpia códigos vencidos para evitar que queden datos obsoletos en BD.
     Register.objects.filter(
         fecha_expiracion_codigo__lt=timezone.now()
@@ -925,18 +1076,9 @@ def restablecer_contrasena(request):
             errores["codigo"] = "El código debe tener 6 dígitos."
 
         # VALIDAR PASSWORD
-        if not password:
-            errores["password"] = "La contraseña es obligatoria."
-        elif len(password) < 8:
-            errores["password"] = "Debe tener al menos 8 caracteres."
-        elif not re.search(r'[A-Z]', password):
-            errores["password"] = "Debe contener al menos una mayúscula."
-        elif not re.search(r'[a-z]', password):
-            errores["password"] = "Debe contener al menos una minúscula."
-        elif not re.search(r'[0-9]', password):
-            errores["password"] = "Debe contener al menos un número."
-        elif not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
-            errores["password"] = "Debe contener al menos un carácter especial (!@#$%^&*)."
+        password_error = _validate_password_policy(password)
+        if password_error:
+            errores["password"] = password_error
 
         # CONFIRMAR PASSWORD
         if password != confirm_password:
@@ -964,7 +1106,7 @@ def restablecer_contrasena(request):
                 # Si todo está bien, cambiar la contraseña
                 if not errores:
                     # Actualizar contraseña en Register
-                    registro.contrasena = password
+                    registro.contrasena = make_password(password)
                     registro.codigo_reset = None
                     registro.fecha_expiracion_codigo = None
                     registro.save()
@@ -1000,14 +1142,17 @@ from django.views.decorators.http import require_GET
 
 @require_GET
 def aviso_privacidad(request):
+    """Renderiza la vista legal de aviso de privacidad."""
     return render(request, "aviso_privacidad.html")
 
 @require_GET
 def terminos_uso(request):
+    """Renderiza la vista legal de terminos de uso."""
     return render(request, "terminos_uso.html")
 
 @require_GET
 def preguntas_frecuentes(request):
+    """Renderiza la pagina de preguntas frecuentes."""
     return render(request, "preguntas_frecuentes.html")
 
 from django.views.decorators.http import require_POST
@@ -1015,6 +1160,7 @@ from django.http import JsonResponse
 
 @require_POST
 def marcar_mensaje_admin_leido(request):
+    """Marca como leido un mensaje administrativo del usuario autenticado."""
     if not request.user.is_authenticated:
         return JsonResponse({'ok': False, 'error': 'No autenticado'}, status=403)
     from Mensajes.models import AdminToUserMessage
@@ -1035,6 +1181,7 @@ def marcar_mensaje_admin_leido(request):
 
 @require_POST
 def enviar_mensaje_admin_usuario_bloqueado(request):
+    """Envia al administrador una solicitud desde una cuenta bloqueada."""
     token = (request.POST.get('token') or '').strip()
     texto = (request.POST.get('message') or '').strip()
 
@@ -1069,7 +1216,7 @@ def enviar_mensaje_admin_usuario_bloqueado(request):
     if sender_user is None:
         sender_user = User.objects.create_user(
             username=usuario_registro.numero_documento,
-            password=usuario_registro.contrasena,
+            password=None,
             email=usuario_registro.correo_electronico,
             first_name=usuario_registro.nombres,
             last_name=usuario_registro.apellidos,

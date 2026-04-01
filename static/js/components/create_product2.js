@@ -74,6 +74,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const validateStep2 = () => {
         let hasErrors = false;
+        const garantiaPattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,:/%\-]+$/;
 
         const precioRaw = (precioInput.value || "").trim();
         const precio = Number(precioRaw);
@@ -106,6 +107,9 @@ document.addEventListener("DOMContentLoaded", function () {
         } else if (descripcion.length < 10) {
             setError("error-descripcion-producto", "La descripción debe tener al menos 10 caracteres.");
             hasErrors = true;
+        } else if (descripcion.length > 255) {
+            setError("error-descripcion-producto", "La descripción no debe superar 255 caracteres.");
+            hasErrors = true;
         } else {
             setError("error-descripcion-producto", "");
         }
@@ -116,6 +120,12 @@ document.addEventListener("DOMContentLoaded", function () {
             hasErrors = true;
         } else if (garantia.length < 3) {
             setError("error-garantia-producto", "El tiempo de durabilidad debe tener al menos 3 caracteres.");
+            hasErrors = true;
+        } else if (garantia.length > 120) {
+            setError("error-garantia-producto", "La garantía no debe superar 120 caracteres.");
+            hasErrors = true;
+        } else if (!garantiaPattern.test(garantia)) {
+            setError("error-garantia-producto", "La garantía contiene caracteres no permitidos.");
             hasErrors = true;
         } else {
             setError("error-garantia-producto", "");

@@ -188,9 +188,9 @@
   box-shadow: 0 10px 24px rgba(22,163,74,0.16);
 }
 .shop-edit-cancel {
-  background: linear-gradient(90deg, #6366f1 60%, #a5b4fc 100%);
+  background: linear-gradient(90deg, #515151 60%, #6b7280 100%);
   color: #fff;
-  box-shadow: 0 10px 24px rgba(99,102,241,0.16);
+  box-shadow: 0 10px 24px rgba(81,81,81,0.16);
 }
 .shop-edit-btn:hover,
 .shop-edit-cancel:hover {
@@ -202,12 +202,37 @@
   background: linear-gradient(90deg, #15803d 60%, #16a34a 100%);
 }
 .shop-edit-cancel:hover {
-  background: linear-gradient(90deg, #3730a3 60%, #6366f1 100%);
+  background: linear-gradient(90deg, #3b3b3b 60%, #515151 100%);
 }
 .shop-edit-action-icon {
   width: 18px;
   height: 18px;
   flex: 0 0 18px;
+}
+
+.user-detail-owner-card {
+  margin-top: 24px;
+  padding: 12px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  color: #232323;
+  font-size: 0.98em;
+  box-shadow: 0 1px 2px 0 rgba(60,60,120,0.03);
+}
+
+.user-detail-owner-card__title {
+  color: #232323;
+  display: inline-block;
+  margin-bottom: 8px;
+  border-bottom: 2px solid #6366f1;
+  padding-bottom: 2px;
+  font-weight: 700;
+}
+
+.user-detail-grid--owner {
+  margin-bottom: 0;
+  gap: 10px 18px;
 }
 @media (max-width: 700px) {
   .user-detail-main { padding: 8px 2px; }

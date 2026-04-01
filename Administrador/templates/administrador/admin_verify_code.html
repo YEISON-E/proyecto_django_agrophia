@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verificar Codigo Admin</title>
+  <title>Verificar Código Admin</title>
   <link rel="icon" href="{% static 'icons/planta.png' %}">
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   <link rel="stylesheet" href="{% static 'css/admin_security.css' %}">
@@ -12,8 +12,8 @@
 <body>
   <div class="admin-auth">
     <div class="admin-auth__card">
-      <h1 class="admin-auth__title">Verificacion de seguridad</h1>
-      <p class="admin-auth__hint">Ingresa el codigo de 6 caracteres enviado a tu correo de administrador.</p>
+      <h1 class="admin-auth__title">Verificación de seguridad</h1>
+      <p class="admin-auth__hint">Ingresa el código de 6 caracteres enviado a tu correo de administrador.</p>
 
       {% if remaining_seconds >= 0 %}
       <p
@@ -22,7 +22,7 @@
         data-remaining="{{ remaining_seconds }}"
         data-login-url="{% url 'usuarios:login' %}"
       >
-        El codigo expira en <strong id="admin-code-remaining">{{ remaining_seconds }}</strong> segundos.
+        El código expira en <strong id="admin-code-remaining">{{ remaining_seconds }}</strong> segundos.
       </p>
       {% endif %}
 
@@ -36,7 +36,7 @@
 
       <form method="post" class="admin-auth__form">
         {% csrf_token %}
-        <label class="admin-auth__label" for="code">Codigo de verificacion</label>
+        <label class="admin-auth__label" for="code">Código de verificación</label>
         <input class="admin-auth__input admin-auth__input--code" id="code" name="code" type="text" maxlength="6" minlength="6" required>
 
         <button class="admin-auth__button" id="admin-code-submit" type="submit">Ingresar al panel</button>

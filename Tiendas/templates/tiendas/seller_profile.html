@@ -20,81 +20,7 @@
   {% include 'components/navbar-home.html' %}
 
   <main>
-    <div class="seller-profile">
-
-      <a href="{% url 'usuarios:home_customer' %}" class="seller-profile__back">
-        &#8592; Atrás
-      </a>
-
-      <!-- Hero Card -->
-      <div class="seller-profile__hero">
-        <div class="seller-profile__hero-content">
-          {% if register_user and register_user.foto %}
-            <img src="{{ register_user.foto.url }}" alt="{{ shop.nombre }}" class="seller-profile__avatar">
-          {% else %}
-            <img src="{% static 'icons/planta.png' %}" alt="{{ shop.nombre }}" class="seller-profile__avatar">
-          {% endif %}
-
-          <div>
-            <h1 class="seller-profile__name">
-              {% if register_user %}{{ register_user.nombres }} {{ register_user.apellidos }}{% else %}Agricultor{% endif %}
-            </h1>
-            <p class="seller-profile__shop-name">{{ shop.nombre }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Info Cards Grid -->
-      <div class="seller-profile__grid-cards">
-        <div class="seller-profile__card">
-          <p class="seller-profile__card-title">Ubicación</p>
-          <p class="seller-profile__card-value">{{ shop.municipio }}, {{ shop.departamento }}</p>
-        </div>
-
-        <div class="seller-profile__card">
-          <p class="seller-profile__card-title">Teléfono</p>
-          <p class="seller-profile__card-value">{{ shop.telefono }}</p>
-        </div>
-
-        <div class="seller-profile__card">
-          <p class="seller-profile__card-title">Correo</p>
-          <p class="seller-profile__card-value">{{ shop.email }}</p>
-        </div>
-
-        {% if shop.punto_fisico %}
-        <div class="seller-profile__card">
-          <p class="seller-profile__card-title">Horario</p>
-          <p class="seller-profile__card-value">{{ shop.horario }}</p>
-        </div>
-        {% endif %}
-      </div>
-
-      <!-- Descripción -->
-      {% if shop.descripcion %}
-      <div class="seller-profile__description-wrap">
-        <p class="seller-profile__description-title">Acerca de este vendedor</p>
-        <p class="seller-profile__description">{{ shop.descripcion }}</p>
-      </div>
-      {% endif %}
-
-      <!-- Productos -->
-      <div class="seller-profile__products-section">
-        <h2 class="seller-profile__products-title">Productos disponibles</h2>
-
-        {% if productos %}
-        <section class="card-home__container-section">
-          <div class="card-home__container card-home__container--single-row">
-            {% for product in productos %}
-              {% include 'productos/components/card-home.html' %}
-            {% endfor %}
-          </div>
-        </section>
-        {% else %}
-        <p class="seller-profile__empty">Este vendedor no tiene productos disponibles en este momento.</p>
-        {% endif %}
-      </div>
-
-    </div>
+    {% include 'tiendas/components/seller_profile.html' %}
   </main>
 
   <footer class="footer">
@@ -108,6 +34,7 @@
   </div>
 
   <script src="{% static 'js/components/cart.js' %}" defer></script>
+  <script src="{% static 'js/components/seller_profile.js' %}" defer></script>
 
 </body>
 </html>

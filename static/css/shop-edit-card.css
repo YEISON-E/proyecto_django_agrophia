@@ -1,6 +1,6 @@
 /* Estilo inspirado en usuario_detalle_card.css para editar tienda */
 .shop-edit-main {
-  max-width: 800px;
+  max-width: 680px;
   margin: 32px auto;
   background: #f3f4f8;
   border-radius: 12px;
@@ -24,6 +24,37 @@
   border-bottom: 2px solid #16a34a;
   display: inline-block;
   padding-bottom: 2px;
+}
+
+.shop-edit-grid--order-detail .shop-edit-label {
+  width: 100%;
+  justify-self: start;
+  display: block;
+}
+
+.shop-edit-grid--order-detail {
+  grid-template-columns: 170px 1fr;
+  column-gap: 12px;
+}
+
+.shop-edit-main--order-detail .shop-edit-btn {
+  background: linear-gradient(90deg, #16a34a 60%, #4ade80 100%);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(22,163,74,0.16);
+}
+
+.shop-edit-main--order-detail .shop-edit-cancel {
+  background: linear-gradient(90deg, #6b7280 60%, #9ca3af 100%);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(107,114,128,0.16);
+}
+
+.shop-edit-main--order-detail .shop-edit-btn:hover {
+  background: linear-gradient(90deg, #15803d 60%, #16a34a 100%);
+}
+
+.shop-edit-main--order-detail .shop-edit-cancel:hover {
+  background: linear-gradient(90deg, #4b5563 60%, #6b7280 100%);
 }
 .shop-edit-value {
   color: #232323;
@@ -92,7 +123,7 @@
   cursor: pointer;
 }
 .shop-edit-cancel {
-  background: linear-gradient(90deg, #6366f1 60%, #a5b4fc 100%);
+  background: linear-gradient(90deg, #515151 60%, #6b7280 100%);
 }
 .shop-edit-btn:hover, .shop-edit-cancel:hover {
   background: linear-gradient(90deg, #15803d 60%, #16a34a 100%);
@@ -101,7 +132,7 @@
   transform: translateY(-2px);
 }
 .shop-edit-cancel:hover {
-  background: linear-gradient(90deg, #3730a3 60%, #6366f1 100%);
+  background: linear-gradient(90deg, #3b3b3b 60%, #515151 100%);
 }
 .shop-edit-action-icon {
   width: 18px;

@@ -1,3 +1,18 @@
+"""
+Vistas del modulo de mensajeria.
+
+Este archivo cubre comunicacion entre cliente y agricultor, incluyendo:
+- Conversaciones de mensajes enviados por clientes.
+- Bandeja de entrada para agricultores con conversacion por remitente.
+- Respuestas individuales y por conversacion.
+- Rechazo de mensajes y actualizacion de estados.
+- Envio de mensajes desde detalle de producto via peticiones asincronas.
+
+Objetivo funcional:
+Mantener trazabilidad del intercambio (mensaje base y respuestas) para mostrar
+un historial de chat ordenado cronologicamente.
+"""
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
@@ -14,18 +29,95 @@ from .models import CustomerMessage, FarmerReply
 
 @never_cache
 def sent_messages(request):
+	"""Muestra conversaciones iniciadas por el cliente autenticado.
+
+	Agrupa mensajes por vendedor y producto para construir un historial tipo
+	chat con orden cronologico y seleccion de conversacion activa.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
 	messages_sent = CustomerMessage.objects.select_related("product", "receiver").filter(sender=request.user)
-	messages_sent = messages_sent.prefetch_related("farmer_replies")
+	messages_sent = messages_sent.prefetch_related("farmer_replies").order_by("created_at")
+	notice = request.session.pop("sent_messages_notice", "")
+
+	# 1) Agrupa mensajes por (vendedor, producto) para representar conversaciones.
+	conversations_by_key = {}
+	for message in messages_sent:
+		key = (message.receiver_id, message.product_id)
+		conversation = conversations_by_key.get(key)
+		if not conversation:
+			conversation = {
+				"receiver": message.receiver,
+				"product": message.product,
+				"base_messages": [],
+				"chat_items": [],
+				"last_message_at": message.created_at,
+				"last_preview": "",
+			}
+			conversations_by_key[key] = conversation
+
+		conversation["base_messages"].append(message)
+
+	# 2) Convierte cada conversacion a una secuencia de chat cronologica.
+	for conversation in conversations_by_key.values():
+		items = []
+		for message in conversation["base_messages"]:
+			items.append({
+				"kind": "customer",
+				"content": message.content,
+				"created_at": message.created_at,
+				"status": message.status,
+				"message": message,
+			})
+			for reply in message.farmer_replies.all():
+				items.append({
+					"kind": "farmer",
+					"content": reply.content,
+					"created_at": reply.created_at,
+					"status": None,
+					"message": message,
+				})
+
+		items.sort(key=lambda item: item["created_at"])
+		conversation["chat_items"] = items
+		if items:
+			conversation["last_message_at"] = items[-1]["created_at"]
+			conversation["last_preview"] = (items[-1]["content"] or "").strip()[:60]
+
+	# 3) Ordena conversaciones por actividad reciente y resuelve seleccion activa.
+	conversations = sorted(
+		conversations_by_key.values(),
+		key=lambda item: item["last_message_at"],
+		reverse=True,
+	)
+
+	selected_receiver = (request.GET.get("receiver") or "").strip()
+	selected_product = (request.GET.get("product") or "").strip()
+	selected_conversation = None
+	if selected_receiver.isdigit() and selected_product.isdigit():
+		selected_conversation = conversations_by_key.get((int(selected_receiver), int(selected_product)))
+	if not selected_conversation and conversations:
+		selected_conversation = conversations[0]
+
+	# 4) Prepara payload final para render del panel izquierdo + chat.
+	chat_items = selected_conversation["chat_items"] if selected_conversation else []
+	selected_base_message_id = None
+	if selected_conversation and selected_conversation["base_messages"]:
+		selected_base_message_id = selected_conversation["base_messages"][-1].id
+
 	return render(request, "mensajes/sent_messages.html", {
-		"messages_sent": messages_sent,
+		"conversations": conversations,
+		"selected_conversation": selected_conversation,
+		"chat_items": chat_items,
+		"selected_base_message_id": selected_base_message_id,
+		"notice": notice,
 	})
 
 
 @require_POST
 def delete_sent_message(request, message_id):
+	"""Elimina un mensaje enviado por el cliente propietario del registro."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -35,8 +127,41 @@ def delete_sent_message(request, message_id):
 	return redirect("mensajes:sent_messages")
 
 
+@require_POST
+def customer_reply_message(request, message_id):
+	"""Permite al cliente responder una conversacion ya existente."""
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	base_message = get_object_or_404(CustomerMessage, pk=message_id, sender=request.user)
+	reply_content = (request.POST.get("reply") or "").strip()
+
+	if not reply_content:
+		request.session["sent_messages_notice"] = "Escribe un mensaje para responder."
+		return redirect("mensajes:sent_messages")
+
+	if len(reply_content) > 500:
+		request.session["sent_messages_notice"] = "La respuesta no debe superar 500 caracteres."
+		return redirect("mensajes:sent_messages")
+
+	CustomerMessage.objects.create(
+		sender=request.user,
+		receiver=base_message.receiver,
+		product=base_message.product,
+		content=reply_content,
+	)
+
+	request.session["sent_messages_notice"] = "Respuesta enviada al vendedor."
+	return redirect(f"{reverse('mensajes:sent_messages')}?receiver={base_message.receiver_id}&product={base_message.product_id}")
+
+
 @never_cache
 def farmer_messages(request):
+	"""Lista la bandeja de conversaciones para el agricultor autenticado.
+
+	Agrupa por remitente, calcula mensajes pendientes y selecciona el chat
+	activo segun querystring o el mas reciente por defecto.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 	if not user_has_shop(request.user):
@@ -46,6 +171,7 @@ def farmer_messages(request):
 		receiver=request.user,
 	).prefetch_related("farmer_replies")
 
+	# 1) Agrupa la bandeja por remitente y calcula pendientes por conversacion.
 	conversations_by_sender = {}
 	for message in messages_received:
 		sender_id = message.sender_id
@@ -68,6 +194,7 @@ def farmer_messages(request):
 			conversation["last_message_at"] = message.created_at
 			conversation["last_preview"] = (message.content or "").strip()[:60]
 
+	# 2) Orden cronologico interno de cada chat + orden global por recencia.
 	for conversation in conversations_by_sender.values():
 		conversation["messages"].sort(key=lambda item: item.created_at)
 
@@ -87,6 +214,7 @@ def farmer_messages(request):
 	elif conversations:
 		selected_chat_id = conversations[0]["sender"].id
 
+	# 3) Renderiza lista de conversaciones y panel de chat seleccionado.
 	selected_conversation = conversations_by_sender.get(selected_chat_id)
 	selected_messages = selected_conversation["messages"] if selected_conversation else []
 
@@ -100,6 +228,7 @@ def farmer_messages(request):
 
 @require_POST
 def send_message(request):
+	"""Crea un mensaje de cliente hacia el propietario de un producto."""
 	if not request.user.is_authenticated:
 		return JsonResponse({"ok": False, "message": "No autenticado."}, status=401)
 
@@ -136,6 +265,7 @@ def send_message(request):
 
 @require_POST
 def reply_message(request, message_id):
+	"""Registra respuesta o rechazo del agricultor a un mensaje puntual."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -168,6 +298,11 @@ def reply_message(request, message_id):
 
 @require_POST
 def reply_conversation(request, sender_id):
+	"""Responde o rechaza en bloque los pendientes de una conversacion.
+
+	La respuesta se asocia al ultimo mensaje de la conversacion para mantener
+	trazabilidad del hilo.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 

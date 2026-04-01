@@ -81,6 +81,7 @@
     display: flex;
     gap:4px;
     flex-direction: column;
+    position: relative;
 }
 
 .form__option {
@@ -307,18 +308,45 @@
 .input-error {
     color: var(--white);
     font-size: var(--fs-xxs);
-    margin-top: 6px;
-    margin-left: 4px;
+    margin: 0;
     font-weight: 500;
-    display: flex;
+    display: none;
     align-items: center;
     gap: 6px;
     animation: slideDown 0.3s ease-out;
 }
 
+.input-error.is-visible {
+    display: flex;
+}
+
 .input-error::before {
+    content: '';
+}
+
+.input-error.is-visible:not(:empty)::before {
     content: '⚠';
     flex-shrink: 0;
+}
+
+#register-form-step1 .form__group .input-error,
+#register-form .form__group .input-error {
+    position: absolute;
+    top: 90%;
+    left: 4px;
+    z-index: 5;
+}
+
+#register-form #error-password,
+#register-form #error-confirm-password {
+    position: static;
+    top: auto;
+    left: auto;
+    margin-top: 4px;
+    width: 100%;
+    max-width: 320px;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 /* ===== LISTA DE REQUISITOS DE CONTRASEÑA ===== */
@@ -327,7 +355,8 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    max-width: 300px;
+    width: 100%;
+    max-width: 320px;
     display: flex;
     flex-direction: column;
     gap: 6px;

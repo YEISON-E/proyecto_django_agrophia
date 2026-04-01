@@ -67,6 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
         Granos: ["Libra", "Kilo", "Arroba"],
         Otros: ["Libra", "Kilo", "Arroba", "Litro"],
     };
+    const allowedProductNamePattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,\-]+$/;
 
     const setError = (id, message) => {
         const el = document.getElementById(id);
@@ -98,6 +99,12 @@ document.addEventListener("DOMContentLoaded", function () {
             hasErrors = true;
         } else if (nombre.length < 3) {
             setError("error-nombre-producto", "El nombre debe tener al menos 3 caracteres.");
+            hasErrors = true;
+        } else if (nombre.length > 120) {
+            setError("error-nombre-producto", "El nombre no debe superar 120 caracteres.");
+            hasErrors = true;
+        } else if (!allowedProductNamePattern.test(nombre)) {
+            setError("error-nombre-producto", "El nombre contiene caracteres no permitidos.");
             hasErrors = true;
         } else {
             setError("error-nombre-producto", "");

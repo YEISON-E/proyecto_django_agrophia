@@ -93,9 +93,9 @@
   box-shadow: 0 10px 24px rgba(22,163,74,0.16);
 }
 .shop-edit-cancel {
-  background: linear-gradient(90deg, #6366f1 60%, #a5b4fc 100%);
+  background: linear-gradient(90deg, #515151 60%, #6b7280 100%);
   color: #fff;
-  box-shadow: 0 10px 24px rgba(99,102,241,0.16);
+  box-shadow: 0 10px 24px rgba(81,81,81,0.16);
 }
 .shop-edit-btn:hover,
 .shop-edit-cancel:hover {
@@ -107,7 +107,7 @@
   background: linear-gradient(90deg, #15803d 60%, #16a34a 100%);
 }
 .shop-edit-cancel:hover {
-  background: linear-gradient(90deg, #3730a3 60%, #6366f1 100%);
+  background: linear-gradient(90deg, #3b3b3b 60%, #515151 100%);
 }
 .form-error {
   color: #dc2626;

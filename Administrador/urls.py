@@ -20,6 +20,7 @@ urlpatterns = [
     path('productos/', views.producs_page_view, name='producs_page'),
     path('usuarios/<int:usuario_id>/', views.usuario_admin_detalle_view, name='usuario_admin_detalle'),
     path('usuarios/<int:usuario_id>/editar/', views.usuario_admin_editar_view, name='usuario_admin_editar'),
+    path('usuarios/<int:usuario_id>/enviar_recuperacion/', views.usuario_admin_enviar_recuperacion_view, name='usuario_admin_enviar_recuperacion'),
     path('usuarios/<int:usuario_id>/block/', views.usuario_admin_block_view, name='usuario_admin_block'),
     path('usuarios/<int:usuario_id>/unblock/', views.usuario_admin_unblock_view, name='usuario_admin_unblock'),
     path('usuarios/<int:usuario_id>/enviar_mensaje/', views.usuario_admin_enviar_mensaje_view, name='usuario_admin_enviar_mensaje'),

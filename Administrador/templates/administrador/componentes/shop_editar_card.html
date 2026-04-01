@@ -1,31 +1,49 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/shop-edit-card.css' %}">
-<div class="shop-edit-main">
+<link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
+<div class="user-detail-main">
   <form method="post">
     {% csrf_token %}
-    <h2 style="text-align:center;color:#16a34a;margin-bottom:18px;">Editar Tienda</h2>
-    <div class="shop-edit-grid">
-      <div class="shop-edit-label">Nombre</div>
-      <div class="shop-edit-value"><input type="text" name="nombre" value="{{ valores.nombre|default:'' }}" required></div>
-      <div class="shop-edit-label">Teléfono</div>
-      <div class="shop-edit-value"><input type="text" name="telefono" value="{{ valores.telefono|default:'' }}" required></div>
-      <div class="shop-edit-label">Correo electrónico</div>
-      <div class="shop-edit-value"><input type="email" name="email" value="{{ valores.email|default:'' }}" required></div>
-      <div class="shop-edit-label">Departamento</div>
-      <div class="shop-edit-value">
-        <select id="departamento-select" name="departamento" required>
-          <option value="">Selecciona un departamento</option>
-          {% for dep, municipios in departamentos_municipios.items %}
-            <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
-          {% endfor %}
-        </select>
+    <div class="user-detail-grid">
+      <div class="user-detail-avatar">
+        {% if usuario_info and usuario_info.foto %}
+          <img src="{{ usuario_info.foto.url }}" alt="Foto del propietario" style="width:55px;height:55px;border-radius:50%;object-fit:cover;">
+        {% else %}
+          <span style="display:flex;align-items:center;justify-content:center;width:55px;height:55px;font-size:1.2em;background:#6366f1;color:#fff;border-radius:50%;">{{ tienda.nombre|slice:":1"|upper }}</span>
+        {% endif %}
       </div>
-      <div class="shop-edit-label">Municipio</div>
-      <div class="shop-edit-value">
-        <select id="municipio-select" name="municipio" required>
-          <option value="">Selecciona un municipio</option>
-          {% if valores.departamento and valores.municipio %}
-            {% with municipios=departamentos_municipios|dictsort:valores.departamento %}
+      <div>
+        <div class="user-detail-label">ID tienda</div>
+        <div class="user-detail-value"><input type="text" value="{{ tienda.id }}" readonly></div>
+      </div>
+      <div>
+        <div class="user-detail-label">Nombre tienda</div>
+        <div class="user-detail-value"><input type="text" name="nombre" value="{{ valores.nombre|default:'' }}" required></div>
+      </div>
+      <div>
+        <div class="user-detail-label">Teléfono</div>
+        <div class="user-detail-value"><input type="text" name="telefono" value="{{ valores.telefono|default:'' }}" required></div>
+      </div>
+      <div>
+        <div class="user-detail-label">Correo</div>
+        <div class="user-detail-value"><input type="email" name="email" value="{{ valores.email|default:'' }}" required></div>
+      </div>
+      <div>
+        <div class="user-detail-label">Departamento</div>
+        <div class="user-detail-value">
+          <select id="departamento-select" name="departamento" required>
+            <option value="">Selecciona un departamento</option>
+            {% for dep, municipios in departamentos_municipios.items %}
+              <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div>
+        <div class="user-detail-label">Municipio</div>
+        <div class="user-detail-value">
+          <select id="municipio-select" name="municipio" required>
+            <option value="">Selecciona un municipio</option>
+            {% if valores.departamento and valores.municipio %}
               {% for dep, municipios_list in departamentos_municipios.items %}
                 {% if dep == valores.departamento %}
                   {% for mun in municipios_list %}
@@ -33,51 +51,160 @@
                   {% endfor %}
                 {% endif %}
               {% endfor %}
-            {% endwith %}
-          {% endif %}
-        </select>
+            {% endif %}
+          </select>
+        </div>
       </div>
+      <div>
+        <div class="user-detail-label">Horario</div>
+        <div class="user-detail-value"><input type="text" name="horario" value="{{ valores.horario|default:'' }}"></div>
       </div>
-      <script>
-      // Diccionario de departamentos y municipios para JS
-      const departamentosMunicipios = {
-        {% for dep, municipios in departamentos_municipios.items %}
-          "{{ dep }}": [{% for mun in municipios %}"{{ mun }}"{% if not forloop.last %},{% endif %}{% endfor %}],
-        {% endfor %}
-      };
-
-      const departamentoSelect = document.getElementById('departamento-select');
-      const municipioSelect = document.getElementById('municipio-select');
-
-      departamentoSelect.addEventListener('change', function() {
-        const dep = this.value;
-        municipioSelect.innerHTML = '<option value="">Selecciona un municipio</option>';
-        if (departamentosMunicipios[dep]) {
-          departamentosMunicipios[dep].forEach(function(mun) {
-            const opt = document.createElement('option');
-            opt.value = mun;
-            opt.textContent = mun;
-            municipioSelect.appendChild(opt);
-          });
-        }
-      });
-      </script>
-      <div class="shop-edit-label">Dirección</div>
-      <div class="shop-edit-value"><input type="text" name="direccion" value="{{ valores.direccion|default:'' }}"></div>
-      <div class="shop-edit-label">Horario</div>
-      <div class="shop-edit-value"><input type="text" name="horario" value="{{ valores.horario|default:'' }}"></div>
-      <div class="shop-edit-label">Descripción</div>
-      <div class="shop-edit-value"><textarea name="descripcion">{{ valores.descripcion|default:'' }}</textarea></div>
+      <div>
+        <div class="user-detail-label">Punto físico</div>
+        <div class="user-detail-value"><input type="text" value="{{ tienda.punto_fisico|yesno:'Sí,No' }}" readonly></div>
+      </div>
+      <div>
+        <div class="user-detail-label">Estado tienda</div>
+        <div class="user-detail-value"><input type="text" value="{{ tienda.is_active|yesno:'Activa,Inactiva' }}" readonly></div>
+      </div>
+      <div style="grid-column: 1 / 3;">
+        <div class="user-detail-label">Dirección</div>
+        <div class="user-detail-value"><input type="text" name="direccion" value="{{ valores.direccion|default:'' }}"></div>
+      </div>
+      <div style="grid-column: 1 / 3;">
+        <div class="user-detail-label">Descripción</div>
+        <div class="user-detail-value"><textarea name="descripcion">{{ valores.descripcion|default:'' }}</textarea></div>
+      </div>
     </div>
-    {% if errores %}
-      <div class="form-error" style="margin-top:12px;">{{ errores.nombre }}{{ errores.telefono }}{{ errores.email }}{{ errores.departamento }}{{ errores.municipio }}</div>
+
+    {% if usuario_info %}
+      <div class="user-detail-owner-card">
+        <div class="user-detail-owner-card__title">Información personal del propietario</div>
+        <div class="user-detail-grid user-detail-grid--owner">
+          <div>
+            <div class="user-detail-label">ID usuario</div>
+            <div class="user-detail-value"><input type="text" value="{{ usuario_info.id_usuario }}" readonly></div>
+          </div>
+          <div>
+            <div class="user-detail-label">Tipo documento</div>
+            <div class="user-detail-value"><input type="text" name="owner_tipo_documento" value="{{ valores.owner_tipo_documento|default:'' }}" required></div>
+          </div>
+          <div>
+            <div class="user-detail-label">Número documento</div>
+            <div class="user-detail-value"><input type="text" name="owner_numero_documento" value="{{ valores.owner_numero_documento|default:'' }}" required></div>
+          </div>
+          <div>
+            <div class="user-detail-label">Nombres</div>
+            <div class="user-detail-value"><input type="text" name="owner_nombres" value="{{ valores.owner_nombres|default:'' }}" required></div>
+          </div>
+          <div>
+            <div class="user-detail-label">Apellidos</div>
+            <div class="user-detail-value"><input type="text" name="owner_apellidos" value="{{ valores.owner_apellidos|default:'' }}" required></div>
+          </div>
+          <div>
+            <div class="user-detail-label">Correo</div>
+            <div class="user-detail-value"><input type="email" name="owner_correo_electronico" value="{{ valores.owner_correo_electronico|default:'' }}" required></div>
+          </div>
+          <div>
+            <div class="user-detail-label">Teléfono</div>
+            <div class="user-detail-value"><input type="text" name="owner_telefono" value="{{ valores.owner_telefono|default:'' }}" required></div>
+          </div>
+          <div>
+            <div class="user-detail-label">Departamento</div>
+            <div class="user-detail-value">
+              <select id="owner-departamento-select" name="owner_departamento" required>
+                <option value="">Selecciona un departamento</option>
+                {% for dep, municipios in departamentos_municipios.items %}
+                  <option value="{{ dep }}" {% if valores.owner_departamento == dep %}selected{% endif %}>{{ dep }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div>
+            <div class="user-detail-label">Municipio</div>
+            <div class="user-detail-value">
+              <select id="owner-municipio-select" name="owner_municipio" required>
+                <option value="">Selecciona un municipio</option>
+                {% if valores.owner_departamento and valores.owner_municipio %}
+                  {% for dep, municipios_list in departamentos_municipios.items %}
+                    {% if dep == valores.owner_departamento %}
+                      {% for mun in municipios_list %}
+                        <option value="{{ mun }}" {% if valores.owner_municipio == mun %}selected{% endif %}>{{ mun }}</option>
+                      {% endfor %}
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </select>
+            </div>
+          </div>
+          <div style="grid-column: 1 / 3;">
+            <div class="user-detail-label">Dirección</div>
+            <div class="user-detail-value"><input type="text" name="owner_direccion_completa" value="{{ valores.owner_direccion_completa|default:'' }}" required></div>
+          </div>
+        </div>
+      </div>
     {% endif %}
+
+    {% if errores %}
+      <div class="form-error" style="margin-top:12px;">
+        {% for campo, error in errores.items %}
+          {{ error }}<br>
+        {% endfor %}
+      </div>
+    {% endif %}
+
     <div class="shop-edit-footer">
-      <a href="{% url 'administrador:store_admin' %}" class="shop-edit-cancel">&larr; Cancelar</a>
+      <a href="{% url 'administrador:tienda_admin_detalle' tienda.id %}" class="shop-edit-cancel" data-history-back="true" data-fallback-url="{% url 'administrador:tienda_admin_detalle' tienda.id %}">&larr; Volver</a>
       <button type="submit" class="shop-edit-btn">Guardar cambios</button>
     </div>
+
     {% if success %}
       <div class="editar-tienda-success">Tienda editada exitosamente.</div>
     {% endif %}
   </form>
 </div>
+{{ departamentos_municipios|json_script:"departamentos-municipios-data" }}
+<script>
+  const departamentosMunicipios = JSON.parse(
+    document.getElementById('departamentos-municipios-data').textContent
+  );
+
+  function bindDepartamentoMunicipio(departamentoId, municipioId) {
+    const departamentoSelect = document.getElementById(departamentoId);
+    const municipioSelect = document.getElementById(municipioId);
+    if (!departamentoSelect || !municipioSelect) return;
+
+    departamentoSelect.addEventListener('change', function() {
+      const dep = this.value;
+      municipioSelect.innerHTML = '<option value="">Selecciona un municipio</option>';
+      if (departamentosMunicipios[dep]) {
+        departamentosMunicipios[dep].forEach(function(mun) {
+          const opt = document.createElement('option');
+          opt.value = mun;
+          opt.textContent = mun;
+          municipioSelect.appendChild(opt);
+        });
+      }
+    });
+  }
+
+  bindDepartamentoMunicipio('departamento-select', 'municipio-select');
+  bindDepartamentoMunicipio('owner-departamento-select', 'owner-municipio-select');
+
+  (function () {
+    const backLink = document.querySelector('[data-history-back="true"]');
+    if (!backLink) return;
+
+    backLink.addEventListener('click', function (event) {
+      event.preventDefault();
+      const fallbackUrl = backLink.getAttribute('data-fallback-url') || backLink.getAttribute('href') || '/';
+
+      if (window.history.length > 1) {
+        window.history.back();
+        return;
+      }
+
+      window.location.href = fallbackUrl;
+    });
+  })();
+</script>

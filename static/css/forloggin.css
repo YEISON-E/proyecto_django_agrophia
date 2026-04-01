@@ -233,18 +233,23 @@
     margin-top: 6px;
     margin-left: 4px;
     font-weight: 500;
-  display: none;
+  display: flex;
     align-items: center;
     gap: 6px;
     animation: slideDown 0.3s ease-out;
+}
+
+.input-error[style*="display: none"],
+.input-error[style*="display:none"] {
+  display: none !important;
 }
 
 .input-error.is-visible {
   display: flex;
 }
 
-.input-error.is-visible::before {
-    content: '⚠️'; /* Icono de advertencia */
+.input-error.is-visible:not(:empty)::before {
+  content: '⚠'; /* Icono de advertencia */
     flex-shrink: 0;
 }
 

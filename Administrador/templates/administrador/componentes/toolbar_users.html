@@ -8,13 +8,18 @@
     </div>
     <div class="header-home__group header-home__group--right">
       <ul class="navbar__list">
-        <li class="navbar__item"><a href="/administrador/usuarios/" class="navbar__link">Usuarios</a></li>
         <li class="navbar__item"><a href="#" class="navbar__link" id="toolbar-users-report-trigger">Generar Reporte</a></li>
         <li class="navbar__item"><a href="/administrador/usuarios/crear/" class="navbar__link">Nuevo Usuario</a></li>
         <!-- Eliminado enlace duplicado de Enviar mensaje -->
           <li class="navbar__item"><a href="#" class="navbar__link" id="toolbar-enviar-mensaje">Enviar mensaje</a></li>
         <li class="navbar__item"><a href="/administrador/logout/" class="navbar__link">Cerrar sesión</a></li>
       </ul>
+      <div class="toolbar-admin-search search-home-container">
+        <span class="search-home__icon">
+          <img src="{% static 'icons/search.svg' %}" width="20" height="20" alt="Buscar">
+        </span>
+        <input type="text" id="toolbar-users-search-input" class="search-home__bar" placeholder="Buscar usuarios" aria-label="Buscar en la tabla de usuarios">
+      </div>
       <div class="toolbar-main__row-icons">
         <a href="{% url 'administrador:admin_notifications' %}" class="toolbar-main__icon toolbar-main__icon--notification" title="Notificaciones" aria-label="Notificaciones">
           <img src="{% static 'icons/bell.svg' %}" alt="Notificaciones" class="toolbar-main__icon-img">
@@ -46,13 +51,80 @@
     </div>
     <form method="get" action="{% url 'administrador:reporte_usuarios' %}" id="toolbar-users-report-form" class="toolbar-report__form">
       <label class="toolbar-report__field">
-        <span>Formato de salida</span>
-        <select name="output_format" id="toolbar-users-output-format">
-          <option value="excel">Generar Excel</option>
-          <option value="print">Vista para imprimir</option>
+        <span>Tipo de reporte</span>
+        <select name="report_scope" id="toolbar-users-report-scope">
+          <option value="general">General (varios usuarios)</option>
+          <option value="individual">Individual (1 usuario)</option>
         </select>
       </label>
-      <p class="toolbar-report__help">Genera el reporte de usuarios con el mismo modal usado en el toolbar principal.</p>
+
+      <section id="toolbar-users-individual-section" class="toolbar-report__section" hidden>
+        <p class="toolbar-report__section-title">Reporte individual</p>
+        <label class="toolbar-report__field">
+          <span>Usuario individual (ID)</span>
+          <input type="number" name="usuario_id" id="toolbar-users-id-input" min="1" placeholder="Ej: 25">
+          <small id="toolbar-users-id-hint" class="toolbar-report__hint">Escribe un ID y verás la sugerencia del usuario.</small>
+        </label>
+      </section>
+
+      <section id="toolbar-users-general-section" class="toolbar-report__section">
+        <p class="toolbar-report__section-title">Filtrado especial</p>
+        <div class="toolbar-report__field-grid">
+          <label class="toolbar-report__field">
+            <span>Nombre contiene</span>
+            <input type="text" name="nombre" placeholder="Ej: Laura">
+          </label>
+          <label class="toolbar-report__field">
+            <span>Departamento</span>
+            <select name="departamento" id="toolbar-users-departamento">
+              <option value="">Todos</option>
+              {% for departamento in departamentos_municipios.keys %}
+              <option value="{{ departamento }}">{{ departamento }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </div>
+        <div class="toolbar-report__field-grid">
+          <label class="toolbar-report__field">
+            <span>Municipio</span>
+            <select name="municipio" id="toolbar-users-municipio">
+              <option value="">Todos</option>
+            </select>
+          </label>
+          <label class="toolbar-report__field">
+            <span>Estado</span>
+            <select name="estado">
+              <option value="todos">Todos</option>
+              <option value="activo">Activo</option>
+              <option value="inactivo">Inactivo</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <fieldset class="toolbar-report__fieldset" id="toolbar-users-fields-group">
+        <legend>Campos de perfil a incluir</legend>
+        <label class="toolbar-report__check"><input type="checkbox" name="all_fields" value="1" checked> Todos los campos</label>
+        <div class="toolbar-report__checks-grid">
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="id"> ID</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="nombres"> Nombres</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="apellidos"> Apellidos</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="tipo_documento"> Tipo doc.</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="numero_documento"> Número doc.</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="correo"> Correo</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="telefono"> Teléfono</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="departamento"> Departamento</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="municipio"> Municipio</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="direccion"> Dirección</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="estado"> Estado</label>
+        </div>
+      </fieldset>
+      <input type="hidden" name="output_format" value="pdf">
+      <p class="toolbar-report__help">
+        Usa <strong>General</strong> para listar varios usuarios con filtros (nombre, departamento, municipio, estado).
+        Usa <strong>Individual</strong> cuando quieras un solo usuario: escribe su ID en "Usuario individual (ID)" y el reporte incluirá sus datos de perfil + su historial en el sistema.
+        Si dejas "Todos los campos" activo, se exportan todos; si lo desmarcas, solo saldrán los campos que marques.
+      </p>
       <div class="toolbar-report__actions">
         <button type="button" class="toolbar-report__button toolbar-report__button--secondary" id="toolbar-users-report-cancel">Cancelar</button>
         <button type="submit" class="toolbar-report__button toolbar-report__button--primary">Generar</button>
@@ -60,4 +132,5 @@
     </form>
   </div>
 </div>
+{{ departamentos_municipios|json_script:"toolbar-users-departamentos-data" }}
 <script src="{% static 'js/components/toolbar_users.js' %}" defer></script>

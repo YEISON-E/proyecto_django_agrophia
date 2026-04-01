@@ -16,12 +16,12 @@
         <div id="shop-created-alert" class="shop-created-alert">
           <div class="shop-created-alert__backdrop"></div>
           <div class="shop-created-alert__card">
-            <h3 class="shop-created-alert__title">Informacion importante</h3>
+            <h3 class="shop-created-alert__title">Información importante</h3>
             <p class="shop-created-alert__message">Tu tienda fue creada exitosamente.
 
-Para continuar, inicia sesion nuevamente con tu usuario y contrasena.
+Para continuar, inicia sesión nuevamente con tu usuario y contraseña.
 
-Si deseas completar o actualizar la informacion de tu tienda, ingresa a la seccion Perfil.</p>
+Si deseas completar o actualizar la información de tu tienda, ingresa a la sección Perfil.</p>
             <button id="shop-created-confirm" type="button" class="shop-created-alert__confirm">Confirmar</button>
           </div>
         </div>
@@ -67,7 +67,7 @@ Si deseas completar o actualizar la informacion de tu tienda, ingresa a la secci
 {% if blocked_account_message %}
 <div class="reset-success-overlay profile-shop-alert-overlay profile-shop-alert-overlay--open" id="blocked-account-overlay" aria-hidden="false">
   <div class="reset-success-alert profile-shop-alert" role="dialog" aria-modal="true" aria-labelledby="blocked-account-title">
-    <h3 id="blocked-account-title" class="profile-shop-alert__title">Informacion importante</h3>
+    <h3 id="blocked-account-title" class="profile-shop-alert__title">Información importante</h3>
     <p class="profile-shop-alert__message">{{ blocked_account_message }}</p>
     <div class="profile-shop-alert__actions">
       <button type="button" class="profile-shop-alert__button profile-shop-alert__button--danger" id="blocked-account-open-message">Enviar mensaje al administrador</button>
@@ -84,7 +84,7 @@ Si deseas completar o actualizar la informacion de tu tienda, ingresa a la secci
       {% csrf_token %}
       <input type="hidden" id="blocked-account-token" name="token" value="{{ blocked_account_token|default:'' }}">
       <label for="blocked-account-message-text" class="seller-message-modal__label">Escribe tu mensaje</label>
-      <textarea id="blocked-account-message-text" class="seller-message-modal__textarea" name="message" maxlength="500" placeholder="Hola, deseo solicitar la reactivacion de mi cuenta..." required></textarea>
+      <textarea id="blocked-account-message-text" class="seller-message-modal__textarea" name="message" maxlength="500" placeholder="Hola, deseo solicitar la reactivación de mi cuenta..." required></textarea>
       <div class="seller-message-modal__actions">
         <button type="button" class="seller-message-modal__btn seller-message-modal__btn--secondary" id="blocked-account-message-close">Cancelar</button>
         <button type="submit" class="seller-message-modal__btn seller-message-modal__btn--primary">Enviar</button>
@@ -95,7 +95,7 @@ Si deseas completar o actualizar la informacion de tu tienda, ingresa a la secci
 
 <div class="reset-success-overlay profile-shop-alert-overlay" id="blocked-account-feedback-overlay" aria-hidden="true">
   <div class="reset-success-alert profile-shop-alert" role="dialog" aria-modal="true" aria-labelledby="blocked-account-feedback-title">
-    <h3 id="blocked-account-feedback-title" class="profile-shop-alert__title">Informacion</h3>
+    <h3 id="blocked-account-feedback-title" class="profile-shop-alert__title">Información</h3>
     <p class="profile-shop-alert__message" id="blocked-account-feedback-message">Mensaje</p>
     <div class="profile-shop-alert__actions">
       <button type="button" class="profile-shop-alert__button profile-shop-alert__button--secondary" id="blocked-account-feedback-close">Aceptar</button>

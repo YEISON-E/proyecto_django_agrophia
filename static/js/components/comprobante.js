@@ -1,6 +1,42 @@
 (function () {
   'use strict';
 
+  /* ── Local date/time (user computer timezone) ─────────────── */
+  const localDateNodes = document.querySelectorAll('.receipt-local-datetime[data-iso]');
+  if (localDateNodes.length) {
+    localDateNodes.forEach((node) => {
+      const iso = node.dataset.iso;
+      const format = node.dataset.format || 'short';
+      const date = new Date(iso);
+      if (Number.isNaN(date.getTime())) {
+        return;
+      }
+
+      const options = format === 'long'
+        ? {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+            hourCycle: 'h12',
+          }
+        : {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+            hourCycle: 'h12',
+          };
+
+      const formatted = new Intl.DateTimeFormat('es-CO', options).format(date);
+      node.textContent = formatted;
+    });
+  }
+
   /* ── Share button ──────────────────────────────────────────── */
   const shareBtn = document.getElementById('shareBtn');
   if (shareBtn) {

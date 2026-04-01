@@ -24,5 +24,9 @@ class Register(models.Model):
     # Campo para persistir validación de código admin
     admin_code_validated = models.BooleanField(default=False)
 
+    # Seguridad de inicio de sesion
+    failed_login_attempts = models.PositiveSmallIntegerField(default=0)
+    blocked_until = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.nombres} {self.apellidos} - {self.numero_documento}"

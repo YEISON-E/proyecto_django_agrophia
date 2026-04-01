@@ -6,9 +6,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const redirectUrl = flash.dataset.redirectUrl;
 
+  const noticeTotalDurationMs = 4000;
+  const noticeFadeDurationMs = 250;
+
   setTimeout(function () {
     flash.classList.add("flash-product-created--hide");
-  }, 1200);
+  }, noticeTotalDurationMs - noticeFadeDurationMs);
 
   setTimeout(function () {
     if (redirectUrl) {
@@ -16,5 +19,5 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
     flash.remove();
-  }, 1500);
+  }, noticeTotalDurationMs);
 });

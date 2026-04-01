@@ -23,6 +23,17 @@
   color: var(--gray-700);
 }
 
+.client-messages__notice {
+  margin: 0 0 16px 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #ecfdf3;
+  border: 1px solid #86d3ab;
+  color: #0f5132;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+}
+
 .client-messages__list {
   display: flex;
   flex-direction: column;
@@ -92,13 +103,15 @@
     color: var(--gray-200);
 }
 .client-messages__reply-input{
-    height: 48px;
+  min-height: 78px;
     width: 100%;
     padding: 12px 16px;
     font-size: var(--fs-xs);
     border-radius: 8px;
     background: var(--white);
+  border: 1px solid #d2d8e2;
     appearance: none;
+  resize: vertical;
 }
 .client-messages__row-buttons--cancel{
     display: flex;

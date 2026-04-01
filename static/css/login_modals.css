@@ -58,3 +58,7 @@
 .login-hidden-field-error {
   display: none;
 }
+
+.login-hidden-field-error.is-visible {
+  display: flex;
+}

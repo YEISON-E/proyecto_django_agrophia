@@ -1,10 +1,24 @@
 
 .login-container {
-  min-height: 100vh;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between; /* arriba y centro */
   box-sizing: border-box;
+}
+
+.login-page-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.page__left_login {
+  display: none;
+}
+
+.page__right_login {
+  width: 100%;
 }
 
 .register__back {
@@ -169,21 +183,13 @@
 }
 @media (width > 1024px){
   .page__left_login {
-  position: absolute;
-  /* top: 0; */
-  /* left: 0; */
-  width: 50%;
-  height: 86vh;   /* altura del viewport dinámico real */
-  overflow: hidden;
+  position: relative;
   display: flex;
+  width: 50%;
+  min-height: 100%;
+  overflow: hidden;
   justify-content: center;
   align-items: center;
-  background: 
-    linear-gradient(var(--overlay-dark), var(--overlay-dark)), 
-    url("{% static 'img/farmer.jpg' %}");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
 .login__title-left {
@@ -197,15 +203,20 @@
 
 .page__right_login{
   position: relative;
-  margin-left:50%;
   width:50%;
-  height: 86vh;
+  min-height: 100%;
   color: var(--black);
   display:flex;
   flex-direction:row;
   align-items:center;
   justify-content: center;
 }
+
+.login-page-layout {
+  flex-direction: row;
+  align-items: stretch;
+}
+
 .page__right::before, .page__right::after { 
   content:""; 
   display:block; 

@@ -60,12 +60,12 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     const unidadesPorTipo = {
-        Frutas: ["Libra", "Kilo", "Arroba"],
-        Vegetales: ["Libra", "Kilo", "Arroba"],
-        "Lácteos": ["Litro"],
-        Carne: ["Libra", "Kilo", "Arroba"],
-        Granos: ["Libra", "Kilo", "Arroba"],
-        Otros: ["Libra", "Kilo", "Arroba", "Litro"],
+        Frutas: ["Libra", "Kilo", "Arroba", "Unidad"],
+        Vegetales: ["Libra", "Kilo", "Arroba", "Unidad"],
+        "Lácteos": ["Litro", "Unidad"],
+        Carne: ["Libra", "Kilo", "Arroba", "Unidad"],
+        Granos: ["Libra", "Kilo", "Arroba", "Unidad"],
+        Otros: ["Libra", "Kilo", "Arroba", "Litro", "Unidad"],
     };
     const allowedProductNamePattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,\-]+$/;
 

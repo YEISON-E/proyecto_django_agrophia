@@ -7,21 +7,6 @@
  * - Hora de cierre mayor que la apertura
  */
 document.addEventListener("DOMContentLoaded", function () {
-    const backButton = document.querySelector("[data-history-back='true']");
-    backButton?.addEventListener("click", function (event) {
-        event.preventDefault();
-        const fallbackUrl = backButton.getAttribute("data-fallback-url") || backButton.getAttribute("href") || "/";
-        const referrer = document.referrer || "";
-        const cameFromLogin = referrer.includes("/usuarios/login/");
-
-        if (window.history.length > 1 && !cameFromLogin) {
-            window.history.back();
-            return;
-        }
-
-        window.location.href = fallbackUrl;
-    });
-
     // Formulario de paso 2
     const form = document.getElementById("create-shop-step2-form");
     if (!form) {
@@ -235,6 +220,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Previene submit si el horario es inválido
     form.addEventListener("submit", function (event) {
+        const actionInput = document.getElementById("create-shop-step2-action");
+        if (actionInput && actionInput.value === "back") {
+            persistStep2Fields();
+            return;
+        }
+
         submitAttempted = true;
         if (!validateHorario()) {
             event.preventDefault();

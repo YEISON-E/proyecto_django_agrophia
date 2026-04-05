@@ -20,13 +20,13 @@
                     <div class="form-shop__group">
                         <label for="telefono" class="form-shop__label">Teléfono</label>
                         <input type="tel" id="telefono" name="telefono" class="form-shop__input" placeholder="Teléfono" value="{{ valores.telefono|default:'' }}" required>
-                        <div id="error-telefono" class="input-error" style="display: none;"></div>
+                        <div id="error-telefono" class="input-error" style="display: none;" data-server-error="{{ errores.telefono|default:'' }}"></div>
                     </div>
 
                     <div class="form-shop__group">
                         <label for="email" class="form-shop__label">Correo Electrónico</label>
                         <input type="email" id="email" name="email" class="form-shop__input" placeholder="Correo" value="{{ valores.email|default:'' }}" required>
-                        <div id="error-email" class="input-error" style="display: none;"></div>
+                        <div id="error-email" class="input-error" style="display: none;" data-server-error="{{ errores.email|default:'' }}"></div>
                     </div>
 
                     <div class="form-shop__group">
@@ -37,7 +37,7 @@
                             <option value="Caldas" {% if valores.departamento == 'Caldas' %}selected{% endif %}>Caldas</option>
                             <option value="Quindio" {% if valores.departamento == 'Quindio' %}selected{% endif %}>Quindio</option>
                         </select>
-                        <div id="error-departamento" class="input-error" style="display: none;"></div>
+                        <div id="error-departamento" class="input-error" style="display: none;" data-server-error="{{ errores.departamento|default:'' }}"></div>
                     </div>
 
                     <div class="form-shop__group">
@@ -45,7 +45,7 @@
                         <select id="municipio" name="municipio" class="form-shop__option" data-selected-municipio="{{ valores.municipio|default:'' }}">
                             <option value="">Selecciona el Municipio</option>
                         </select>
-                        <div id="error-municipio" class="input-error" style="display: none;"></div>
+                        <div id="error-municipio" class="input-error" style="display: none;" data-server-error="{{ errores.municipio|default:'' }}"></div>
                     </div>
                 </form>
                 <div class="form-content__register--row-buttons">

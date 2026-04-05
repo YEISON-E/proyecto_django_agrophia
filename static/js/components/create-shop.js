@@ -39,6 +39,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const municipioSelect = document.getElementById("municipio");
     let municipioPrevio = municipioSelect?.dataset.selectedMunicipio || "";
     const serverNombreError = document.getElementById("error-nombre")?.dataset.serverError || "";
+    const serverTelefonoError = document.getElementById("error-telefono")?.dataset.serverError || "";
+    const serverEmailError = document.getElementById("error-email")?.dataset.serverError || "";
+    const serverDepartamentoError = document.getElementById("error-departamento")?.dataset.serverError || "";
+    const serverMunicipioError = document.getElementById("error-municipio")?.dataset.serverError || "";
     const touchedFields = new Set();
     let submitAttempted = false;
 
@@ -237,6 +241,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (serverNombreError) {
         setError("error-nombre", serverNombreError);
+    }
+    if (serverTelefonoError) {
+        setError("error-telefono", serverTelefonoError);
+    }
+    if (serverEmailError) {
+        setError("error-email", serverEmailError);
+    }
+    if (serverDepartamentoError) {
+        setError("error-departamento", serverDepartamentoError);
+    }
+    if (serverMunicipioError) {
+        setError("error-municipio", serverMunicipioError);
     }
 
     // Bloquea envío si hay errores

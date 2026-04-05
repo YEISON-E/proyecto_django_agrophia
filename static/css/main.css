@@ -177,7 +177,7 @@
 	transform: none !important;
 }
 
-/* Keep bottom gov.co/footer anchored on short or empty pages. */
+/* Keep bottom footer + gov.co anchored on short/empty pages. */
 html,
 body {
 	min-height: 100%;
@@ -189,20 +189,35 @@ body {
 	flex-direction: column;
 }
 
+/* When a footer exists, push the footer block down as a whole. */
+body:has(> .footer-content),
+body:has(> .footer-container),
+body:has(> footer.footer),
+body:has(> footer.footer-content),
+body:has(> footer.footer-container) {
+	justify-content: flex-start;
+}
+
+body:has(> .footer-content) > .footer-content,
+body:has(> .footer-container) > .footer-container,
+body:has(> footer.footer) > footer.footer,
+body:has(> footer.footer-content) > footer.footer-content,
+body:has(> footer.footer-container) > footer.footer-container {
+	margin-top: auto;
+}
+
+/* If a page has no footer wrapper, let bottom gov.co take the remaining space. */
+body:not(:has(> .footer-content, > .footer-container, > footer.footer, > footer.footer-content, > footer.footer-container)) > .govco-container__two {
+	margin-top: auto;
+}
+
+/* Avoid accidental white space under gov.co or footer blocks. */
 body > .govco-container__two,
 body > .footer-content,
 body > .footer-container,
 body > footer.footer,
 body > footer.footer-content,
 body > footer.footer-container {
-	margin-top: auto;
-}
-
-body > .govco-container__two + .footer-content,
-body > .govco-container__two + .footer-container,
-body > .govco-container__two + footer.footer,
-body > .govco-container__two + footer.footer-content,
-body > .govco-container__two + footer.footer-container {
-	margin-top: 0;
+	margin-bottom: 0;
 }
 

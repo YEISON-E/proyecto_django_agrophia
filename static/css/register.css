@@ -148,6 +148,8 @@
     font-size: var(--fs-xs);
     text-decoration: none;
     border-radius: 12px;
+    border: none;
+    cursor: pointer;
 }
 .form-content__register--row-buttons__back:hover{
     opacity: 60%;
@@ -160,6 +162,8 @@
     font-size: var(--fs-xs);
     text-decoration: none;
     border-radius: 12px;
+    border: none;
+    cursor: pointer;
     transition: all 0.3s ease;
 }
 .form-content__register--row-buttons__next:hover{

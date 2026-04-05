@@ -319,6 +319,8 @@
   border-radius: 12px;
   align-items: center;
   justify-content: center;
+  border: none;
+  cursor: pointer;
 }
 
 .product-form__row--back:hover{
@@ -331,6 +333,8 @@
   font-size: var(--fs-xs);
   text-decoration: none;
   border-radius: 12px;
+  border: none;
+  cursor: pointer;
   transition: all 0.3s ease;
 }
 .product-form__row--next:hover{

@@ -17,6 +17,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
+# Importación de dependencias necesarias para ejecutar esta vista.
 from django.utils import timezone
 from django.urls import reverse
 
@@ -34,6 +35,8 @@ def sent_messages(request):
 	Agrupa mensajes por vendedor y producto para construir un historial tipo
 	chat con orden cronologico y seleccion de conversacion activa.
 	"""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -46,14 +49,17 @@ def sent_messages(request):
 	for message in messages_sent:
 		key = (message.receiver_id, message.product_id)
 		conversation = conversations_by_key.get(key)
+		# Control de flujo y validación de condiciones del proceso.
 		if not conversation:
 			conversation = {
 				"receiver": message.receiver,
 				"product": message.product,
+				# Paso de apoyo dentro del flujo principal de la funcionalidad.
 				"base_messages": [],
 				"chat_items": [],
 				"last_message_at": message.created_at,
 				"last_preview": "",
+			# Paso de apoyo dentro del flujo principal de la funcionalidad.
 			}
 			conversations_by_key[key] = conversation
 
@@ -64,18 +70,22 @@ def sent_messages(request):
 		items = []
 		for message in conversation["base_messages"]:
 			items.append({
+				# Paso de apoyo dentro del flujo principal de la funcionalidad.
 				"kind": "customer",
 				"content": message.content,
 				"created_at": message.created_at,
 				"status": message.status,
+				# Paso de apoyo dentro del flujo principal de la funcionalidad.
 				"message": message,
 			})
 			for reply in message.farmer_replies.all():
 				items.append({
+					# Paso de apoyo dentro del flujo principal de la funcionalidad.
 					"kind": "farmer",
 					"content": reply.content,
 					"created_at": reply.created_at,
 					"status": None,
+					# Paso de apoyo dentro del flujo principal de la funcionalidad.
 					"message": message,
 				})
 
@@ -83,6 +93,7 @@ def sent_messages(request):
 		conversation["chat_items"] = items
 		if items:
 			conversation["last_message_at"] = items[-1]["created_at"]
+			# Paso de apoyo dentro del flujo principal de la funcionalidad.
 			conversation["last_preview"] = (items[-1]["content"] or "").strip()[:60]
 
 	# 3) Ordena conversaciones por actividad reciente y resuelve seleccion activa.
@@ -90,12 +101,14 @@ def sent_messages(request):
 		conversations_by_key.values(),
 		key=lambda item: item["last_message_at"],
 		reverse=True,
+	# Paso de apoyo dentro del flujo principal de la funcionalidad.
 	)
 
 	selected_receiver = (request.GET.get("receiver") or "").strip()
 	selected_product = (request.GET.get("product") or "").strip()
 	selected_conversation = None
 	if selected_receiver.isdigit() and selected_product.isdigit():
+		# Actualización de estado intermedio que será utilizada en pasos posteriores.
 		selected_conversation = conversations_by_key.get((int(selected_receiver), int(selected_product)))
 	if not selected_conversation and conversations:
 		selected_conversation = conversations[0]
@@ -110,6 +123,7 @@ def sent_messages(request):
 		"conversations": conversations,
 		"selected_conversation": selected_conversation,
 		"chat_items": chat_items,
+		# Paso de apoyo dentro del flujo principal de la funcionalidad.
 		"selected_base_message_id": selected_base_message_id,
 		"notice": notice,
 	})
@@ -118,6 +132,8 @@ def sent_messages(request):
 @require_POST
 def delete_sent_message(request, message_id):
 	"""Elimina un mensaje enviado por el cliente propietario del registro."""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -130,6 +146,8 @@ def delete_sent_message(request, message_id):
 @require_POST
 def customer_reply_message(request, message_id):
 	"""Permite al cliente responder una conversacion ya existente."""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -148,6 +166,7 @@ def customer_reply_message(request, message_id):
 		sender=request.user,
 		receiver=base_message.receiver,
 		product=base_message.product,
+		# Actualización de estado intermedio que será utilizada en pasos posteriores.
 		content=reply_content,
 	)
 
@@ -162,6 +181,8 @@ def farmer_messages(request):
 	Agrupa por remitente, calcula mensajes pendientes y selecciona el chat
 	activo segun querystring o el mas reciente por defecto.
 	"""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 	if not user_has_shop(request.user):
@@ -176,14 +197,17 @@ def farmer_messages(request):
 	for message in messages_received:
 		sender_id = message.sender_id
 		conversation = conversations_by_sender.get(sender_id)
+		# Control de flujo y validación de condiciones del proceso.
 		if not conversation:
 			conversation = {
 				"sender": message.sender,
 				"messages": [],
+				# Paso de apoyo dentro del flujo principal de la funcionalidad.
 				"unread_count": 0,
 				"last_message_at": message.created_at,
 				"last_preview": "",
 			}
+			# Paso de apoyo dentro del flujo principal de la funcionalidad.
 			conversations_by_sender[sender_id] = conversation
 
 		conversation["messages"].append(message)
@@ -202,16 +226,19 @@ def farmer_messages(request):
 		conversations_by_sender.values(),
 		key=lambda item: item["last_message_at"],
 		reverse=True,
+	# Paso de apoyo dentro del flujo principal de la funcionalidad.
 	)
 
 	requested_chat = (request.GET.get("chat") or "").strip()
 	list_mode = (request.GET.get("view") or "").strip().lower() == "list"
 	selected_chat_id = None
 	if list_mode:
+		# Actualización de estado intermedio que será utilizada en pasos posteriores.
 		selected_chat_id = None
 	elif requested_chat.isdigit() and int(requested_chat) in conversations_by_sender:
 		selected_chat_id = int(requested_chat)
 	elif conversations:
+		# Actualización de estado intermedio que será utilizada en pasos posteriores.
 		selected_chat_id = conversations[0]["sender"].id
 
 	# 3) Renderiza lista de conversaciones y panel de chat seleccionado.
@@ -222,6 +249,7 @@ def farmer_messages(request):
 		"conversations": conversations,
 		"selected_chat_id": selected_chat_id,
 		"selected_conversation": selected_conversation,
+		# Paso de apoyo dentro del flujo principal de la funcionalidad.
 		"selected_messages": selected_messages,
 	})
 
@@ -229,6 +257,8 @@ def farmer_messages(request):
 @require_POST
 def send_message(request):
 	"""Crea un mensaje de cliente hacia el propietario de un producto."""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return JsonResponse({"ok": False, "message": "No autenticado."}, status=401)
 
@@ -245,6 +275,7 @@ def send_message(request):
 		product = Product.objects.select_related("owner", "shop").get(
 			pk=int(product_id),
 			is_active=True,
+			# Actualización de estado intermedio que será utilizada en pasos posteriores.
 			shop__is_active=True,
 		)
 	except (ValueError, Product.DoesNotExist):
@@ -257,6 +288,7 @@ def send_message(request):
 		sender=request.user,
 		receiver=product.owner,
 		product=product,
+		# Actualización de estado intermedio que será utilizada en pasos posteriores.
 		content=content,
 	)
 
@@ -266,6 +298,8 @@ def send_message(request):
 @require_POST
 def reply_message(request, message_id):
 	"""Registra respuesta o rechazo del agricultor a un mensaje puntual."""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -276,6 +310,7 @@ def reply_message(request, message_id):
 		message.status = CustomerMessage.STATUS_REJECTED
 		message.reply_content = ""
 		message.replied_at = timezone.now()
+		# Paso de apoyo dentro del flujo principal de la funcionalidad.
 		message.save(update_fields=["status", "reply_content", "replied_at"])
 		return redirect(f"{reverse('mensajes:farmer_messages')}?chat={message.sender_id}")
 
@@ -303,6 +338,8 @@ def reply_conversation(request, sender_id):
 	La respuesta se asocia al ultimo mensaje de la conversacion para mantener
 	trazabilidad del hilo.
 	"""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -321,10 +358,12 @@ def reply_conversation(request, sender_id):
 		pending_messages = conversation_qs.filter(status=CustomerMessage.STATUS_PENDING)
 		now = timezone.now()
 		pending_messages.update(
+			# Actualización de estado intermedio que será utilizada en pasos posteriores.
 			status=CustomerMessage.STATUS_REJECTED,
 			reply_content="",
 			replied_at=now,
 		)
+		# Retorno de respuesta según el estado y resultado de la operación.
 		return redirect(f"{reverse('mensajes:farmer_messages')}?chat={sender_id}")
 
 	reply_content = (request.POST.get("reply") or "").strip()
@@ -340,6 +379,7 @@ def reply_conversation(request, sender_id):
 	conversation_qs.filter(status=CustomerMessage.STATUS_PENDING).update(
 		reply_content=reply_content,
 		status=CustomerMessage.STATUS_REPLIED,
+		# Actualización de estado intermedio que será utilizada en pasos posteriores.
 		replied_at=now,
 	)
 

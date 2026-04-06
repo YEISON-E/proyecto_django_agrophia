@@ -54,6 +54,7 @@
             <option value="Kilo" {% if valores.unidad == 'Kilo' %}selected{% endif %}>Kilo</option>
             <option value="Arroba" {% if valores.unidad == 'Arroba' %}selected{% endif %}>Arroba</option>
             <option value="Litro" {% if valores.unidad == 'Litro' %}selected{% endif %}>Litro</option>
+            <option value="Unidad" {% if valores.unidad == 'Unidad' %}selected{% endif %}>Unidad</option>
           </select>
           <div id="error-unidad-producto" class="input-error"{% if not errores.unidad %} style="display: none;"{% endif %}>{{ errores.unidad }}</div>
         </div>

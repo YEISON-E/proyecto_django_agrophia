@@ -285,6 +285,11 @@ function actualizarErrorEnInput(input, mensaje) {
  * @returns {boolean} false si hay errores y true si todo es válido
  */
 function mostrarAlerta(event) {
+  const actionInput = document.getElementById('register-step2-action');
+  if (actionInput && actionInput.value === 'back') {
+    return true;
+  }
+
   // Obtener referencias de todos los campos del formulario
   const email = document.querySelector('input[name="email"]');
   const telefono = document.querySelector('input[name="telefono"]');

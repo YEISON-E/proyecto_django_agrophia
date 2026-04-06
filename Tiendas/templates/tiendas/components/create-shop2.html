@@ -10,6 +10,7 @@
                 <form id="create-shop-step2-form" method="POST" class="form-shop__body" data-shop-flow-id="{{ shop_flow_id|default:'' }}">
                     {% csrf_token %}
                     <input type="hidden" name="owner_token" value="{{ shop_owner_token|default:'' }}">
+                    <input type="hidden" name="action" id="create-shop-step2-action" value="submit">
 
                     <div class="form-shop__group">
                         <label for="tiene_punto_fisico" class="form-shop__label">La tienda cuenta con punto físico?</label>
@@ -45,12 +46,7 @@
                     </div>
                 </form>
                 <div class="form-content__register--row-buttons">
-                    <a
-                        href="{% url 'tiendas:create_shop_step1' %}{% if shop_owner_token %}?owner_token={{ shop_owner_token|urlencode }}{% endif %}"
-                        class="form-content__register--row-buttons__back"
-                        data-history-back="true"
-                        data-fallback-url="{% url 'tiendas:create_shop_step1' %}{% if shop_owner_token %}?owner_token={{ shop_owner_token|urlencode }}{% endif %}"
-                    >Volver</a>
+                    <button type="submit" form="create-shop-step2-form" formnovalidate class="form-content__register--row-buttons__back" onclick="document.getElementById('create-shop-step2-action').value='back'">Volver</button>
                     <button type="submit" form="create-shop-step2-form" class="form-shop__button">Crear tienda</button>
                 </div>
             </div>

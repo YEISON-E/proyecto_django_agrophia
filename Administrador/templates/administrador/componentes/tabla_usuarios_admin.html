@@ -37,7 +37,7 @@
           <img src="{% static 'icons/unlock.svg' %}" alt="Desbloquear" width="20" height="20">
         </button>
         {% endif %}
-        <a href="{% url 'administrador:usuario_admin_editar' usuario.id %}" class="products-table__button products-table__button--edit" title="Editar">
+        <a href="{% url 'administrador:usuario_admin_editar' usuario.id %}?from=table" class="products-table__button products-table__button--edit" title="Editar">
           <img src="{% static 'icons/edit.svg' %}" alt="Editar" width="20" height="20">
         </a>
         <button class="products-table__button users-table__button--message" title="Enviar mensaje" data-user-id="{{ usuario.id }}" data-user-name="{{ usuario.nombres }} {{ usuario.apellidos }}" data-user-document="{{ usuario.numero_documento }}">

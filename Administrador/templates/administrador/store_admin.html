@@ -9,15 +9,50 @@
         <link rel="stylesheet" href="{% static 'css/store_admin.css' %}">
         <link rel="stylesheet" href="{% static 'css/toolbar_shop.css' %}">
         <link rel="stylesheet" href="{% static 'css/toolbar.css' %}">
+        <meta name="csrf-token" content="{{ csrf_token }}">
         <script src="{% static 'js/tiendas_admin_actions.js' %}" defer></script>
     </head>
-    <body style="background: #f8fafc;">
-        {% include 'components/gov-co__one.html' %}
-        {% include 'administrador/componentes/toolbar_shop.html' %}
-        <div class="layout">
-            {% include 'administrador/componentes/sidebar.html' %}
-            {% include 'administrador/componentes/table_shops_admin.html' %}
+    <body class="admin-page-shell" style="background: #f8fafc;">
+            {% if messages %}
+                <div class="admin-detail-messages">
+                    {% for message in messages %}
+                        <div class="admin-detail-message admin-detail-message--{{ message.tags|default:'info' }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const contenedorMensajes = document.querySelector('.admin-detail-messages');
+                        const mensajes = document.querySelectorAll('.admin-detail-message');
+                        if (!contenedorMensajes || !mensajes.length) {
+                            return;
+                        }
+
+                        window.setTimeout(function () {
+                            contenedorMensajes.classList.add('is-hiding');
+                            mensajes.forEach(function (mensaje) {
+                                mensaje.classList.add('is-hiding');
+                            });
+                            window.setTimeout(function () {
+                                contenedorMensajes.remove();
+                            }, 380);
+                        }, 4000);
+                    });
+                </script>
+            {% endif %}
+        <div class="govco-container__one admin-page-top">
+            {% include 'components/gov-co__one.html' %}
         </div>
-        {% include 'components/gov-co__one.html' %}
+
+        <main class="admin-page-main">
+            {% include 'administrador/componentes/toolbar_shop.html' %}
+            <div class="layout">
+                {% include 'administrador/componentes/sidebar.html' %}
+                {% include 'administrador/componentes/table_shops_admin.html' %}
+            </div>
+        </main>
+
+        <div class="govco-container__one admin-page-bottom">
+            {% include 'components/gov-co__one.html' %}
+        </div>
     </body>
     </html>

@@ -29,6 +29,7 @@ urlpatterns = [
     path('productos/<int:product_id>/unblock/', views.producto_admin_unblock_view, name='producto_admin_unblock'),
     path('usuarios/reporte/', views.reporte_usuarios_view, name='reporte_usuarios'),
     path('usuarios/crear/', views.usuario_admin_crear_view, name='usuario_admin_crear'),
+    path('perfil/', views.admin_perfil_view, name='admin_perfil'),
     path('editar-perfil/', views.admin_editar_perfil_view, name='admin_editar_perfil'),
     path('productos/crear/', views.producto_admin_crear_view, name='producto_admin_crear'),
     path('productos/<int:product_id>/editar/', views.producto_admin_editar_view, name='producto_admin_editar'),

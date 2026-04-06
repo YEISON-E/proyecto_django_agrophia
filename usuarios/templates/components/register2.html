@@ -10,6 +10,7 @@
   {% endif %}
   <form id="register-form" method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group2" autocomplete="on">
   {% csrf_token %}
+    <input type="hidden" name="action" id="register-step2-action" value="submit">
     
 
     <div class="form__group">
@@ -89,10 +90,7 @@
 
 
    <div class="form-content__register--row-buttons">
-     <a href="{% url 'usuarios:register' %}"
-     class="form-content__register--row-buttons__back">
-     Volver
-    </a>
+    <button type="submit" form="register-form" formnovalidate class="form-content__register--row-buttons__back" onclick="document.getElementById('register-step2-action').value='back'">Volver</button>
     <button type="submit" form="register-form" class="form-content__register--row-buttons__next">Registrarse</button>
     </div>
 

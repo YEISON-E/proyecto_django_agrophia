@@ -177,7 +177,180 @@
 	transform: none !important;
 }
 
-/* Keep bottom gov.co/footer anchored on short or empty pages. */
+/* Mensaje de confirmacion al regresar al detalle tras editar */
+.admin-detail-messages {
+	position: fixed;
+	inset: 0;
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	z-index: 1390;
+	background: rgba(15, 23, 42, 0.45);
+	backdrop-filter: blur(1px);
+}
+
+.admin-detail-messages.is-hiding {
+	opacity: 0;
+	transition: opacity 0.35s ease;
+}
+.admin-detail-message {
+	position: relative;
+	background: #ffffff;
+	border-radius: 14px;
+	box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+	width: min(92vw, 420px);
+	padding: 18px 18px 14px;
+	font-size: var(--fs-xxxs);
+	font-weight: 600;
+	margin-bottom: 0;
+	text-align: center;
+	color: #334155;
+	transition: opacity 0.35s ease, transform 0.35s ease;
+	animation: shop-confirm-pop 0.2s ease-out;
+}
+
+.admin-detail-message.is-hiding {
+	opacity: 0;
+	transform: translateY(-4px);
+}
+.admin-detail-message--success {
+	background: #ffffff;
+	color: #334155;
+	border: none;
+}
+.admin-detail-message--error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+.shop-edit-inline-error {
+	color: #b91c1c;
+	font-size: var(--fs-xxxs);
+	line-height: 1.3;
+	margin-top: 4px;
+	min-height: 1em;
+}
+
+.shop-edit-inline-error:empty {
+	display: none;
+}
+
+.shop-edit-input-error {
+	border-color: #dc2626 !important;
+	box-shadow: 0 0 0 1px rgba(220, 38, 38, 0.2) !important;
+}
+
+.shop-confirm-modal {
+	position: fixed;
+	inset: 0;
+	display: none;
+	align-items: center;
+	justify-content: center;
+	z-index: 1400;
+	padding: 16px;
+}
+
+.shop-confirm-modal[aria-hidden="false"] {
+	display: flex;
+}
+
+.shop-confirm-modal__backdrop {
+	position: absolute;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.45);
+	backdrop-filter: blur(1px);
+}
+
+.shop-confirm-modal__dialog {
+	position: relative;
+	background: #ffffff;
+	border-radius: 14px;
+	box-shadow: 0 18px 45px rgba(15, 23, 42, 0.25);
+	width: min(92vw, 420px);
+	padding: 18px 18px 14px;
+	animation: shop-confirm-pop 0.2s ease-out;
+}
+
+.shop-confirm-modal__title {
+	margin: 0 0 6px;
+	font-size: var(--fs-xxs);
+	color: #0f172a;
+}
+
+.shop-confirm-modal__text {
+	margin: 0 0 14px;
+	font-size: var(--fs-xxxs);
+	color: #334155;
+}
+
+.shop-confirm-modal__actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.shop-confirm-modal__btn {
+	height: 36px;
+	padding: 0 14px;
+	border-radius: 8px;
+	border: none;
+	cursor: pointer;
+	font-size: var(--fs-xxxs);
+	font-weight: 600;
+}
+
+.shop-confirm-modal__btn--cancel {
+	background: #e2e8f0;
+	color: #1e293b;
+}
+
+.shop-confirm-modal__btn--accept {
+	background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+	color: #ffffff;
+}
+
+@keyframes shop-confirm-pop {
+	from {
+		opacity: 0;
+		transform: translateY(4px) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+/* Normalizacion global para vistas admin con acciones de formulario/detalle */
+.shop-edit-footer {
+	justify-content: space-around !important;
+}
+
+.shop-edit-btn,
+.shop-edit-cancel,
+.user-detail-save,
+.user-detail-edit,
+.user-detail-back {
+	width: 140px !important;
+	min-width: 140px !important;
+	max-width: 140px !important;
+}
+
+@media (max-width: 700px) {
+	.shop-edit-btn,
+	.shop-edit-cancel,
+	.user-detail-save,
+	.user-detail-edit,
+	.user-detail-back {
+		width: 100% !important;
+		min-width: 0 !important;
+		max-width: none !important;
+	}
+}
+
+/* Keep bottom footer + gov.co anchored on short/empty pages. */
 html,
 body {
 	min-height: 100%;
@@ -189,20 +362,96 @@ body {
 	flex-direction: column;
 }
 
+/* When a footer exists, push the footer block down as a whole. */
+body:has(> .footer-content),
+body:has(> .footer-container),
+body:has(> footer.footer),
+body:has(> footer.footer-content),
+body:has(> footer.footer-container) {
+	justify-content: flex-start;
+}
+
+body:has(> .footer-content) > .footer-content,
+body:has(> .footer-container) > .footer-container,
+body:has(> footer.footer) > footer.footer,
+body:has(> footer.footer-content) > footer.footer-content,
+body:has(> footer.footer-container) > footer.footer-container {
+	margin-top: auto;
+}
+
+/* If a page has no footer wrapper, let bottom gov.co take the remaining space. */
+body:not(:has(> .footer-content, > .footer-container, > footer.footer, > footer.footer-content, > footer.footer-container)) > .govco-container__two,
+body:not(:has(> .footer-content, > .footer-container, > footer.footer, > footer.footer-content, > footer.footer-container)) > .govco-container__one:last-of-type:not(:first-of-type) {
+	margin-top: auto;
+}
+
+/* Avoid accidental white space under gov.co or footer blocks. */
 body > .govco-container__two,
 body > .footer-content,
 body > .footer-container,
 body > footer.footer,
 body > footer.footer-content,
 body > footer.footer-container {
-	margin-top: auto;
+	margin-bottom: 0;
 }
 
-body > .govco-container__two + .footer-content,
-body > .govco-container__two + .footer-container,
-body > .govco-container__two + footer.footer,
-body > .govco-container__two + footer.footer-content,
-body > .govco-container__two + footer.footer-container {
-	margin-top: 0;
+/* Admin pages: keep bottom gov.co at viewport bottom on short content. */
+body.admin-page-shell {
+	min-height: 100vh;
+	min-height: 100dvh;
+	display: flex;
+	flex-direction: column;
+}
+
+body.admin-page-shell .admin-page-top {
+	width: 100%;
+	flex-shrink: 0;
+}
+
+body.admin-page-shell .admin-page-main {
+	flex: 1 0 auto;
+	display: flex;
+	flex-direction: column;
+}
+
+body.admin-page-shell .admin-page-bottom {
+	width: 100%;
+	margin-top: auto;
+	flex-shrink: 0;
+}
+
+/* Dim page when admin profile menu is open, keeping the dropdown visible above. */
+body.admin-profile-menu-open::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	background: rgba(15, 23, 42, 0.22);
+	z-index: 1350;
+	pointer-events: auto;
+}
+
+body.admin-profile-menu-open .toolbar-main__profile-dropdown {
+	position: relative;
+	z-index: 1401;
+}
+
+body.admin-profile-menu-open .profile-dropdown-content {
+	z-index: 1402 !important;
+}
+
+/* Keep the sticky admin header layer above the dim overlay. */
+body.admin-profile-menu-open .header,
+body.admin-profile-menu-open .header__navbar,
+body.admin-profile-menu-open .header-home,
+body.admin-profile-menu-open .header-home__navbar,
+body.admin-profile-menu-open .header-home__navbar--customer,
+body.admin-profile-menu-open .navbar-container,
+body.admin-profile-menu-open .navbar,
+body.admin-profile-menu-open .header-product__public-navbar,
+body.admin-profile-menu-open .header-product__disable-navbar,
+body.admin-profile-menu-open .header-available__navbar,
+body.admin-profile-menu-open .header-method__navbar,
+body.admin-profile-menu-open .contact-home__navbar {
+	z-index: 1400 !important;
 }
 

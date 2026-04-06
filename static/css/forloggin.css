@@ -3,7 +3,7 @@
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* arriba y centro */
+  justify-content: flex-start;
   box-sizing: border-box;
 }
 
@@ -19,6 +19,8 @@
 
 .page__right_login {
   width: 100%;
+  flex: 1;
+  display: flex;
 }
 
 .register__back {
@@ -44,7 +46,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 100%;
-  margin: 0 24px 24px 24px;
+  margin: 0 24px;
 }
 
 /* Mantén el resto de tu estilo igual */

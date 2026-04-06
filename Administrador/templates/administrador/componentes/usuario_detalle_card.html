@@ -1,10 +1,10 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
-<div class="user-detail-main">
+<div class="user-detail-main user-detail-main--usuario-detalle">
   <div class="user-detail-grid">
     <div class="user-detail-avatar">
       {% if usuario.foto %}
-        <img src="{{ usuario.foto.url }}" alt="Foto de perfil" style="width:55px;height:55px;border-radius:50%;object-fit:cover;">
+        <img src="{{ usuario.foto.url }}" alt="Foto de perfil" class="user-detail-avatar-image--zoomable" data-zoom-image style="width:55px;height:55px;border-radius:50%;object-fit:cover;">
       {% else %}
         <span style="display:flex;align-items:center;justify-content:center;width:55px;height:55px;font-size:1.2em;background:#6366f1;color:#fff;border-radius:50%;">{{ usuario.nombres|slice:":1"|upper }}</span>
       {% endif %}
@@ -75,10 +75,60 @@
     <strong>Estado tienda:</strong> {{ tienda.is_active|yesno:"Activa,Inactiva" }}
   </div>
   {% endif %}
-  <div class="shop-edit-footer">
+  <div class="shop-edit-footer user-detail-footer">
     <a href="{% url 'administrador:usuarios_admin' %}" class="shop-edit-cancel">&larr; Volver</a>
-    <a href="{% url 'administrador:usuario_admin_editar' usuario.id %}" class="shop-edit-btn">
+    <a href="{% url 'administrador:usuario_admin_editar' usuario.id %}?from=detail" class="shop-edit-btn">
       <img src="{% static 'icons/edit.svg' %}" alt="Editar" class="shop-edit-action-icon">Editar
     </a>
   </div>
 </div>
+
+<div class="user-image-lightbox" id="user-image-lightbox" aria-hidden="true" role="dialog" aria-label="Vista ampliada de imagen">
+  <button type="button" class="user-image-lightbox__close" id="user-image-lightbox-close" aria-label="Cerrar">&times;</button>
+  <img src="" alt="Imagen ampliada" class="user-image-lightbox__img" id="user-image-lightbox-img">
+</div>
+
+<script>
+  (function () {
+    const triggerImages = document.querySelectorAll('[data-zoom-image]');
+    const lightbox = document.getElementById('user-image-lightbox');
+    const lightboxImage = document.getElementById('user-image-lightbox-img');
+    const closeButton = document.getElementById('user-image-lightbox-close');
+
+    if (!triggerImages.length || !lightbox || !lightboxImage || !closeButton) {
+      return;
+    }
+
+    const openLightbox = (src, altText) => {
+      lightboxImage.src = src;
+      lightboxImage.alt = altText || 'Imagen ampliada';
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('user-lightbox-open');
+    };
+
+    const closeLightbox = () => {
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightboxImage.src = '';
+      document.body.classList.remove('user-lightbox-open');
+    };
+
+    triggerImages.forEach((img) => {
+      img.addEventListener('click', () => {
+        openLightbox(img.src, img.alt);
+      });
+    });
+
+    closeButton.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && lightbox.getAttribute('aria-hidden') === 'false') {
+        closeLightbox();
+      }
+    });
+  })();
+</script>

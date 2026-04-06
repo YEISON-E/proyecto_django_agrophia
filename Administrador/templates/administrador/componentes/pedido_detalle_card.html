@@ -17,27 +17,10 @@
     <div class="shop-edit-value">{{ pedido.delivery_address|default:'Sin dirección registrada' }}</div>
   </div>
   <div class="shop-edit-footer">
-    <a href="{% url 'administrador:orders_page' %}" class="shop-edit-cancel" data-history-back="true" data-fallback-url="{% url 'administrador:orders_page' %}">&larr; Volver</a>
-    <a href="{% url 'administrador:pedido_admin_editar' pedido.id %}" class="shop-edit-btn">
+    <a href="{% url 'administrador:orders_page' %}" class="shop-edit-cancel">&larr; Volver</a>
+    <a href="{% url 'administrador:pedido_admin_editar' pedido.id %}?from=detail" class="shop-edit-btn">
       <img src="{% static 'icons/edit.svg' %}" alt="Editar" class="shop-edit-action-icon">Editar
     </a>
   </div>
 </div>
-<script>
-  (function () {
-    const backLink = document.querySelector('[data-history-back="true"]');
-    if (!backLink) return;
-
-    backLink.addEventListener('click', function (event) {
-      event.preventDefault();
-      const fallbackUrl = backLink.getAttribute('data-fallback-url') || backLink.getAttribute('href') || '/';
-
-      if (window.history.length > 1) {
-        window.history.back();
-        return;
-      }
-
-      window.location.href = fallbackUrl;
-    });
-  })();
-</script>
+<script src="{% static 'js/components/pedido_detalle_card.js' %}" defer></script>

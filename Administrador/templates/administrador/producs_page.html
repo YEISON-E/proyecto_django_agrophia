@@ -10,20 +10,49 @@
     <script src="{% static 'js/productos_admin_actions.js' %}" defer></script>
     <title>Productos admin</title>
 </head>
-<body>
-    <div class="govco-container__one">
+<body class="admin-page-shell" style="background: #f8fafc;">
+        {% if messages %}
+            <div class="admin-detail-messages">
+                {% for message in messages %}
+                    <div class="admin-detail-message admin-detail-message--{{ message.tags|default:'info' }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const contenedorMensajes = document.querySelector('.admin-detail-messages');
+                    const mensajes = document.querySelectorAll('.admin-detail-message');
+                    if (!contenedorMensajes || !mensajes.length) {
+                        return;
+                    }
+
+                    window.setTimeout(function () {
+                        contenedorMensajes.classList.add('is-hiding');
+                        mensajes.forEach(function (mensaje) {
+                            mensaje.classList.add('is-hiding');
+                        });
+                        window.setTimeout(function () {
+                            contenedorMensajes.remove();
+                        }, 380);
+                    }, 4000);
+                });
+            </script>
+        {% endif %}
+    <div class="govco-container__one admin-page-top">
         {% include 'components/gov-co__one.html' %}
     </div>
-    {% include 'administrador/componentes/toolbar_products.html' %}
-    <div class="layout">
-        {% include 'administrador/componentes/sidebar.html' %}
-        <div class="layout__products-row">
-            {% include 'administrador/componentes/table_products_admin.html' %}
-            <div class="card_admin_information"></div>
+
+    <main class="admin-page-main">
+        {% include 'administrador/componentes/toolbar_products.html' %}
+        <div class="layout">
+            {% include 'administrador/componentes/sidebar.html' %}
+            <div class="layout__products-row">
+                {% include 'administrador/componentes/table_products_admin.html' %}
+                <div class="card_admin_information"></div>
+            </div>
         </div>
-    </div>
+    </main>
     
-    <div class="govco-container__one">
+    <div class="govco-container__one admin-page-bottom">
         {% include 'components/gov-co__one.html' %}
     </div>
 </body>

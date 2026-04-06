@@ -2,6 +2,7 @@
 function initializeRegisterStep1() {
   // Previsualización de foto cargada por el usuario
   const inputFoto = document.getElementById('input-foto');
+  const hasTempPhotoInput = document.getElementById('has-temp-photo');
   if (inputFoto) {
     inputFoto.addEventListener('change', function(e) {
       if (e.target.files && e.target.files[0]) {
@@ -10,6 +11,9 @@ function initializeRegisterStep1() {
           const preview = document.getElementById('preview');
           if (preview) {
             preview.src = reader.result;
+            if (hasTempPhotoInput) {
+              hasTempPhotoInput.value = '1';
+            }
           }
         };
         reader.readAsDataURL(e.target.files[0]);
@@ -130,6 +134,10 @@ function validarRegistroStep1(event) {
   const nombres = document.querySelector('input[name="nombres"]');
   const apellidos = document.querySelector('input[name="apellidos"]');
   const inputFoto = document.getElementById('input-foto');
+  const hasTempPhotoInput = document.getElementById('has-temp-photo');
+  const preview = document.getElementById('preview');
+  const hasTempPhoto = hasTempPhotoInput && hasTempPhotoInput.value === '1';
+  const hasPreviewPhoto = Boolean(preview && preview.src && !preview.src.includes('not-found.png'));
 
   limpiarErrores();
   let hayErrores = false;
@@ -162,10 +170,12 @@ function validarRegistroStep1(event) {
   }
 
   // Validar foto obligatoria
-  if (!inputFoto || !inputFoto.files || !inputFoto.files[0]) {
+  const hasNewPhoto = Boolean(inputFoto && inputFoto.files && inputFoto.files[0]);
+
+  if (!hasNewPhoto && !hasTempPhoto && !hasPreviewPhoto) {
     mostrarErrorEnInput(inputFoto, 'Foto obligatoria.');
     hayErrores = true;
-  } else if (!validarFormatoFoto(inputFoto.files[0])) {
+  } else if (hasNewPhoto && !validarFormatoFoto(inputFoto.files[0])) {
     mostrarErrorEnInput(inputFoto, 'Formato invalido (JPG, PNG, GIF o WebP).');
     hayErrores = true;
   }

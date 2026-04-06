@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const messageTextarea = document.getElementById('blocked-account-message-text');
   const tokenInput = document.getElementById('blocked-account-token');
   const feedbackOverlay = document.getElementById('blocked-account-feedback-overlay');
+  const feedbackTitle = document.getElementById('blocked-account-feedback-title');
   const feedbackMessage = document.getElementById('blocked-account-feedback-message');
   const feedbackClose = document.getElementById('blocked-account-feedback-close');
 
@@ -43,14 +44,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }, 180);
   };
 
-  const showFeedback = function (messageText) {
-    if (!feedbackOverlay || !feedbackMessage) {
+  const showFeedback = function (messageText, type) {
+    if (!feedbackOverlay || !feedbackMessage || !feedbackClose) {
       return;
+    }
+    const estado = type === 'success' ? 'success' : 'error';
+    feedbackOverlay.dataset.state = estado;
+    feedbackClose.dataset.state = estado;
+    if (feedbackTitle) {
+      feedbackTitle.textContent = estado === 'success' ? 'Solicitud enviada' : 'Información';
     }
     feedbackMessage.textContent = messageText;
     feedbackOverlay.classList.remove('profile-shop-alert-overlay--closing');
     feedbackOverlay.classList.add('profile-shop-alert-overlay--open');
     feedbackOverlay.setAttribute('aria-hidden', 'false');
+
+    if (estado === 'success') {
+      window.setTimeout(function () {
+        closeFeedback();
+      }, 4200);
+    }
   };
 
   const closeFeedback = function () {
@@ -92,7 +105,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   if (blockedOpenMessageBtn) {
     blockedOpenMessageBtn.addEventListener('click', function () {
-      openMessageModal();
+      closeBlockedOverlay();
+      window.setTimeout(function () {
+        openMessageModal();
+      }, 190);
     });
   }
 
@@ -124,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const token = tokenInput ? tokenInput.value : '';
       const messageText = (messageTextarea ? messageTextarea.value : '').trim();
       if (!endpoint || !token) {
-        showFeedback('No se pudo preparar la solicitud. Intenta iniciar sesión nuevamente.');
+        showFeedback('No se pudo preparar la solicitud. Intenta iniciar sesión nuevamente.', 'error');
         return;
       }
 
@@ -154,9 +170,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         closeMessageModal();
-        showFeedback(data.message || 'Tu mensaje fue enviado al administrador.');
+        showFeedback(data.message || 'Solicitud enviada al administrador. Te responderemos pronto.', 'success');
       } catch (error) {
-        showFeedback(error.message || 'No se pudo enviar el mensaje al administrador.');
+        showFeedback(error.message || 'No se pudo enviar el mensaje al administrador.', 'error');
       } finally {
         if (submitButton) {
           submitButton.disabled = false;

@@ -62,3 +62,21 @@
 .login-hidden-field-error.is-visible {
   display: flex;
 }
+
+#blocked-account-message-modal {
+  z-index: 13050;
+}
+
+#blocked-account-feedback-overlay[data-state="success"] .profile-shop-alert__title {
+  color: #166534;
+}
+
+#blocked-account-feedback-overlay[data-state="success"] .profile-shop-alert__message {
+  color: #14532d;
+}
+
+#blocked-account-feedback-close[data-state="success"] {
+  background: linear-gradient(90deg, #16a34a 60%, #22c55e 100%);
+  color: #fff;
+  border-color: transparent;
+}

@@ -1,6 +1,6 @@
 /* Estilo inspirado en usuario_detalle_card.css para editar tienda */
 .shop-edit-main {
-  max-width: 680px;
+  max-width: 760px;
   margin: 32px auto;
   background: #f3f4f8;
   border-radius: 12px;
@@ -11,19 +11,21 @@
 }
 .shop-edit-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px 24px;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 8px 10px;
   align-items: start;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 .shop-edit-label {
   font-weight: 600;
   color: #232323;
-  margin-bottom: 1px;
-  font-size: 1em;
+  margin-bottom: 0;
+  font-size: 0.92em;
   border-bottom: 2px solid #16a34a;
   display: inline-block;
-  padding-bottom: 2px;
+  width: 138px;
+  max-width: 138px;
+  padding-bottom: 1px;
 }
 
 .shop-edit-grid--order-detail .shop-edit-label {
@@ -33,36 +35,28 @@
 }
 
 .shop-edit-grid--order-detail {
-  grid-template-columns: 170px 1fr;
+  grid-template-columns: minmax(160px, 0.55fr) minmax(0, 1.45fr);
   column-gap: 12px;
 }
 
-.shop-edit-main--order-detail .shop-edit-btn {
-  background: linear-gradient(90deg, #16a34a 60%, #4ade80 100%);
-  color: #fff;
-  box-shadow: 0 10px 24px rgba(22,163,74,0.16);
+.order-page-center-shell {
+  min-height: 100vh;
+  margin: 0;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
 }
 
-.shop-edit-main--order-detail .shop-edit-cancel {
-  background: linear-gradient(90deg, #6b7280 60%, #9ca3af 100%);
-  color: #fff;
-  box-shadow: 0 10px 24px rgba(107,114,128,0.16);
-}
-
-.shop-edit-main--order-detail .shop-edit-btn:hover {
-  background: linear-gradient(90deg, #15803d 60%, #16a34a 100%);
-}
-
-.shop-edit-main--order-detail .shop-edit-cancel:hover {
-  background: linear-gradient(90deg, #4b5563 60%, #6b7280 100%);
-}
 .shop-edit-value {
   color: #232323;
   font-size: 0.98em;
   background: #e5e7eb;
   border-radius: 6px;
-  padding: 7px 12px;
-  margin-bottom: 6px;
+  padding: 5px 9px;
+  margin-bottom: 0;
   word-break: break-word;
   box-shadow: 0 1px 2px 0 rgba(60,60,120,0.03);
   border: 1px solid #d1d5db;
@@ -111,7 +105,9 @@
   color: #fff;
   border: none;
   border-radius: 999px;
-  min-width: 180px;
+  width: 240px;
+  min-width: 240px;
+  max-width: 240px;
   padding: 12px 24px;
   font-size: 1em;
   font-weight: 700;
@@ -142,7 +138,7 @@
 
 @media (max-width: 640px) {
   .shop-edit-footer {
-    flex-direction: column-reverse;
+    flex-direction: column;
     align-items: stretch;
   }
 

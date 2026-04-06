@@ -10,7 +10,6 @@
       <ul class="navbar__list">
         <li class="navbar__item"><a href="#" class="navbar__link" id="toolbar-products-report-trigger">Generar Reporte</a></li>
         <li class="navbar__item"><a href="{% url 'administrador:producto_admin_crear' %}" class="navbar__link">Nuevo Producto</a></li>
-        <li class="navbar__item"><a href="/administrador/logout/" class="navbar__link">Cerrar sesión</a></li>
       </ul>
       <div class="toolbar-admin-search search-home-container">
         <span class="search-home__icon">
@@ -33,6 +32,7 @@
             <div style="font-weight:700;font-size:1.08em;color:#16a34a;margin-bottom:4px;">{{ admin_display_name }}</div>
             <div style="font-size:0.98em;color:#232323;margin-bottom:8px;">{{ admin_display_email }}</div>
             <hr style="margin:8px 0;">
+            <a href="{% url 'administrador:admin_perfil' %}" style="color:#16a34a;font-weight:600;text-decoration:none;display:block;margin-bottom:8px;">Ver perfil</a>
             <a href="{% url 'administrador:admin_editar_perfil' %}" style="color:#16a34a;font-weight:600;text-decoration:none;display:block;margin-bottom:8px;">Editar perfil</a>
             <a href="/administrador/logout/" style="color:#dc2626;font-weight:600;text-decoration:none;">Cerrar sesión</a>
           </div>

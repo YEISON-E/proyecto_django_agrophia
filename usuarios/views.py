@@ -857,8 +857,36 @@ class Logueo(LoginView):
                 user.save(update_fields=fields_to_update)
 
         if usuario_registro.id_usuario != user.id:
+            previous_user_id = usuario_registro.id_usuario
             usuario_registro.id_usuario = user.id
             usuario_registro.save(update_fields=["id_usuario"])
+
+            # Corrige enlaces legacy de tienda creados con owner desincronizado.
+            if previous_user_id:
+                from Tiendas.models import Shop
+                Shop.objects.filter(
+                    owner_id=previous_user_id,
+                    email=usuario_registro.correo_electronico,
+                ).update(owner_id=user.id)
+
+        # Si el usuario tiene tienda bloqueada por admin, mostrar modal de información
+        # con opción de enviar mensaje al administrador en lugar de entrar al home cliente.
+        from Tiendas.models import Shop
+        has_active_shop = Shop.objects.filter(owner=user, is_active=True).exists()
+        has_inactive_shop = Shop.objects.filter(owner=user, is_active=False).exists()
+        if has_inactive_shop and not has_active_shop:
+            blocked_account_token = signing.dumps({
+                "register_id": usuario_registro.id,
+                "documento": usuario_registro.numero_documento,
+            })
+            return render(request, self.template_name, {
+                "errores": {
+                    "general": "Tu tienda fue bloqueada por el administrador."
+                },
+                "valores": {"username": username},
+                "blocked_account_message": "Tu tienda fue deshabilitada por el administrador. Si deseas recuperar el acceso, puedes enviar un mensaje al administrador.",
+                "blocked_account_token": blocked_account_token,
+            })
 
         # 7) Login base exitoso; para admin exige segundo factor por correo.
         # LOGIN OK
@@ -1249,8 +1277,8 @@ def restablecer_contrasena(request):
 
     if request.method == "POST":
         codigo = request.POST.get("codigo", "").strip()
-        password = request.POST.get("password", "").strip()
-        confirm_password = request.POST.get("confirm_password", "").strip()
+        password = request.POST.get("password", "")
+        confirm_password = request.POST.get("confirm_password", "")
 
         valores["codigo"] = codigo
 
@@ -1402,7 +1430,18 @@ def enviar_mensaje_admin_usuario_bloqueado(request):
     if not usuario_registro:
         return JsonResponse({'ok': False, 'error': 'Usuario no encontrado.'}, status=404)
 
-    if usuario_registro.estado in ['activo', 'admin']:
+    from Tiendas.models import Shop
+
+    # Mantener el mismo criterio del login: se considera bloqueado si
+    # tiene al menos una tienda inactiva y ninguna tienda activa.
+    has_active_shop = Shop.objects.filter(owner_id=usuario_registro.id_usuario, is_active=True).exists() if usuario_registro.id_usuario else False
+    has_inactive_shop = Shop.objects.filter(owner_id=usuario_registro.id_usuario, is_active=False).exists() if usuario_registro.id_usuario else False
+    tienda_bloqueada = has_inactive_shop and not has_active_shop
+
+    # También permitir el flujo legacy por estado de usuario en caso de bloqueo administrativo directo.
+    usuario_bloqueado = usuario_registro.estado not in ['activo', 'admin']
+
+    if not tienda_bloqueada and not usuario_bloqueado:
         return JsonResponse({'ok': False, 'error': 'Esta cuenta ya no está bloqueada.'}, status=400)
 
     sender_user = None
@@ -1436,5 +1475,5 @@ def enviar_mensaje_admin_usuario_bloqueado(request):
         ),
     )
 
-    return JsonResponse({'ok': True, 'message': 'Tu mensaje fue enviado al administrador.'})
+    return JsonResponse({'ok': True, 'message': 'Solicitud enviada al administrador. Te responderemos pronto.'})
 

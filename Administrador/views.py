@@ -98,6 +98,9 @@ def tienda_admin_crear_view(request):
     # Este bloque solo se ejecuta cuando el formulario se envía por POST.
     # En GET, la vista únicamente renderiza el formulario con datos iniciales.
     if request.method == 'POST':
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+        import re
         # Se extrae cada campo desde request.POST y se aplica strip() para
         # eliminar espacios al inicio/final que podrían causar validaciones falsas.
         owner_id = request.POST.get('owner_id', '').strip()
@@ -107,6 +110,7 @@ def tienda_admin_crear_view(request):
         # Actualización de estado intermedio que será utilizada en pasos posteriores.
         departamento = request.POST.get('departamento', '').strip()
         municipio = request.POST.get('municipio', '').strip()
+        punto_fisico_raw = request.POST.get('punto_fisico', '').strip()
         direccion = request.POST.get('direccion', '').strip()
         horario = request.POST.get('horario', '').strip()
         # Actualización de estado intermedio que será utilizada en pasos posteriores.
@@ -121,6 +125,7 @@ def tienda_admin_crear_view(request):
             'email': email,
             'departamento': departamento,
             'municipio': municipio,
+            'punto_fisico': punto_fisico_raw,
             'direccion': direccion,
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             'horario': horario,
@@ -130,11 +135,33 @@ def tienda_admin_crear_view(request):
         # Si owner_id viene informado, se verifica que corresponda realmente
         # a un usuario elegible para ser propietario de tienda.
         propietario = usuarios_disponibles.filter(id_usuario=owner_id).first() if owner_id else None
+        owner_user = None
         if not owner_id:
             errores['owner_id'] = 'Debes seleccionar un usuario cliente existente.'
         elif not propietario:
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             errores['owner_id'] = 'El usuario seleccionado no esta disponible para crear tienda.'
+        else:
+            # Sincroniza el owner auth para enlazar la tienda al mismo usuario que inicia sesión.
+            from django.contrib.auth.models import User
+            if propietario.id_usuario:
+                owner_user = User.objects.filter(id=propietario.id_usuario).first()
+            if owner_user is None:
+                owner_user = User.objects.filter(username=propietario.numero_documento).first()
+            if owner_user is None:
+                owner_user = User.objects.create_user(
+                    username=propietario.numero_documento,
+                    password=None,
+                    email=propietario.correo_electronico,
+                    first_name=propietario.nombres,
+                    last_name=propietario.apellidos,
+                )
+                owner_user.set_unusable_password()
+                owner_user.save(update_fields=['password'])
+
+            if propietario.id_usuario != owner_user.id:
+                propietario.id_usuario = owner_user.id
+                propietario.save(update_fields=['id_usuario'])
         # Si la variable "nombre" llega vacía (""), None o con un valor falso,
         # significa que el usuario no diligenció el campo obligatorio de nombre.
         if not nombre:
@@ -146,15 +173,40 @@ def tienda_admin_crear_view(request):
             # Guardamos el mensaje de validación asociado a la clave "telefono".
             # El template usa esta clave para pintar el error debajo del campo correspondiente.
             errores['telefono'] = 'El teléfono es obligatorio.'
+        elif not re.fullmatch(r'3\d{9}', telefono):
+            errores['telefono'] = 'El teléfono debe tener 10 dígitos y empezar por 3.'
+        else:
+            owner_phone = (propietario.telefono or '').strip() if propietario else ''
+            telefono_owner = owner_phone and owner_phone == telefono
+            if not telefono_owner:
+                if Register.objects.filter(telefono=telefono).exists():
+                    errores['telefono'] = 'El teléfono de la tienda ya está asociado a otro usuario.'
+                elif Shop.objects.filter(telefono=telefono).exists():
+                    errores['telefono'] = 'El teléfono de la tienda ya está en uso por otra tienda.'
         # Esta condición verifica que el campo email haya sido enviado con algún contenido.
         if not email:
             # Si está vacío, se agrega el mensaje para impedir crear la tienda con correo faltante.
             errores['email'] = 'El correo es obligatorio.'
+        else:
+            try:
+                validate_email(email)
+            except ValidationError:
+                errores['email'] = 'El correo de la tienda no es válido.'
+            else:
+                owner_email = (propietario.correo_electronico or '').strip().lower() if propietario else ''
+                email_owner = owner_email and owner_email == email.lower()
+                if not email_owner:
+                    if Register.objects.filter(correo_electronico__iexact=email).exists():
+                        errores['email'] = 'El correo de la tienda ya está asociado a otro usuario.'
+                    elif Shop.objects.filter(email__iexact=email).exists():
+                        errores['email'] = 'El correo de la tienda ya está en uso por otra tienda.'
         if not departamento:
             errores['departamento'] = 'El departamento es obligatorio.'
         if not municipio:
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             errores['municipio'] = 'El municipio es obligatorio.'
+        if punto_fisico_raw not in ('True', 'False'):
+            errores['punto_fisico'] = 'Debes indicar si la tienda tiene punto físico.'
         # Validar que el municipio pertenezca al departamento
         from .departamentos_municipios import DEPARTAMENTOS_MUNICIPIOS
         if departamento and municipio:
@@ -162,17 +214,40 @@ def tienda_admin_crear_view(request):
             if municipios_validos and municipio not in municipios_validos:
                 # Paso de apoyo dentro del flujo principal de la funcionalidad.
                 errores['municipio'] = f'El municipio "{municipio}" no corresponde al departamento seleccionado.'
+        usa_punto_fisico = punto_fisico_raw == 'True'
+        if usa_punto_fisico and not direccion:
+            errores['direccion'] = 'La dirección es obligatoria si la tienda tiene punto físico.'
+        if usa_punto_fisico and not horario:
+            errores['horario'] = 'El horario es obligatorio si la tienda tiene punto físico.'
+        if usa_punto_fisico and horario:
+            from datetime import datetime
+            partes_horario = [parte.strip() for parte in horario.split('-')]
+            if len(partes_horario) != 2:
+                errores['horario'] = 'El horario debe tener formato HH:MM AM/PM - HH:MM AM/PM.'
+            else:
+                try:
+                    apertura_dt = datetime.strptime(partes_horario[0].upper(), '%I:%M %p')
+                    cierre_dt = datetime.strptime(partes_horario[1].upper(), '%I:%M %p')
+                except ValueError:
+                    errores['horario'] = 'El horario debe tener formato HH:MM AM/PM - HH:MM AM/PM.'
+                else:
+                    if cierre_dt <= apertura_dt:
+                        errores['horario'] = 'La hora de cierre debe ser mayor que la de apertura.'
+        if punto_fisico_raw == 'False':
+            horario = 'No aplica'
+            direccion = None
         # Solo se crea la tienda cuando no existe ningún error acumulado.
         # El diccionario "errores" funciona como control central de validación.
         if not errores:
             Shop.objects.create(
-                owner_id=propietario.id_usuario,
+                owner=owner_user,
                 nombre=nombre,
                 # Actualización de estado intermedio que será utilizada en pasos posteriores.
                 telefono=telefono,
                 email=email,
                 departamento=departamento,
                 municipio=municipio,
+                punto_fisico=usa_punto_fisico,
                 # Actualización de estado intermedio que será utilizada en pasos posteriores.
                 direccion=direccion,
                 horario=horario,
@@ -217,6 +292,8 @@ def tienda_admin_editar_view(request, tienda_id):
         'municipio': tienda.municipio,
         'direccion': tienda.direccion,
         'horario': tienda.horario,
+        'punto_fisico': 'True' if tienda.punto_fisico else 'False',
+        'estado_tienda': 'activa' if tienda.is_active else 'inactiva',
         # Paso de apoyo dentro del flujo principal de la funcionalidad.
         'descripcion': tienda.descripcion,
         'owner_tipo_documento': usuario_info.tipo_documento if usuario_info else '',
@@ -235,6 +312,25 @@ def tienda_admin_editar_view(request, tienda_id):
     # El flujo de edición solo procesa cambios cuando llega una petición POST.
     # Si es GET, se muestran los valores actuales precargados en el formulario.
     if request.method == 'POST':
+        import re
+        import unicodedata
+        from django.core.validators import validate_email
+        from django.core.exceptions import ValidationError
+
+        def normalizar_texto(valor):
+            texto = (valor or '').strip().lower()
+            texto = unicodedata.normalize('NFD', texto)
+            return ''.join(ch for ch in texto if unicodedata.category(ch) != 'Mn')
+
+        def resolver_valor_catalogo(valor_ingresado, opciones_catalogo):
+            if not valor_ingresado or not opciones_catalogo:
+                return None
+            valor_normalizado = normalizar_texto(valor_ingresado)
+            for opcion in opciones_catalogo:
+                if normalizar_texto(opcion) == valor_normalizado:
+                    return opcion
+            return None
+
         # Captura de datos de tienda enviados desde el formulario.
         nombre = request.POST.get('nombre', '').strip()
         telefono = request.POST.get('telefono', '').strip()
@@ -242,6 +338,8 @@ def tienda_admin_editar_view(request, tienda_id):
         departamento = request.POST.get('departamento', '').strip()
         # Actualización de estado intermedio que será utilizada en pasos posteriores.
         municipio = request.POST.get('municipio', '').strip()
+        punto_fisico_raw = request.POST.get('punto_fisico', '').strip()
+        estado_tienda = (request.POST.get('estado_tienda', 'activa') or 'activa').strip().lower()
         direccion = request.POST.get('direccion', '').strip()
         horario = request.POST.get('horario', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()
@@ -258,6 +356,7 @@ def tienda_admin_editar_view(request, tienda_id):
         owner_municipio = request.POST.get('owner_municipio', '').strip()
         # Actualización de estado intermedio que será utilizada en pasos posteriores.
         owner_direccion_completa = request.POST.get('owner_direccion_completa', '').strip()
+        owner_foto = request.FILES.get('owner_foto')
         # Se reconstruye "valores" con los datos recién digitados para que,
         # ante cualquier error, el usuario no pierda lo que ya editó.
         valores = {
@@ -269,6 +368,8 @@ def tienda_admin_editar_view(request, tienda_id):
             'municipio': municipio,
             'direccion': direccion,
             'horario': horario,
+            'punto_fisico': punto_fisico_raw,
+            'estado_tienda': estado_tienda,
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             'descripcion': descripcion,
             'owner_tipo_documento': owner_tipo_documento,
@@ -292,22 +393,74 @@ def tienda_admin_editar_view(request, tienda_id):
         if not telefono:
             # Se persiste el mensaje en el diccionario para retroalimentar al usuario.
             errores['telefono'] = 'El teléfono es obligatorio.'
+        elif not re.fullmatch(r'3\d{9}', telefono):
+            errores['telefono'] = 'El teléfono debe tener 10 dígitos y empezar por 3.'
+        else:
+            usuarios_mismo_telefono = Register.objects.exclude(id=usuario_info.id).filter(telefono=telefono) if usuario_info else Register.objects.filter(telefono=telefono)
+            if usuarios_mismo_telefono.exists():
+                errores['telefono'] = 'El teléfono de la tienda ya está asociado a otro usuario.'
+            elif Shop.objects.exclude(id=tienda.id).filter(telefono=telefono).exists():
+                errores['telefono'] = 'El teléfono de la tienda ya está en uso por otra tienda.'
         # Validación explícita del correo: este campo también es requerido en edición.
         if not email:
             # Registrar este error evita que la actualización continúe con datos incompletos.
             errores['email'] = 'El correo es obligatorio.'
+        else:
+            try:
+                validate_email(email)
+            except ValidationError:
+                errores['email'] = 'El correo de la tienda no es válido.'
+            else:
+                owner_email = (usuario_info.correo_electronico or '').strip().lower() if usuario_info else ''
+                email_owner = owner_email and owner_email == email.lower()
+                if not email_owner:
+                    if Register.objects.exclude(id=usuario_info.id).filter(correo_electronico__iexact=email).exists() if usuario_info else Register.objects.filter(correo_electronico__iexact=email).exists():
+                        errores['email'] = 'El correo de la tienda ya está asociado a otro usuario.'
+                    elif Shop.objects.exclude(id=tienda.id).filter(email__iexact=email).exists():
+                        errores['email'] = 'El correo de la tienda ya está en uso por otra tienda.'
         if not departamento:
             errores['departamento'] = 'El departamento es obligatorio.'
         if not municipio:
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             errores['municipio'] = 'El municipio es obligatorio.'
+        if punto_fisico_raw not in ('True', 'False'):
+            errores['punto_fisico'] = 'Debes indicar si la tienda tiene punto físico.'
+        if estado_tienda not in ('activa', 'inactiva'):
+            errores['estado_tienda'] = 'Debes seleccionar un estado válido para la tienda.'
         # Validar que el municipio pertenezca al departamento
         from .departamentos_municipios import DEPARTAMENTOS_MUNICIPIOS
         if departamento and municipio:
             municipios_validos = DEPARTAMENTOS_MUNICIPIOS.get(departamento)
-            if municipios_validos and municipio not in municipios_validos:
+            municipio_catalogo = resolver_valor_catalogo(municipio, municipios_validos)
+            if municipios_validos and not municipio_catalogo:
                 # Paso de apoyo dentro del flujo principal de la funcionalidad.
                 errores['municipio'] = f'El municipio "{municipio}" no corresponde al departamento seleccionado.'
+            elif municipio_catalogo:
+                municipio = municipio_catalogo
+                valores['municipio'] = municipio_catalogo
+
+        usa_punto_fisico = punto_fisico_raw == 'True'
+        if usa_punto_fisico and not direccion:
+            errores['direccion'] = 'La dirección es obligatoria si la tienda tiene punto físico.'
+        if usa_punto_fisico and not horario:
+            errores['horario'] = 'El horario es obligatorio si la tienda tiene punto físico.'
+        if usa_punto_fisico and horario:
+            from datetime import datetime
+            partes_horario = [parte.strip() for parte in horario.split('-')]
+            if len(partes_horario) != 2:
+                errores['horario'] = 'El horario debe tener formato HH:MM AM/PM - HH:MM AM/PM.'
+            else:
+                try:
+                    apertura_dt = datetime.strptime(partes_horario[0].upper(), '%I:%M %p')
+                    cierre_dt = datetime.strptime(partes_horario[1].upper(), '%I:%M %p')
+                except ValueError:
+                    errores['horario'] = 'El horario debe tener formato HH:MM AM/PM - HH:MM AM/PM.'
+                else:
+                    if cierre_dt <= apertura_dt:
+                        errores['horario'] = 'La hora de cierre debe ser mayor que la de apertura.'
+        if punto_fisico_raw == 'False':
+            horario = 'No aplica'
+            direccion = None
 
         # Estas validaciones adicionales solo aplican si la tienda tiene
         # un propietario vinculado en Register (usuario_info existente).
@@ -317,6 +470,8 @@ def tienda_admin_editar_view(request, tienda_id):
             if not owner_numero_documento:
                 # Paso de apoyo dentro del flujo principal de la funcionalidad.
                 errores['owner_numero_documento'] = 'El número de documento del propietario es obligatorio.'
+            elif not re.fullmatch(r'\d{6,15}', owner_numero_documento):
+                errores['owner_numero_documento'] = 'El número de documento debe tener solo dígitos (6 a 15).'
             if not owner_nombres:
                 errores['owner_nombres'] = 'Los nombres del propietario son obligatorios.'
             if not owner_apellidos:
@@ -324,9 +479,16 @@ def tienda_admin_editar_view(request, tienda_id):
                 errores['owner_apellidos'] = 'Los apellidos del propietario son obligatorios.'
             if not owner_correo_electronico:
                 errores['owner_correo_electronico'] = 'El correo del propietario es obligatorio.'
+            else:
+                try:
+                    validate_email(owner_correo_electronico)
+                except ValidationError:
+                    errores['owner_correo_electronico'] = 'El correo del propietario no es válido.'
             if not owner_telefono:
                 # Paso de apoyo dentro del flujo principal de la funcionalidad.
                 errores['owner_telefono'] = 'El teléfono del propietario es obligatorio.'
+            elif not re.fullmatch(r'3\d{9}', owner_telefono):
+                errores['owner_telefono'] = 'El teléfono del propietario debe tener 10 dígitos y empezar por 3.'
             if not owner_departamento:
                 errores['owner_departamento'] = 'El departamento del propietario es obligatorio.'
             if not owner_municipio:
@@ -334,19 +496,36 @@ def tienda_admin_editar_view(request, tienda_id):
                 errores['owner_municipio'] = 'El municipio del propietario es obligatorio.'
             if not owner_direccion_completa:
                 errores['owner_direccion_completa'] = 'La dirección del propietario es obligatoria.'
+            if owner_foto and not (owner_foto.content_type or '').startswith('image/'):
+                errores['owner_foto'] = 'La foto del propietario debe ser una imagen válida.'
 
             if owner_departamento and owner_municipio:
                 owner_municipios_validos = DEPARTAMENTOS_MUNICIPIOS.get(owner_departamento)
-                if owner_municipios_validos and owner_municipio not in owner_municipios_validos:
+                owner_municipio_catalogo = resolver_valor_catalogo(owner_municipio, owner_municipios_validos)
+                if owner_municipios_validos and not owner_municipio_catalogo:
                     errores['owner_municipio'] = f'El municipio "{owner_municipio}" no corresponde al departamento del propietario.'
+                elif owner_municipio_catalogo:
+                    owner_municipio = owner_municipio_catalogo
+                    valores['owner_municipio'] = owner_municipio_catalogo
 
-            if owner_numero_documento and Register.objects.exclude(id=usuario_info.id).filter(numero_documento=owner_numero_documento).exists():
-                errores['owner_numero_documento'] = 'El número de documento ya está en uso.'
-            if owner_correo_electronico and Register.objects.exclude(id=usuario_info.id).filter(correo_electronico=owner_correo_electronico).exists():
-                errores['owner_correo_electronico'] = 'El correo ya está en uso.'
+            if owner_numero_documento:
+                usuario_documento = Register.objects.exclude(id=usuario_info.id).filter(numero_documento=owner_numero_documento).first()
+                if usuario_documento:
+                    nombre_conflicto = f"{usuario_documento.nombres} {usuario_documento.apellidos}".strip() or f"ID {usuario_documento.id}"
+                    errores['owner_numero_documento'] = f'El número de documento ya pertenece a {nombre_conflicto}.'
+
+            if owner_correo_electronico:
+                usuario_correo = Register.objects.exclude(id=usuario_info.id).filter(correo_electronico=owner_correo_electronico).first()
+                if usuario_correo:
+                    nombre_conflicto = f"{usuario_correo.nombres} {usuario_correo.apellidos}".strip() or f"ID {usuario_correo.id}"
+                    errores['owner_correo_electronico'] = f'El correo ya pertenece a {nombre_conflicto}.'
+
             # Control de flujo y validación de condiciones del proceso.
-            if owner_telefono and Register.objects.exclude(id=usuario_info.id).filter(telefono=owner_telefono).exists():
-                errores['owner_telefono'] = 'El teléfono ya está en uso.'
+            if owner_telefono:
+                usuario_telefono = Register.objects.exclude(id=usuario_info.id).filter(telefono=owner_telefono).first()
+                if usuario_telefono:
+                    nombre_conflicto = f"{usuario_telefono.nombres} {usuario_telefono.apellidos}".strip() or f"ID {usuario_telefono.id}"
+                    errores['owner_telefono'] = f'El teléfono ya pertenece a {nombre_conflicto}.'
 
         # Si no hubo errores, se persisten cambios primero en Shop y luego
         # en Register/User para mantener consistencia entre entidades.
@@ -357,6 +536,8 @@ def tienda_admin_editar_view(request, tienda_id):
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             tienda.departamento = departamento
             tienda.municipio = municipio
+            tienda.punto_fisico = usa_punto_fisico
+            tienda.is_active = estado_tienda == 'activa'
             tienda.direccion = direccion
             tienda.horario = horario
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
@@ -376,6 +557,8 @@ def tienda_admin_editar_view(request, tienda_id):
                 usuario_info.municipio = owner_municipio
                 # Paso de apoyo dentro del flujo principal de la funcionalidad.
                 usuario_info.direccion_completa = owner_direccion_completa
+                if owner_foto:
+                    usuario_info.foto = owner_foto
                 usuario_info.save()
 
                 if tienda.owner_id:
@@ -389,10 +572,14 @@ def tienda_admin_editar_view(request, tienda_id):
                         owner_user.email = owner_correo_electronico
                         owner_user.save(update_fields=['first_name', 'last_name', 'email'])
 
-            # Marca visual de éxito para que la plantilla muestre confirmación.
-            success = True
+            from django.contrib import messages
+            from django.shortcuts import redirect
+            messages.success(request, 'Tienda editada exitosamente.')
+            origen = (request.GET.get('from') or '').strip().lower()
+            if origen == 'detail':
+                return redirect('administrador:tienda_admin_detalle', tienda_id)
+            return redirect('administrador:store_admin')
         return render(request, 'administrador/tienda_editar_admin.html', {
-            'success': success,
             'errores': errores,
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             'valores': valores,
@@ -402,7 +589,6 @@ def tienda_admin_editar_view(request, tienda_id):
         # Paso de apoyo dentro del flujo principal de la funcionalidad.
         })
     return render(request, 'administrador/tienda_editar_admin.html', {
-        'success': success,
         'errores': errores,
         # Paso de apoyo dentro del flujo principal de la funcionalidad.
         'valores': valores,
@@ -1017,6 +1203,11 @@ def producto_admin_editar_view(request, product_id):
                 existing_images = producto.images.all().order_by('-created_at')
                 can_upload_more_images = existing_images.count() < 8
     if success:
+        from django.contrib import messages
+        messages.success(request, 'Producto editado exitosamente.')
+        origen = (request.GET.get('from') or '').strip().lower()
+        if origen == 'detail':
+            return redirect('administrador:producto_admin_detalle', product_id=producto.id)
         return redirect('administrador:producs_page')
     # Retorno de respuesta según el estado y resultado de la operación.
     return render(request, 'administrador/producto_editar_admin.html', {
@@ -1196,6 +1387,29 @@ def usuario_admin_enviar_mensaje_general_view(request):
 
 # Vista para editar el perfil del admin autenticado
 from django.contrib.auth.decorators import login_required
+
+
+def admin_perfil_view(request):
+    """Muestra el perfil del administrador autenticado en modo solo lectura."""
+    from usuarios.models import Register
+
+    admin_id = request.session.get('admin_user_id')
+    if not admin_id:
+        return redirect('usuarios:login')
+
+    usuario = get_object_or_404(Register, id_usuario=admin_id)
+    tienda = Shop.objects.filter(owner__id=usuario.id_usuario).first()
+    return render(
+        request,
+        'administrador/usuario_detalle_admin.html',
+        {
+            'usuario': usuario,
+            'tienda': tienda,
+            'es_perfil_admin': True,
+        },
+    )
+
+
 def admin_editar_perfil_view(request):
     # Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
     # Respuesta: retorna render, redirect o JSON según el resultado de la operación.
@@ -1272,6 +1486,24 @@ class UsuarioAdminForm(forms.ModelForm):
             'descripcion_perfil': forms.Textarea(attrs={'rows': 2}),
         }
 
+    def clean_correo_electronico(self):
+        correo = (self.cleaned_data.get('correo_electronico') or '').strip()
+        if not correo:
+            return correo
+        qs = Register.objects.exclude(id=self.instance.id).filter(correo_electronico__iexact=correo)
+        if qs.exists():
+            raise forms.ValidationError('Ya existe un usuario con ese correo.')
+        return correo
+
+    def clean_telefono(self):
+        telefono = (self.cleaned_data.get('telefono') or '').strip()
+        if not telefono:
+            return telefono
+        qs = Register.objects.exclude(id=self.instance.id).filter(telefono=telefono)
+        if qs.exists():
+            raise forms.ValidationError('Ya existe un usuario con ese teléfono.')
+        return telefono
+
 def usuario_admin_editar_view(request, usuario_id):
     # Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
     # Respuesta: retorna render, redirect o JSON según el resultado de la operación.
@@ -1279,32 +1511,21 @@ def usuario_admin_editar_view(request, usuario_id):
     # Edición integral de usuario y sincronización de tienda asociada.
     from usuarios.models import Register
     usuario = get_object_or_404(Register, id=usuario_id)
-    tienda = Shop.objects.filter(owner__id=usuario.id_usuario).first()
     if request.method == 'POST':
         # Actualización de estado intermedio que será utilizada en pasos posteriores.
         form = UsuarioAdminForm(request.POST, instance=usuario)
+        form.fields['tipo_documento'].choices = [('TI', 'TI'), ('CC', 'CC')]
+        form.fields['tipo_documento'].widget = forms.Select(choices=[('TI', 'TI'), ('CC', 'CC')])
         if form.is_valid():
             form.save()
-            # Guardar datos de tienda si existen
-            if tienda:
-                tienda.nombre = request.POST.get('tienda_nombre', tienda.nombre)
-                tienda.email = request.POST.get('tienda_email', tienda.email)
-                tienda.telefono = request.POST.get('tienda_telefono', tienda.telefono)
-                # Paso de apoyo dentro del flujo principal de la funcionalidad.
-                tienda.departamento = request.POST.get('tienda_departamento', tienda.departamento)
-                tienda.municipio = request.POST.get('tienda_municipio', tienda.municipio)
-                tienda.direccion = request.POST.get('tienda_direccion', tienda.direccion)
-                tienda.descripcion = request.POST.get('tienda_descripcion', tienda.descripcion)
-                # Paso de apoyo dentro del flujo principal de la funcionalidad.
-                tienda.horario = request.POST.get('tienda_horario', tienda.horario)
-                tienda.punto_fisico = request.POST.get('tienda_punto_fisico', 'True') == 'True'
-                tienda.is_active = request.POST.get('tienda_is_active', 'True') == 'True'
-                tienda.save()
+            messages.success(request, 'Usuario editado exitosamente.')
             # Retorno de respuesta según el estado y resultado de la operación.
             return redirect('administrador:usuario_admin_detalle', usuario_id=usuario.id)
     else:
         form = UsuarioAdminForm(instance=usuario)
-    return render(request, 'administrador/usuario_editar_admin.html', {'form': form, 'usuario': usuario, 'tienda': tienda})
+        form.fields['tipo_documento'].choices = [('TI', 'TI'), ('CC', 'CC')]
+        form.fields['tipo_documento'].widget = forms.Select(choices=[('TI', 'TI'), ('CC', 'CC')])
+    return render(request, 'administrador/usuario_editar_admin.html', {'form': form, 'usuario': usuario})
 
 
 @require_POST
@@ -1314,19 +1535,43 @@ def usuario_admin_enviar_recuperacion_view(request, usuario_id):
     # Respuesta: retorna render, redirect o JSON según el resultado de la operación.
     from usuarios.models import Register
     from django.urls import reverse
+    from django.utils.http import url_has_allowed_host_and_scheme
     from django.utils import timezone
     from datetime import timedelta
+    from urllib.parse import urlencode, urlsplit, urlunsplit, parse_qsl
     # Importación de dependencias necesarias para ejecutar esta vista.
     from django.core.mail import send_mail
     from django.conf import settings
+    from django.core.validators import validate_email
+    from django.core.exceptions import ValidationError
+    import logging
     import random
     import string
 
+    logger = logging.getLogger(__name__)
+
     usuario = get_object_or_404(Register, id=usuario_id)
     redirect_url = reverse('administrador:usuario_admin_editar', args=[usuario.id])
+    next_url = (request.POST.get('next') or '').strip()
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        redirect_url = next_url
 
-    if not usuario.correo_electronico:
-        return redirect(f"{redirect_url}?recovery_mail=missing_email")
+    def with_query_param(url, key, value):
+        partes = urlsplit(url)
+        query = dict(parse_qsl(partes.query, keep_blank_values=True))
+        query[key] = value
+        return urlunsplit((partes.scheme, partes.netloc, partes.path, urlencode(query), partes.fragment))
+
+    correo_override = (request.POST.get('target_email') or '').strip()
+    correo_destino = correo_override or (usuario.correo_electronico or '').strip()
+
+    if not correo_destino:
+        return redirect(with_query_param(redirect_url, 'recovery_mail', 'missing_email'))
+
+    try:
+        validate_email(correo_destino)
+    except ValidationError:
+        return redirect(with_query_param(redirect_url, 'recovery_mail', 'missing_email'))
 
     codigo = ''.join(random.choices(string.digits, k=6))
     usuario.codigo_reset = codigo
@@ -1334,7 +1579,7 @@ def usuario_admin_enviar_recuperacion_view(request, usuario_id):
     usuario.save(update_fields=['codigo_reset', 'fecha_expiracion_codigo'])
 
     try:
-        send_mail(
+        enviados = send_mail(
             subject='Código para restablecer contraseña - Agrophia',
             message=(
                 # Paso de apoyo dentro del flujo principal de la funcionalidad.
@@ -1346,14 +1591,17 @@ def usuario_admin_enviar_recuperacion_view(request, usuario_id):
                 'Saludos,\nEquipo Agrophia'
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[usuario.correo_electronico],
+            recipient_list=[correo_destino],
             # Actualización de estado intermedio que será utilizada en pasos posteriores.
             fail_silently=False,
         )
-    except Exception:
-        return redirect(f"{redirect_url}?recovery_mail=error")
+        if enviados < 1:
+            raise RuntimeError('No se pudo confirmar el envío del correo de recuperación.')
+    except Exception as exc:
+        logger.exception('Fallo enviando correo de recuperación a %s (usuario_id=%s): %s', correo_destino, usuario.id, exc)
+        return redirect(with_query_param(redirect_url, 'recovery_mail', 'error'))
 
-    return redirect(f"{redirect_url}?recovery_mail=sent")
+    return redirect(with_query_param(redirect_url, 'recovery_mail', 'sent'))
 # Vista para detalle de usuario admin
 from django.shortcuts import get_object_or_404
 
@@ -2414,9 +2662,15 @@ def usuarios_admin_view(request):
     # Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
     # Respuesta: retorna render, redirect o JSON según el resultado de la operación.
     """Renderiza listado de usuarios administrables (excluye admins)."""
-    # Lista general de usuarios no administradores.
+    # Lista solo clientes: excluye admins y usuarios que ya son dueños de tienda.
     from Administrador.departamentos_municipios import DEPARTAMENTOS_MUNICIPIOS
-    usuarios = Register.objects.exclude(estado='admin').order_by('nombres', 'apellidos')
+    usuarios_con_tienda = Shop.objects.exclude(owner__isnull=True).values_list('owner_id', flat=True)
+    usuarios = (
+        Register.objects
+        .exclude(estado='admin')
+        .exclude(id_usuario__in=usuarios_con_tienda)
+        .order_by('nombres', 'apellidos')
+    )
     return render(request, 'administrador/usuarios_admin.html', {
         'usuarios': usuarios,
         # Paso de apoyo dentro del flujo principal de la funcionalidad.
@@ -2736,10 +2990,12 @@ def usuario_admin_crear_view(request):
         if not correo_electronico:
             errores['correo_electronico'] = 'El correo es obligatorio.'
         # Control de flujo y validación de condiciones del proceso.
-        elif Register.objects.filter(correo_electronico=correo_electronico).exists():
+        elif Register.objects.filter(correo_electronico__iexact=correo_electronico).exists():
             errores['correo_electronico'] = 'Ya existe un usuario con ese correo.'
         if not telefono:
             errores['telefono'] = 'El teléfono es obligatorio.'
+        elif Register.objects.filter(telefono=telefono).exists():
+            errores['telefono'] = 'Ya existe un usuario con ese teléfono.'
         # Control de flujo y validación de condiciones del proceso.
         if not departamento:
             errores['departamento'] = 'El departamento es obligatorio.'
@@ -2844,7 +3100,11 @@ def pedido_admin_editar_view(request, pedido_id):
             pedido.status = status
             pedido.delivery_address = delivery_address
             pedido.save()
-            # Retorno de respuesta según el estado y resultado de la operación.
+            from django.contrib import messages
+            messages.success(request, 'Pedido actualizado correctamente.')
+            origen = (request.GET.get('from') or '').strip().lower()
+            if origen == 'detail':
+                return redirect('administrador:pedido_admin_detalle', pedido_id=pedido.id)
             return redirect('administrador:orders_page')
     items = pedido.items.select_related('product', 'farmer').all()
     return render(request, 'administrador/pedido_editar_card.html', {

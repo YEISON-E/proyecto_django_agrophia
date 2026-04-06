@@ -89,6 +89,16 @@ document.addEventListener("DOMContentLoaded", function () {
         reportOverlay.setAttribute("aria-hidden", "true");
     }
 
+    function openProfileMenu() {
+        menu.style.display = "block";
+        document.body.classList.add("admin-profile-menu-open");
+    }
+
+    function closeProfileMenu() {
+        menu.style.display = "none";
+        document.body.classList.remove("admin-profile-menu-open");
+    }
+
     function resolveUserById(userId) {
         const button = document.querySelector('.users-table__button--message[data-user-id="' + userId + '"]');
         if (!button) {
@@ -182,7 +192,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
     toggleButton.addEventListener("click", function (event) {
         event.stopPropagation();
-        menu.style.display = menu.style.display === "block" ? "none" : "block";
+        if (menu.style.display === "block") {
+            closeProfileMenu();
+            return;
+        }
+        openProfileMenu();
     });
 
     if (reportTrigger) {
@@ -230,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("click", function (event) {
         if (!event.target.closest(".toolbar-main__profile-dropdown")) {
-            menu.style.display = "none";
+            closeProfileMenu();
         }
         if (reportOverlay && event.target === reportOverlay) {
             closeReportModal();
@@ -239,6 +253,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
+            closeProfileMenu();
             closeReportModal();
         }
     });

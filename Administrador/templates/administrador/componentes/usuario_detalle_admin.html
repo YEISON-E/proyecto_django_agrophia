@@ -31,5 +31,9 @@
       {% endif %}
     </div>
   </div>
+  {% if es_perfil_admin %}
+  <a href="{% url 'administrador:home_admin' %}" class="user-detail-back">&larr; Volver al inicio</a>
+  {% else %}
   <a href="{% url 'administrador:usuarios_admin' %}" class="user-detail-back">&larr; Volver a la lista</a>
+  {% endif %}
 </div>

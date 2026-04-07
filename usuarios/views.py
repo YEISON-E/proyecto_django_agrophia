@@ -743,58 +743,10 @@ class Logueo(LoginView):
         if not _is_hashed_password(usuario_registro.contrasena):
             _set_register_password(usuario_registro, password)
 
-        # 5) Si la cuenta esta inactiva/bloqueada, registra notificacion al admin.
+        # 5) Si la cuenta esta inactiva/bloqueada, muestra aviso y permite enviar
+        # solicitud manual desde el modal del login.
         # VALIDAR ESTADO
         if usuario_registro.estado not in ['activo', 'admin']:
-            try:
-                from Mensajes.models import AdminNotification
-
-                sender_user = None
-                if usuario_registro.id_usuario:
-                    sender_user = User.objects.filter(id=usuario_registro.id_usuario).first()
-                if sender_user is None:
-                    # Actualización de estado intermedio que será utilizada en pasos posteriores.
-                    sender_user = User.objects.filter(username=username).first()
-                if sender_user is None:
-                    sender_user = User.objects.create_user(
-                        username=username,
-                        # Actualización de estado intermedio que será utilizada en pasos posteriores.
-                        password=None,
-                        email=usuario_registro.correo_electronico,
-                        first_name=usuario_registro.nombres,
-                        last_name=usuario_registro.apellidos,
-                    # Paso de apoyo dentro del flujo principal de la funcionalidad.
-                    )
-
-                if usuario_registro.id_usuario != sender_user.id:
-                    usuario_registro.id_usuario = sender_user.id
-                    usuario_registro.save(update_fields=["id_usuario"])
-
-                last_window = timezone.now() - timedelta(minutes=10)
-                already_notified = AdminNotification.objects.filter(
-                    notification_type=AdminNotification.TYPE_BLOCKED_LOGIN_ATTEMPT,
-                    sender_register=usuario_registro,
-                    # Actualización de estado intermedio que será utilizada en pasos posteriores.
-                    created_at__gte=last_window,
-                ).exists()
-
-                if not already_notified:
-                    AdminNotification.objects.create(
-                        notification_type=AdminNotification.TYPE_BLOCKED_LOGIN_ATTEMPT,
-                        sender_user=sender_user,
-                        # Actualización de estado intermedio que será utilizada en pasos posteriores.
-                        sender_register=usuario_registro,
-                        product=None,
-                        message=(
-                            "El usuario bloqueado intento iniciar sesion. "
-                            # Paso de apoyo dentro del flujo principal de la funcionalidad.
-                            f"Documento: {usuario_registro.numero_documento}."
-                        ),
-                    )
-            except Exception:
-                # Nunca bloquear el flujo de login por errores de notificación.
-                pass
-
             errores["general"] = "Tu cuenta está bloqueada o inactiva. Contacta al administrador."
             blocked_account_token = signing.dumps({
                 "register_id": usuario_registro.id,

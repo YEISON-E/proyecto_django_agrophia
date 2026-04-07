@@ -13,6 +13,7 @@ urlpatterns = [
     path('tiendas/', views.store_admin_view, name='store_admin'),
     path('tiendas/crear/', views.tienda_admin_crear_view, name='tienda_admin_crear'),
     path('tiendas/<int:tienda_id>/', views.tienda_admin_detalle_view, name='tienda_admin_detalle'),
+    path('tiendas/<int:tienda_id>/productos/', views.tienda_admin_productos_view, name='tienda_admin_productos'),
     path('tiendas/<int:tienda_id>/editar/', views.tienda_admin_editar_view, name='tienda_admin_editar'),
     path('tiendas/<int:tienda_id>/block/', views.tienda_admin_block_view, name='tienda_admin_block'),
     path('tiendas/<int:tienda_id>/unblock/', views.tienda_admin_unblock_view, name='tienda_admin_unblock'),
@@ -40,4 +41,6 @@ urlpatterns = [
     path('pedidos/reporte/', views.reporte_pedidos_view, name='reporte_pedidos'),
     path('notificaciones/', views.admin_notifications_view, name='admin_notifications'),
     path('notificaciones/<int:notification_id>/leer/', views.admin_notification_mark_read_view, name='admin_notification_mark_read'),
+    path('notificaciones/<int:notification_id>/desbloquear/', views.admin_notification_unblock_user_view, name='admin_notification_unblock_user'),
+    path('notificaciones/<int:notification_id>/responder/', views.admin_notification_reply_view, name='admin_notification_reply'),
 ]

@@ -284,6 +284,7 @@
 	margin: 0 0 14px;
 	font-size: var(--fs-xxxs);
 	color: #334155;
+	text-align: center;
 }
 
 .shop-confirm-modal__actions {

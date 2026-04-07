@@ -36,7 +36,7 @@
       </div>
     {% endif %}
     <div class="shop-edit-footer">
-      <a href="{% if request.GET.from == 'detail' %}{% url 'administrador:pedido_admin_detalle' pedido.id %}{% else %}{% url 'administrador:orders_page' %}{% endif %}" class="shop-edit-cancel">&larr; Volver</a>
+      <a href="{% if request.GET.from == 'detail' %}{% url 'administrador:pedido_admin_detalle' pedido.id %}{% else %}{% url 'administrador:orders_page' %}{% endif %}" class="shop-edit-cancel">Volver</a>
       <button type="submit" class="shop-edit-btn" {% if pedido.status == 'cancelled' %}disabled{% endif %}>Actualizar pedido</button>
     </div>
   </form>

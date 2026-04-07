@@ -1,0 +1,69 @@
+{% load static %}
+<section class="shop-products-view">
+  <header class="shop-products-view__header">
+    <div>
+      <h2 class="shop-products-view__title">Productos de la tienda</h2>
+      <p class="shop-products-view__subtitle">
+        <strong>{{ tienda.nombre }}</strong> (ID {{ tienda.id }})
+      </p>
+    </div>
+    <div class="shop-products-view__actions">
+      <a href="{% url 'administrador:tienda_admin_detalle' tienda.id %}" class="shop-products-view__btn shop-products-view__btn--secondary">Volver al detalle</a>
+      <a href="{% url 'administrador:store_admin' %}" class="shop-products-view__btn shop-products-view__btn--secondary">Ir a tiendas</a>
+    </div>
+  </header>
+
+  <div class="shop-products-view__filters">
+    <label for="shop-products-search" class="shop-products-view__search-label">Buscar producto</label>
+    <div class="shop-products-view__search-wrap">
+      <input
+        type="text"
+        id="shop-products-search"
+        class="shop-products-view__search-input"
+        placeholder="Nombre, ID, categoría o estado"
+        aria-label="Buscar productos de la tienda"
+      >
+      <button type="button" id="shop-products-search-clear" class="shop-products-view__clear">Limpiar</button>
+    </div>
+  </div>
+
+  <div class="shop-products-view__table-wrap">
+    <table class="shop-products-view__table" id="shop-products-table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>ID</th>
+          <th>Categoría</th>
+          <th>Precio</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for producto in productos %}
+        <tr class="shop-products-view__row" data-search="{{ producto.nombre|lower }} {{ producto.id }} {{ producto.tipo|lower }} {% if producto.is_active %}activo{% else %}inactivo{% endif %}">
+          <td>{{ producto.nombre }}</td>
+          <td>{{ producto.id }}</td>
+          <td>{{ producto.tipo }}</td>
+          <td>${{ producto.precio }}</td>
+          <td>
+            {% if producto.is_active %}
+            <span class="shop-products-view__status shop-products-view__status--active">Activo</span>
+            {% else %}
+            <span class="shop-products-view__status shop-products-view__status--inactive">Inactivo</span>
+            {% endif %}
+          </td>
+          <td class="shop-products-view__cell-actions">
+            <a href="{% url 'administrador:producto_admin_detalle' producto.id %}" class="shop-products-view__action-link">Ver</a>
+            <a href="{% url 'administrador:producto_admin_editar' producto.id %}?from=shop" class="shop-products-view__action-link">Editar</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="shop-products-view__empty">Esta tienda no tiene productos registrados.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>

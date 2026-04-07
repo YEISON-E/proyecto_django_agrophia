@@ -9,6 +9,9 @@
   color: #232323;
   border: 1px solid #e5e7eb;
 }
+.product-detail-main--create {
+  max-width: 920px;
+}
 .product-detail-title {
   font-size: 1.3em;
   font-weight: 700;

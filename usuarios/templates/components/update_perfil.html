@@ -11,8 +11,9 @@
             {% if register_user and register_user.foto %}
         <img id="preview-update" src="{{ register_user.foto.url }}" alt="foto de Perfil cargada" class="profile-update__group-file__photo_review">
             {% else %}
-        {% load static %}
-        <img id="preview-update" src="{% static 'img/foto_sofi.png' %}" alt="foto de Perfil cargada" class="profile-update__group-file__photo_review">
+        <span id="preview-update" class="profile-update__group-file__photo_review" style="display:flex;align-items:center;justify-content:center;background:#6366f1;color:#fff;font-weight:700;font-size:2rem;">
+          {% if register_user and register_user.nombres %}{{ register_user.nombres|slice:':1'|upper }}{% else %}U{% endif %}{% if register_user and register_user.apellidos %}{{ register_user.apellidos|slice:':1'|upper }}{% endif %}
+        </span>
             {% endif %}
           
           <!-- Label que actúa como botón -->

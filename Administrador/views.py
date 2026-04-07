@@ -55,12 +55,30 @@ def tienda_admin_detalle_view(request, tienda_id):
     usuario_info = None
     if usuario:
         # Actualización de estado intermedio que será utilizada en pasos posteriores.
-        usuario_info = Register.objects.filter(id_usuario=usuario.id).first()
+        usuario_info = Register.objects.filter(id_usuario=usuario.id).order_by('-id').first()
     return render(request, 'administrador/tienda_detalle_admin.html', {
         'tienda': tienda,
         'usuario': usuario,
         # Paso de apoyo dentro del flujo principal de la funcionalidad.
         'usuario_info': usuario_info,
+    })
+
+def tienda_admin_productos_view(request, tienda_id):
+    # Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+    # Respuesta: retorna render, redirect o JSON según el resultado de la operación.
+    """Muestra el listado de productos de una tienda específica en admin."""
+    from Productos.models import Product
+
+    tienda = get_object_or_404(Shop, id=tienda_id)
+    productos = (
+        Product.objects
+        .filter(shop=tienda)
+        .select_related('shop')
+        .order_by('-created_at')
+    )
+    return render(request, 'administrador/tienda_productos_admin.html', {
+        'tienda': tienda,
+        'productos': productos,
     })
 
 def tienda_admin_crear_view(request):
@@ -279,7 +297,7 @@ def tienda_admin_editar_view(request, tienda_id):
     """
     # Edita datos administrativos de tienda con validación básica de ubicación.
     tienda = get_object_or_404(Shop, id=tienda_id)
-    usuario_info = Register.objects.filter(id_usuario=tienda.owner_id).first() if tienda.owner_id else None
+    usuario_info = Register.objects.filter(id_usuario=tienda.owner_id).order_by('-id').first() if tienda.owner_id else None
     success = False
     errores = {}
     # Actualización de estado intermedio que será utilizada en pasos posteriores.
@@ -575,9 +593,7 @@ def tienda_admin_editar_view(request, tienda_id):
             from django.contrib import messages
             from django.shortcuts import redirect
             messages.success(request, 'Tienda editada exitosamente.')
-            origen = (request.GET.get('from') or '').strip().lower()
-            if origen == 'detail':
-                return redirect('administrador:tienda_admin_detalle', tienda_id)
+            # Retorna a la vista de administración de tiendas para mostrar la lista actualizada.
             return redirect('administrador:store_admin')
         return render(request, 'administrador/tienda_editar_admin.html', {
             'errores': errores,
@@ -947,9 +963,11 @@ def producto_admin_crear_view(request):
     success = False
     errores = {}
     valores = {}
+    tiendas = Shop.objects.select_related('owner').order_by('nombre')
     if request.method == 'POST':
         # Actualización de estado intermedio que será utilizada en pasos posteriores.
         nombre = request.POST.get('nombre', '').strip()
+        shop_id = request.POST.get('shop_id', '').strip()
         tipo = request.POST.get('tipo', '').strip()
         tipo_otro = request.POST.get('tipo_otro', '').strip()
         unidad = request.POST.get('unidad', '').strip()
@@ -962,6 +980,7 @@ def producto_admin_crear_view(request):
         fotos = request.FILES.getlist('fotos')
         valores = {
             'nombre': nombre,
+            'shop_id': shop_id,
             'tipo': tipo,
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             'tipo_otro': tipo_otro,
@@ -975,6 +994,17 @@ def producto_admin_crear_view(request):
         # Validaciones básicas
         if not nombre:
             errores['nombre'] = 'El nombre es obligatorio.'
+        tienda = None
+        if not shop_id:
+            errores['shop'] = 'Debes seleccionar una tienda.'
+        else:
+            try:
+                tienda = Shop.objects.select_related('owner').get(id=int(shop_id))
+            except (TypeError, ValueError, Shop.DoesNotExist):
+                errores['shop'] = 'La tienda seleccionada no es válida.'
+            else:
+                if not tienda.owner_id:
+                    errores['shop'] = 'La tienda seleccionada no tiene propietario asignado.'
         if not tipo:
             errores['tipo'] = 'El tipo es obligatorio.'
         # Control de flujo y validación de condiciones del proceso.
@@ -1035,7 +1065,8 @@ def producto_admin_crear_view(request):
                 descripcion=descripcion,
                 garantia=garantia,
                 is_active=(int(stock) > 0),
-                owner=request.user if request.user.is_authenticated else None
+                owner=tienda.owner,
+                shop=tienda,
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             )
             try:
@@ -1049,13 +1080,15 @@ def producto_admin_crear_view(request):
                 # Iteración sobre datos para aplicar reglas de negocio paso a paso.
                 for photo in fotos:
                     ProductImage.objects.create(product=producto, image=photo)
-                success = True
-                valores = {}
+                from django.contrib import messages
+                messages.success(request, 'Producto creado exitosamente.')
+                return redirect('administrador:producs_page')
     # Retorno de respuesta según el estado y resultado de la operación.
     return render(request, 'administrador/producto_crear_admin.html', {
         'success': success,
         'errores': errores,
         'valores': valores,
+        'tiendas': tiendas,
         # Paso de apoyo dentro del flujo principal de la funcionalidad.
         'tipo_choices': Product.TIPO_CHOICES,
         'unidad_choices': Product.UNIDAD_CHOICES,
@@ -1309,6 +1342,168 @@ def admin_notification_mark_read_view(request, notification_id):
         notification.is_read = True
         notification.save(update_fields=['is_read'])
 
+    return redirect('administrador:admin_notifications')
+
+
+@require_POST
+def admin_notification_unblock_user_view(request, notification_id):
+    """
+    Desbloquea al usuario asociado a una notificación administrativa.
+    """
+    if not request.user.is_authenticated:
+        return redirect('usuarios:login')
+
+    from usuarios.models import Register
+    register_admin = Register.objects.filter(id_usuario=request.user.id, estado='admin').first()
+    if not register_admin:
+        return redirect('usuarios:home_customer')
+
+    from Mensajes.models import AdminNotification
+    from django.core.mail import send_mail
+
+    notification = get_object_or_404(AdminNotification, id=notification_id)
+
+    target_register = notification.sender_register
+    if target_register is None and notification.sender_user_id:
+        target_register = Register.objects.filter(id_usuario=notification.sender_user_id).order_by('-id').first()
+
+    if target_register is None:
+        messages.error(request, 'No fue posible identificar el usuario para desbloquear.')
+        return redirect('administrador:admin_notifications')
+
+    fields_to_update = []
+    if target_register.estado != 'activo':
+        target_register.estado = 'activo'
+        fields_to_update.append('estado')
+    if target_register.failed_login_attempts:
+        target_register.failed_login_attempts = 0
+        fields_to_update.append('failed_login_attempts')
+    if target_register.blocked_until is not None:
+        target_register.blocked_until = None
+        fields_to_update.append('blocked_until')
+
+    target_email = (target_register.correo_electronico or '').strip()
+    target_name = f"{target_register.nombres} {target_register.apellidos}".strip() or 'usuario'
+
+    if fields_to_update:
+        target_register.save(update_fields=fields_to_update)
+        email_sent = 0
+        if target_email:
+            unlock_subject = 'Tu cuenta en Agrophia ha sido desbloqueada'
+            unlock_body = (
+                f"Hola {target_name},\n\n"
+                "Te informamos que tu cuenta en Agrophia ha sido desbloqueada exitosamente por el equipo administrativo.\n\n"
+                "Ya puedes volver a iniciar sesión y continuar usando la plataforma con normalidad.\n\n"
+                "Si no reconoces esta gestión o necesitas ayuda adicional, responde este correo o contacta nuestro soporte.\n\n"
+                "Gracias por confiar en Agrophia.\n"
+                "Equipo Agrophia"
+            )
+            try:
+                email_sent = send_mail(
+                    unlock_subject,
+                    unlock_body,
+                    'no-reply@agrophia.com',
+                    [target_email],
+                    fail_silently=False,
+                )
+            except Exception:
+                email_sent = 0
+
+        if target_email and email_sent <= 0:
+            messages.warning(request, 'Usuario desbloqueado, pero no fue posible enviar el correo de notificación.')
+        elif not target_email:
+            messages.warning(request, 'Usuario desbloqueado, pero no tiene correo registrado para notificar.')
+        else:
+            messages.success(request, 'Usuario desbloqueado correctamente. Se envió el correo de confirmación.')
+    else:
+        messages.info(request, 'El usuario ya se encontraba desbloqueado.')
+
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save(update_fields=['is_read'])
+
+    return redirect('administrador:admin_notifications')
+
+
+@require_POST
+def admin_notification_reply_view(request, notification_id):
+    """
+    Responde al remitente de la notificación y envía el contenido por correo.
+    """
+    if not request.user.is_authenticated:
+        return redirect('usuarios:login')
+
+    from usuarios.models import Register
+    register_admin = Register.objects.filter(id_usuario=request.user.id, estado='admin').first()
+    if not register_admin:
+        return redirect('usuarios:home_customer')
+
+    from Mensajes.models import AdminNotification, AdminToUserMessage
+    from django.core.mail import send_mail
+
+    notification = get_object_or_404(AdminNotification, id=notification_id)
+    reply_text = (request.POST.get('reply_message') or '').strip()
+
+    if not reply_text:
+        messages.error(request, 'Debes escribir una respuesta para enviar.')
+        return redirect('administrador:admin_notifications')
+
+    target_register = notification.sender_register
+    if target_register is None and notification.sender_user_id:
+        target_register = Register.objects.filter(id_usuario=notification.sender_user_id).order_by('-id').first()
+
+    target_email = ''
+    target_name = 'usuario'
+    if target_register is not None:
+        target_email = (target_register.correo_electronico or '').strip()
+        target_name = f"{target_register.nombres} {target_register.apellidos}".strip() or 'usuario'
+    elif notification.sender_user_id:
+        sender_user = notification.sender_user
+        if sender_user is not None:
+            target_email = (sender_user.email or '').strip()
+            target_name = sender_user.get_full_name().strip() or sender_user.username or 'usuario'
+
+    if not target_email:
+        messages.error(request, 'No hay un correo electrónico válido para enviar la respuesta.')
+        return redirect('administrador:admin_notifications')
+
+    if target_register is not None:
+        AdminToUserMessage.objects.create(
+            usuario=target_register,
+            texto=reply_text,
+            enviado=True,
+        )
+
+    subject = 'Respuesta del administrador de Agrophia'
+    email_body = (
+        f"Hola {target_name},\n\n"
+        "Hemos recibido tu notificación y te respondemos a continuación:\n\n"
+        f"{reply_text}\n\n"
+        "Mensaje original:\n"
+        f"{notification.message}\n\n"
+        "Equipo Agrophia"
+    )
+
+    try:
+        sent_count = send_mail(
+            subject,
+            email_body,
+            'no-reply@agrophia.com',
+            [target_email],
+            fail_silently=False,
+        )
+    except Exception:
+        sent_count = 0
+
+    if sent_count <= 0:
+        messages.error(request, 'No se pudo enviar el correo de respuesta. Intenta nuevamente.')
+        return redirect('administrador:admin_notifications')
+
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save(update_fields=['is_read'])
+
+    messages.success(request, 'Respuesta enviada correctamente al correo del usuario.')
     return redirect('administrador:admin_notifications')
 # ============================================================
 # BLOQUE 4: MENSAJERIA ADMINISTRATIVA
@@ -2701,10 +2896,42 @@ def usuario_admin_block_view(request, usuario_id):
     if request.method != 'POST':
         return JsonResponse({'ok': False}, status=400)
 
+    from django.core.mail import send_mail
+
     usuario = get_object_or_404(Register, id=usuario_id)
+    was_blocked = usuario.estado == 'inactivo'
     usuario.estado = 'inactivo'
     usuario.save(update_fields=['estado'])
-    return JsonResponse({'ok': True})
+
+    email_sent = 0
+    target_email = (usuario.correo_electronico or '').strip()
+    if target_email:
+        full_name = f"{usuario.nombres} {usuario.apellidos}".strip() or 'usuario'
+        subject = 'Tu cuenta en Agrophia ha sido bloqueada temporalmente'
+        body = (
+            f"Hola {full_name},\n\n"
+            "Te informamos que tu cuenta en Agrophia ha sido bloqueada por el equipo administrativo.\n\n"
+            "Mientras el bloqueo esté activo, no podrás ingresar ni realizar operaciones en la plataforma.\n"
+            "Si consideras que se trata de un error o deseas solicitar revisión, por favor comunícate con soporte o con el administrador.\n\n"
+            "Gracias por tu comprensión.\n"
+            "Equipo Agrophia"
+        )
+        try:
+            email_sent = send_mail(
+                subject,
+                body,
+                'no-reply@agrophia.com',
+                [target_email],
+                fail_silently=False,
+            )
+        except Exception:
+            email_sent = 0
+
+    return JsonResponse({
+        'ok': True,
+        'email_sent': bool(email_sent),
+        'already_blocked': was_blocked,
+    })
 
 def usuario_admin_unblock_view(request, usuario_id):
     # Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
@@ -2714,10 +2941,44 @@ def usuario_admin_unblock_view(request, usuario_id):
     if request.method != 'POST':
         return JsonResponse({'ok': False}, status=400)
 
+    from django.core.mail import send_mail
+
     usuario = get_object_or_404(Register, id=usuario_id)
+    was_active = usuario.estado == 'activo'
     usuario.estado = 'activo'
-    usuario.save(update_fields=['estado'])
-    return JsonResponse({'ok': True})
+    usuario.failed_login_attempts = 0
+    usuario.blocked_until = None
+    usuario.save(update_fields=['estado', 'failed_login_attempts', 'blocked_until'])
+
+    email_sent = 0
+    target_email = (usuario.correo_electronico or '').strip()
+    if target_email:
+        full_name = f"{usuario.nombres} {usuario.apellidos}".strip() or 'usuario'
+        subject = 'Tu cuenta en Agrophia ha sido desbloqueada'
+        body = (
+            f"Hola {full_name},\n\n"
+            "Te confirmamos que tu cuenta en Agrophia ha sido desbloqueada exitosamente por el equipo administrativo.\n\n"
+            "Ya puedes iniciar sesión nuevamente y usar la plataforma con normalidad.\n"
+            "Si presentas alguna novedad al ingresar, por favor comunícate con soporte para ayudarte de inmediato.\n\n"
+            "Gracias por seguir con nosotros.\n"
+            "Equipo Agrophia"
+        )
+        try:
+            email_sent = send_mail(
+                subject,
+                body,
+                'no-reply@agrophia.com',
+                [target_email],
+                fail_silently=False,
+            )
+        except Exception:
+            email_sent = 0
+
+    return JsonResponse({
+        'ok': True,
+        'email_sent': bool(email_sent),
+        'already_active': was_active,
+    })
 
 def usuario_admin_enviar_mensaje_view(request, usuario_id):
     # Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
@@ -2946,6 +3207,8 @@ def usuario_admin_crear_view(request):
     errores = {}
     valores = {}
     if request.method == 'POST':
+        import re
+        from usuarios.views import _validate_password_policy
         from Administrador.departamentos_municipios import DEPARTAMENTOS_MUNICIPIOS
         # Actualización de estado intermedio que será utilizada en pasos posteriores.
         nombres = request.POST.get('nombres', '').strip()
@@ -2984,9 +3247,13 @@ def usuario_admin_crear_view(request):
             errores['tipo_documento'] = 'El tipo de documento es obligatorio.'
         if not numero_documento:
             errores['numero_documento'] = 'El número de documento es obligatorio.'
+        elif not re.fullmatch(r'\d{7,10}', numero_documento):
+            errores['numero_documento'] = 'El número de documento debe tener entre 7 y 10 dígitos numéricos.'
         # Control de flujo y validación de condiciones del proceso.
         elif Register.objects.filter(numero_documento=numero_documento).exists():
             errores['numero_documento'] = 'Ya existe un usuario con ese número de documento.'
+        elif User.objects.filter(username=numero_documento).exists():
+            errores['numero_documento'] = 'Ya existe un usuario de autenticación con ese número de documento.'
         if not correo_electronico:
             errores['correo_electronico'] = 'El correo es obligatorio.'
         # Control de flujo y validación de condiciones del proceso.
@@ -2994,6 +3261,8 @@ def usuario_admin_crear_view(request):
             errores['correo_electronico'] = 'Ya existe un usuario con ese correo.'
         if not telefono:
             errores['telefono'] = 'El teléfono es obligatorio.'
+        elif not re.fullmatch(r'3\d{9}', telefono):
+            errores['telefono'] = 'El teléfono debe tener 10 dígitos y empezar por 3.'
         elif Register.objects.filter(telefono=telefono).exists():
             errores['telefono'] = 'Ya existe un usuario con ese teléfono.'
         # Control de flujo y validación de condiciones del proceso.
@@ -3009,29 +3278,22 @@ def usuario_admin_crear_view(request):
         # Control de flujo y validación de condiciones del proceso.
         if not direccion_completa:
             errores['direccion_completa'] = 'La dirección es obligatoria.'
-        if not contrasena or len(contrasena) < 8:
-            errores['contrasena'] = 'La contraseña es obligatoria y debe tener al menos 8 caracteres.'
+        password_error = _validate_password_policy(contrasena)
+        if password_error:
+            errores['contrasena'] = password_error
         # Control de flujo y validación de condiciones del proceso.
         if not errores:
-            user, created = User.objects.get_or_create(
+            user = User.objects.create_user(
                 username=numero_documento,
-                defaults={
-                    # Paso de apoyo dentro del flujo principal de la funcionalidad.
-                    'email': correo_electronico,
-                    'first_name': nombres,
-                    'last_name': apellidos
-                }
-            # Paso de apoyo dentro del flujo principal de la funcionalidad.
+                email=correo_electronico,
+                password=contrasena,
+                first_name=nombres,
+                last_name=apellidos,
             )
-            user.email = correo_electronico
-            user.first_name = nombres
-            user.last_name = apellidos
-            # Paso de apoyo dentro del flujo principal de la funcionalidad.
-            user.set_password(contrasena)
-            user.save(update_fields=['email', 'first_name', 'last_name', 'password'])
 
             Register.objects.create(
                 id_usuario=user.id,
+                foto=None,
                 nombres=nombres,
                 apellidos=apellidos,
                 # Actualización de estado intermedio que será utilizada en pasos posteriores.
@@ -3102,9 +3364,6 @@ def pedido_admin_editar_view(request, pedido_id):
             pedido.save()
             from django.contrib import messages
             messages.success(request, 'Pedido actualizado correctamente.')
-            origen = (request.GET.get('from') or '').strip().lower()
-            if origen == 'detail':
-                return redirect('administrador:pedido_admin_detalle', pedido_id=pedido.id)
             return redirect('administrador:orders_page')
     items = pedido.items.select_related('product', 'farmer').all()
     return render(request, 'administrador/pedido_editar_card.html', {

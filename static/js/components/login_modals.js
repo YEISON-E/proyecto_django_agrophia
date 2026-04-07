@@ -23,6 +23,10 @@ document.addEventListener('DOMContentLoaded', function () {
   const feedbackTitle = document.getElementById('blocked-account-feedback-title');
   const feedbackMessage = document.getElementById('blocked-account-feedback-message');
   const feedbackClose = document.getElementById('blocked-account-feedback-close');
+  let feedbackAutoCloseTimer = null;
+  let feedbackCloseTimer = null;
+  let isMessageRequestInFlight = false;
+  let hasSuccessfulSubmission = false;
 
   if (!blockedOverlay || !blockedCloseBtn) {
     return;
@@ -48,6 +52,14 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!feedbackOverlay || !feedbackMessage || !feedbackClose) {
       return;
     }
+    if (feedbackAutoCloseTimer) {
+      window.clearTimeout(feedbackAutoCloseTimer);
+      feedbackAutoCloseTimer = null;
+    }
+    if (feedbackCloseTimer) {
+      window.clearTimeout(feedbackCloseTimer);
+      feedbackCloseTimer = null;
+    }
     const estado = type === 'success' ? 'success' : 'error';
     feedbackOverlay.dataset.state = estado;
     feedbackClose.dataset.state = estado;
@@ -60,19 +72,37 @@ document.addEventListener('DOMContentLoaded', function () {
     feedbackOverlay.setAttribute('aria-hidden', 'false');
 
     if (estado === 'success') {
-      window.setTimeout(function () {
+      feedbackAutoCloseTimer = window.setTimeout(function () {
+        feedbackAutoCloseTimer = null;
         closeFeedback();
       }, 4200);
     }
   };
 
-  const closeFeedback = function () {
+  const closeFeedback = function (immediate) {
     if (!feedbackOverlay || !feedbackOverlay.classList.contains('profile-shop-alert-overlay--open')) {
       return;
     }
+
+    if (feedbackAutoCloseTimer) {
+      window.clearTimeout(feedbackAutoCloseTimer);
+      feedbackAutoCloseTimer = null;
+    }
+    if (feedbackCloseTimer) {
+      window.clearTimeout(feedbackCloseTimer);
+      feedbackCloseTimer = null;
+    }
+
+    if (immediate) {
+      feedbackOverlay.classList.remove('profile-shop-alert-overlay--open', 'profile-shop-alert-overlay--closing');
+      feedbackOverlay.setAttribute('aria-hidden', 'true');
+      return;
+    }
+
     feedbackOverlay.classList.add('profile-shop-alert-overlay--closing');
     feedbackOverlay.setAttribute('aria-hidden', 'true');
-    window.setTimeout(function () {
+    feedbackCloseTimer = window.setTimeout(function () {
+      feedbackCloseTimer = null;
       feedbackOverlay.classList.remove('profile-shop-alert-overlay--open', 'profile-shop-alert-overlay--closing');
     }, 180);
   };
@@ -81,6 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!messageModal) {
       return;
     }
+    hasSuccessfulSubmission = false;
     messageModal.classList.add('seller-message-modal--open');
     messageModal.setAttribute('aria-hidden', 'false');
     if (messageTextarea) {
@@ -121,7 +152,9 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (feedbackClose) {
-    feedbackClose.addEventListener('click', closeFeedback);
+    feedbackClose.addEventListener('click', function () {
+      closeFeedback(true);
+    });
   }
 
   if (feedbackOverlay) {
@@ -136,6 +169,10 @@ document.addEventListener('DOMContentLoaded', function () {
     messageForm.addEventListener('submit', async function (event) {
       event.preventDefault();
 
+      if (isMessageRequestInFlight || hasSuccessfulSubmission) {
+        return;
+      }
+
       const endpoint = messageForm.dataset.endpoint;
       const token = tokenInput ? tokenInput.value : '';
       const messageText = (messageTextarea ? messageTextarea.value : '').trim();
@@ -148,6 +185,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (submitButton) {
         submitButton.disabled = true;
       }
+      isMessageRequestInFlight = true;
 
       try {
         const body = new FormData();
@@ -170,10 +208,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         closeMessageModal();
+        hasSuccessfulSubmission = true;
         showFeedback(data.message || 'Solicitud enviada al administrador. Te responderemos pronto.', 'success');
       } catch (error) {
         showFeedback(error.message || 'No se pudo enviar el mensaje al administrador.', 'error');
       } finally {
+        isMessageRequestInFlight = false;
         if (submitButton) {
           submitButton.disabled = false;
         }

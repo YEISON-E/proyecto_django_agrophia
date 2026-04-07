@@ -67,6 +67,14 @@
   z-index: 13050;
 }
 
+#blocked-account-feedback-overlay[aria-hidden="true"] {
+  display: none !important;
+}
+
+#blocked-account-feedback-overlay[aria-hidden="false"] {
+  display: flex !important;
+}
+
 #blocked-account-feedback-overlay[data-state="success"] .profile-shop-alert__title {
   color: #166534;
 }

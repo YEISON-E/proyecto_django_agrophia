@@ -84,7 +84,10 @@ function createMessageModal() {
           <option value="shops">Solo tiendas</option>
         </select>
         <textarea id="modalMessageText" rows="4" style="width:100%;border-radius:6px;border:1px solid #d1d5db;padding:8px 10px;margin-bottom:12px;"></textarea>
-        <button id="sendMessageBtn" style="background:linear-gradient(90deg,#16a34a 60%,#4ade80 100%);color:#fff;border:none;border-radius:8px;padding:10px 28px;font-weight:700;font-size:1em;cursor:pointer;">Enviar mensaje</button>
+        <div style="display:flex;justify-content:flex-end;">
+          <button id="sendMessageBtn" style="background:linear-gradient(90deg,#16a34a 60%,#4ade80 100%);color:#fff;border:none;border-radius:8px;padding:10px 28px;font-weight:700;font-size:1em;cursor:pointer;">Enviar mensaje</button>
+        </div>
+        <div id="messageSendingState" style="display:none;margin-top:10px;text-align:right;color:#166534;font-weight:600;font-size:0.92em;">Enviando mensaje, por favor espera...</div>
       </div>
     </div>
   `;
@@ -93,13 +96,24 @@ function createMessageModal() {
   // Cierra modal al hacer clic fuera del contenido.
   modal.querySelector('.modal-bg').onclick = (e) => { if (e.target === modal.querySelector('.modal-bg')) modal.style.display = 'none'; };
   // Maneja envío del mensaje desde el modal.
+  let isSendingMessage = false;
   modal.querySelector('#sendMessageBtn').onclick = function() {
+    if (isSendingMessage) {
+      return;
+    }
     // Obtiene id de usuario objetivo (si aplica).
     const userId = modal.dataset.userId;
     // Obtiene texto del mensaje escrito.
-    const message = modal.querySelector('#modalMessageText').value;
+    const message = modal.querySelector('#modalMessageText').value.trim();
+    if (!message) {
+      showTemporaryAlert('Escribe un mensaje antes de enviarlo.', 1500);
+      return;
+    }
     // Obtiene destinatario (all/users/shops) para mensajes globales.
     const recipientType = modal.querySelector('#modalRecipientSelect').value;
+    const sendMessageBtn = modal.querySelector('#sendMessageBtn');
+    const sendingState = modal.querySelector('#messageSendingState');
+    const closeModalBtn = modal.querySelector('#closeModalBtn');
     // Inicializa URL de envío.
     let url = '';
     // Inicializa cuerpo base con el mensaje.
@@ -112,6 +126,21 @@ function createMessageModal() {
       url = `/administrador/usuarios/enviar_mensaje/`;
       body.destinatario = recipientType;
     }
+
+    isSendingMessage = true;
+    sendMessageBtn.disabled = true;
+    sendMessageBtn.textContent = 'Enviando...';
+    sendMessageBtn.style.opacity = '0.75';
+    sendMessageBtn.style.cursor = 'not-allowed';
+    if (closeModalBtn) {
+      closeModalBtn.disabled = true;
+      closeModalBtn.style.opacity = '0.5';
+      closeModalBtn.style.cursor = 'not-allowed';
+    }
+    if (sendingState) {
+      sendingState.style.display = 'block';
+    }
+
     // Ejecuta petición POST al endpoint seleccionado.
     fetch(url, {
       // Define método HTTP.
@@ -128,6 +157,24 @@ function createMessageModal() {
       if (resp.ok) {
         modal.style.display = 'none';
         showTemporaryAlert('Mensaje enviado con éxito', 1500);
+        return;
+      }
+      showTemporaryAlert('No se pudo enviar el mensaje. Intenta nuevamente.', 1800);
+    }).catch(() => {
+      showTemporaryAlert('Ocurrió un error al enviar el mensaje.', 1800);
+    }).finally(() => {
+      isSendingMessage = false;
+      sendMessageBtn.disabled = false;
+      sendMessageBtn.textContent = 'Enviar mensaje';
+      sendMessageBtn.style.opacity = '1';
+      sendMessageBtn.style.cursor = 'pointer';
+      if (closeModalBtn) {
+        closeModalBtn.disabled = false;
+        closeModalBtn.style.opacity = '1';
+        closeModalBtn.style.cursor = 'pointer';
+      }
+      if (sendingState) {
+        sendingState.style.display = 'none';
       }
     });
   };

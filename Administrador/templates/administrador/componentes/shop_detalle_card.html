@@ -104,7 +104,10 @@
   {% endif %}
 
   <div class="shop-edit-footer">
-    <a href="{% url 'administrador:store_admin' %}" class="shop-edit-cancel">&larr; Volver</a>
+    <a href="{% url 'administrador:store_admin' %}" class="shop-edit-cancel"> Volver</a>
+    <a href="{% url 'administrador:tienda_admin_productos' tienda.id %}" class="shop-edit-btn shop-edit-btn--products">
+      <span class="shop-edit-btn__label">Ver productos</span>
+    </a>
     <a href="{% url 'administrador:tienda_admin_editar' tienda.id %}?from=detail" class="shop-edit-btn">
       <img src="{% static 'icons/edit.svg' %}" alt="Editar" class="shop-edit-action-icon">Editar
     </a>

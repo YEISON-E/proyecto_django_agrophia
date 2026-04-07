@@ -27,7 +27,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const horarioLabel = document.getElementById("horario-label");
   const horarioField = document.getElementById("horario-field");
   const form = ownerSelect ? ownerSelect.closest("form") : null;
-  const successNode = document.querySelector(".editar-tienda-success[data-redirect-url]");
+  const confirmModal = document.getElementById("shop-create-confirm-modal");
+  const confirmAcceptBtn = document.getElementById("shop-create-confirm-accept");
+  const confirmCancelBtn = document.getElementById("shop-create-confirm-cancel");
+  const confirmCloseBackdrop = confirmModal?.querySelector("[data-create-confirm-close]");
+  const successNode = document.querySelector("#shop-create-success-modal[data-redirect-url]");
+  let envioConfirmado = false;
 
   if (!ownerSelect || !departamentoSelect || !municipioSelect || !telefonoInput || !emailInput || !direccionInput) {
     return;
@@ -169,7 +174,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const cierre = convertirAMPM(match[2]);
     if (apertura === null || cierre === null) {
       horarioInput.setCustomValidity("Usa formato HH:MM AM/PM - HH:MM AM/PM.");
-      return false;
+      return false; 
     }
 
     if (cierre <= apertura) {
@@ -190,11 +195,63 @@ document.addEventListener("DOMContentLoaded", function () {
 
   ajustarCamposPuntoFisico();
 
+  const abrirConfirmacion = function () {
+    if (!confirmModal) {
+      return;
+    }
+    confirmModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("user-lightbox-open");
+    confirmAcceptBtn?.focus();
+  };
+
+  const cerrarConfirmacion = function () {
+    if (!confirmModal) {
+      return;
+    }
+    confirmModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("user-lightbox-open");
+  };
+
+  confirmCancelBtn?.addEventListener("click", function () {
+    cerrarConfirmacion();
+  });
+
+  confirmCloseBackdrop?.addEventListener("click", function () {
+    cerrarConfirmacion();
+  });
+
+  confirmAcceptBtn?.addEventListener("click", function () {
+    cerrarConfirmacion();
+    envioConfirmado = true;
+    form?.requestSubmit();
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && confirmModal?.getAttribute("aria-hidden") === "false") {
+      cerrarConfirmacion();
+    }
+  });
+
   form?.addEventListener("submit", function (event) {
+    if (envioConfirmado) {
+      envioConfirmado = false;
+      return;
+    }
+
     if (!validarHorario()) {
       event.preventDefault();
       horarioInput?.reportValidity();
+      return;
     }
+
+    if (form && !form.checkValidity()) {
+      event.preventDefault();
+      form.reportValidity();
+      return;
+    }
+
+    event.preventDefault();
+    abrirConfirmacion();
   });
 
   if (successNode) {
@@ -202,7 +259,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (redirectUrl) {
       setTimeout(function () {
         window.location.href = redirectUrl;
-      }, 1200);
+      }, 2200);
     }
   }
 });

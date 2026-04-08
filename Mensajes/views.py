@@ -179,6 +179,26 @@ def delete_sent_conversation(request):
 
 
 @require_POST
+def delete_farmer_conversation(request):
+	"""Elimina toda la conversacion del vendedor con un cliente remitente."""
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+	if not user_has_shop(request.user):
+		return redirect("usuarios:home_customer")
+
+	sender_id = (request.POST.get("sender_id") or "").strip()
+	if not sender_id.isdigit():
+		return redirect("mensajes:farmer_messages")
+
+	CustomerMessage.objects.filter(
+		receiver=request.user,
+		sender_id=int(sender_id),
+	).delete()
+
+	return redirect("mensajes:farmer_messages?view=list")
+
+
+@require_POST
 def customer_reply_message(request, message_id):
 	"""Permite al cliente responder una conversacion ya existente."""
 	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.

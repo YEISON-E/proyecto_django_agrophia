@@ -18,6 +18,20 @@
         </span>
         <input type="text" id="toolbar-orders-search-input" class="search-home__bar" placeholder="Buscar pedidos" aria-label="Buscar en la tabla de pedidos">
       </div>
+      <div class="toolbar-admin-mobile-menu">
+        <details>
+          <summary class="toolbar-admin-mobile-trigger" aria-label="Abrir menú de opciones">
+            <img src="{% static 'icons/menu.svg' %}" alt="Menú" width="20" height="20">
+          </summary>
+          <ul class="toolbar-admin-mobile-options">
+            <li><button type="button" class="toolbar-admin-mobile-link js-toolbar-orders-report-trigger">Generar reporte</button></li>
+            <li><a href="{% url 'administrador:admin_notifications' %}" class="toolbar-admin-mobile-link">Notificaciones</a></li>
+            <li><a href="{% url 'administrador:admin_perfil' %}" class="toolbar-admin-mobile-link">Ver perfil</a></li>
+            <li><a href="{% url 'administrador:admin_editar_perfil' %}" class="toolbar-admin-mobile-link">Editar perfil</a></li>
+            <li><a href="/administrador/logout/" class="toolbar-admin-mobile-link toolbar-admin-mobile-link--danger">Cerrar sesión</a></li>
+          </ul>
+        </details>
+      </div>
       <div class="toolbar-main__row-icons">
         <a href="{% url 'administrador:admin_notifications' %}" class="toolbar-main__icon toolbar-main__icon--notification" title="Notificaciones" aria-label="Notificaciones">
           <img src="{% static 'icons/bell.svg' %}" alt="Notificaciones" class="toolbar-main__icon-img">

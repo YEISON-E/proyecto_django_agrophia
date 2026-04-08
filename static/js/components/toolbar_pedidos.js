@@ -2,6 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const toggleButton = document.getElementById("toolbar-orders-profile-toggle");
   const menu = document.getElementById("profile-dropdown-orders");
   const reportTrigger = document.getElementById("toolbar-orders-report-trigger");
+  const reportTriggers = [
+    reportTrigger,
+    ...Array.from(document.querySelectorAll(".js-toolbar-orders-report-trigger")),
+  ].filter(Boolean);
   const reportOverlay = document.getElementById("toolbar-orders-report-overlay");
   const reportClose = document.getElementById("toolbar-orders-report-close");
   const reportCancel = document.getElementById("toolbar-orders-report-cancel");
@@ -96,6 +100,12 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.classList.remove("admin-profile-menu-open");
   }
 
+  function closeMobileMenu() {
+    document.querySelectorAll(".toolbar-admin-mobile-menu details[open]").forEach(function (detailsNode) {
+      detailsNode.open = false;
+    });
+  }
+
   function resolveOrderById(orderId) {
     const node = document.querySelector('.products-table__button--view[data-order-id="' + orderId + '"]');
     if (!node) {
@@ -153,15 +163,15 @@ document.addEventListener("DOMContentLoaded", function () {
     openProfileMenu();
   });
 
-  if (reportTrigger) {
-    reportTrigger.addEventListener("click", function (event) {
+  reportTriggers.forEach(function (triggerNode) {
+    triggerNode.addEventListener("click", function (event) {
       event.preventDefault();
       reportOverlay.classList.add("is-open");
       reportOverlay.setAttribute("aria-hidden", "false");
       updateScopeUI();
       updateOrderSuggestion();
     });
-  }
+  });
   if (reportClose) {
     reportClose.addEventListener("click", closeReportModal);
   }
@@ -196,6 +206,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!event.target.closest(".toolbar-main__profile-dropdown")) {
       closeProfileMenu();
     }
+    if (!event.target.closest(".toolbar-admin-mobile-menu")) {
+      closeMobileMenu();
+    }
     if (reportOverlay && event.target === reportOverlay) {
       closeReportModal();
     }
@@ -204,6 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
   window.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
       closeProfileMenu();
+      closeMobileMenu();
       closeReportModal();
     }
   });

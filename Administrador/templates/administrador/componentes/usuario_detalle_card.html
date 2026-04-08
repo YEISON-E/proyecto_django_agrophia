@@ -49,19 +49,19 @@
       <div class="user-detail-label">Admin code validado</div>
       <div class="user-detail-value">{{ usuario.admin_code_validated|yesno:"Sí,No" }}</div>
     </div>
-    <div style="grid-column: 1 / 4;">
+    <div class="user-detail-grid__full-row">
       <div class="user-detail-label">Dirección</div>
       <div class="user-detail-value">{{ usuario.direccion_completa }}</div>
     </div>
     {% if usuario.descripcion_perfil %}
-    <div style="grid-column: 1 / 4;">
+    <div class="user-detail-grid__full-row">
       <div class="user-detail-label">Descripción perfil</div>
       <div class="user-detail-value">{{ usuario.descripcion_perfil }}</div>
     </div>
     {% endif %}
   </div>
   {% if tienda %}
-  <div style="margin-top:24px;padding:16px 20px;background:#f0fdf4;border-radius:8px;grid-column: 1 / 4;">
+  <div class="user-detail-shop-summary">
     <strong style="color:#16a34a;">Este usuario es una tienda</strong><br>
     <strong>Nombre tienda:</strong> {{ tienda.nombre }}<br>
     <strong>Email tienda:</strong> {{ tienda.email }}<br>

@@ -47,6 +47,13 @@
           <h3 class="messages__chat-title">{{ selected_conversation.sender.first_name|default:selected_conversation.sender.username }}</h3>
           <p class="messages__chat-subtitle">{{ selected_messages|length }} mensaje{{ selected_messages|length|pluralize }}</p>
         </div>
+        <form method="post" action="{% url 'mensajes:delete_farmer_conversation' %}" class="messages__chat-delete-form" data-delete-message-form>
+          {% csrf_token %}
+          <input type="hidden" name="sender_id" value="{{ selected_conversation.sender.id }}">
+          <button type="submit" class="messages__chat-delete" aria-label="Eliminar chat actual" title="Eliminar chat">
+            <img src="{% static 'icons/trash.svg' %}" alt="" class="messages__chat-delete-icon" aria-hidden="true">
+          </button>
+        </form>
       </header>
 
       <div class="messages__conversation">
@@ -87,5 +94,17 @@
       </div>
       {% endif %}
     </section>
+  </div>
+
+  <div id="delete-message-modal" class="client-messages-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="delete-message-modal-title">
+    <div class="client-messages-modal__backdrop" data-close-delete-modal></div>
+    <div class="client-messages-modal__dialog">
+      <h3 id="delete-message-modal-title" class="client-messages-modal__title">Eliminar chat</h3>
+      <p class="client-messages-modal__text">Esta acción eliminará todos los mensajes de esta conversación. ¿Deseas continuar?</p>
+      <div class="client-messages-modal__actions">
+        <button type="button" class="client-messages-modal__btn client-messages-modal__btn--cancel" id="delete-modal-cancel" data-close-delete-modal>Cancelar</button>
+        <button type="button" class="client-messages-modal__btn client-messages-modal__btn--confirm" id="delete-modal-confirm">Eliminar</button>
+      </div>
+    </div>
   </div>
 </div>

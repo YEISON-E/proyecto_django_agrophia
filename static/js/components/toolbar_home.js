@@ -2,6 +2,10 @@ document.addEventListener("DOMContentLoaded", function () {
     const toggleButton = document.getElementById("toolbar-home-profile-toggle");
     const menu = document.getElementById("toolbar-home-profile-menu");
     const reportTrigger = document.getElementById("toolbar-home-report-trigger");
+    const reportTriggers = [
+        reportTrigger,
+        ...Array.from(document.querySelectorAll(".js-toolbar-home-report-trigger")),
+    ].filter(Boolean);
     const reportOverlay = document.getElementById("toolbar-home-report-overlay");
     const reportClose = document.getElementById("toolbar-home-report-close");
     const reportCancel = document.getElementById("toolbar-home-report-cancel");
@@ -114,6 +118,12 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.classList.remove("admin-profile-menu-open");
     }
 
+    function closeMobileMenu() {
+        document.querySelectorAll(".toolbar-admin-mobile-menu details[open]").forEach(function (detailsNode) {
+            detailsNode.open = false;
+        });
+    }
+
     toggleButton.addEventListener("click", function (event) {
         event.stopPropagation();
         if (menu.style.display === "block") {
@@ -123,9 +133,9 @@ document.addEventListener("DOMContentLoaded", function () {
         openProfileMenu();
     });
 
-    if (reportTrigger) {
-        reportTrigger.addEventListener("click", openReportModal);
-    }
+    reportTriggers.forEach(function (triggerNode) {
+        triggerNode.addEventListener("click", openReportModal);
+    });
     if (reportClose) {
         reportClose.addEventListener("click", closeReportModal);
     }
@@ -147,6 +157,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!event.target.closest(".toolbar-main__profile-dropdown")) {
             closeProfileMenu();
         }
+        if (!event.target.closest(".toolbar-admin-mobile-menu")) {
+            closeMobileMenu();
+        }
         if (reportOverlay && event.target === reportOverlay) {
             closeReportModal();
         }
@@ -155,6 +168,7 @@ document.addEventListener("DOMContentLoaded", function () {
     window.addEventListener("keydown", function (event) {
         if (event.key === "Escape") {
             closeProfileMenu();
+            closeMobileMenu();
             closeReportModal();
         }
     });

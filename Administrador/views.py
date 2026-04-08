@@ -186,6 +186,10 @@ def tienda_admin_crear_view(request):
             # Se registra el error en el diccionario "errores" usando la clave "nombre"
             # para que la vista pueda mostrar este mensaje exactamente en el input de nombre.
             errores['nombre'] = 'El nombre es obligatorio.'
+        elif len(nombre) > 50:
+            errores['nombre'] = 'El nombre de la tienda no puede superar 50 caracteres.'
+        elif not re.fullmatch(r'[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+', nombre):
+            errores['nombre'] = 'El nombre de la tienda solo puede contener letras y espacios.'
         # Misma validación para teléfono: al estar vacío, se corta el flujo normal de guardado.
         if not telefono:
             # Guardamos el mensaje de validación asociado a la clave "telefono".

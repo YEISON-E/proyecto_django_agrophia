@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const municipioSelect = document.getElementById("municipio-select");
   const puntoFisicoSelect = document.getElementById("punto-fisico-select");
   const telefonoInput = document.getElementById("telefono-input");
+  const nombreInput = document.getElementById("nombre-input");
   const emailInput = document.getElementById("email-input");
   const direccionInput = document.getElementById("direccion-input");
   const direccionLabel = document.getElementById("direccion-label");
@@ -34,9 +35,27 @@ document.addEventListener("DOMContentLoaded", function () {
   const successNode = document.querySelector("#shop-create-success-modal[data-redirect-url]");
   let envioConfirmado = false;
 
-  if (!ownerSelect || !departamentoSelect || !municipioSelect || !telefonoInput || !emailInput || !direccionInput) {
+  if (!ownerSelect || !departamentoSelect || !municipioSelect || !telefonoInput || !emailInput || !direccionInput || !nombreInput) {
     return;
   }
+
+  const validarNombreTienda = function () {
+    const valor = (nombreInput.value || "").trim();
+    if (!valor) {
+      nombreInput.setCustomValidity("");
+      return true;
+    }
+    if (valor.length > 50) {
+      nombreInput.setCustomValidity("El nombre de la tienda no puede superar 50 caracteres.");
+      return false;
+    }
+    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(valor)) {
+      nombreInput.setCustomValidity("El nombre de la tienda solo puede contener letras y espacios.");
+      return false;
+    }
+    nombreInput.setCustomValidity("");
+    return true;
+  };
 
   const municipioSeleccionado = municipioSelect.dataset.selectedMunicipio || "";
 
@@ -188,6 +207,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
   horarioInput?.addEventListener("input", validarHorario);
   horarioInput?.addEventListener("blur", validarHorario);
+  nombreInput?.addEventListener("input", validarNombreTienda);
+  nombreInput?.addEventListener("blur", validarNombreTienda);
   puntoFisicoSelect?.addEventListener("change", function () {
     ajustarCamposPuntoFisico();
     validarHorario();
@@ -235,6 +256,12 @@ document.addEventListener("DOMContentLoaded", function () {
   form?.addEventListener("submit", function (event) {
     if (envioConfirmado) {
       envioConfirmado = false;
+      return;
+    }
+
+    if (!validarNombreTienda()) {
+      event.preventDefault();
+      nombreInput?.reportValidity();
       return;
     }
 

@@ -1,7 +1,23 @@
+"""
+Vistas del modulo de pedidos.
+
+Responsabilidades principales:
+- Listar pedidos para cliente y agricultor.
+- Confirmar pedidos automaticamente cuando expira la ventana de cancelacion.
+- Permitir cambios de estado del pedido por parte del agricultor.
+- Gestionar cancelacion por parte del cliente dentro de la ventana permitida.
+- Mostrar comprobante/detalle de pedidos.
+
+Nota de negocio:
+La confirmacion automatica se basa en `Order.CANCEL_WINDOW_HOURS` para evitar
+pedidos pendientes indefinidamente.
+"""
+
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import never_cache
+# Importación de dependencias necesarias para ejecutar esta vista.
 from django.views.decorators.http import require_POST
 from datetime import timedelta
 
@@ -9,6 +25,13 @@ from datetime import timedelta
 @require_POST
 @never_cache
 def confirm_order(request, order_id):
+	"""Confirma manualmente un pedido pendiente del cliente autenticado.
+
+	Solo aplica cuando el pedido pertenece al cliente y sigue en estado
+	`pending`; en caso contrario no modifica el estado.
+	"""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -29,6 +52,13 @@ from .models import Order, OrderItem
 
 @never_cache
 def orders_client(request):
+	"""Lista los pedidos del cliente y auto-confirma pendientes vencidos.
+
+	Antes de renderizar, marca como confirmados los pedidos cuya ventana
+	de cancelacion ya expiro.
+	"""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -37,6 +67,7 @@ def orders_client(request):
 	Order.objects.filter(
 		customer=request.user,
 		status=Order.STATUS_PENDING,
+		# Actualización de estado intermedio que será utilizada en pasos posteriores.
 		created_at__lt=cutoff,
 	).update(status=Order.STATUS_CONFIRMED)
 
@@ -51,6 +82,13 @@ def orders_client(request):
 
 @never_cache
 def orders_farmer(request):
+	"""Muestra los pedidos que contienen productos del agricultor actual.
+
+	Tambien ejecuta la confirmacion automatica para pedidos pendientes
+	vencidos y precarga los items del agricultor en `my_items`.
+	"""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -61,6 +99,7 @@ def orders_farmer(request):
 	Order.objects.filter(
 		status=Order.STATUS_PENDING,
 		created_at__lt=cutoff,
+	# Paso de apoyo dentro del flujo principal de la funcionalidad.
 	).update(status=Order.STATUS_CONFIRMED)
 
 	# Mostrar todos los pedidos donde el agricultor tenga productos (sin filtrar por cutoff)
@@ -68,10 +107,12 @@ def orders_farmer(request):
 		items__farmer=request.user
 	).distinct().prefetch_related(
 		Prefetch(
+			# Paso de apoyo dentro del flujo principal de la funcionalidad.
 			"items",
 			queryset=OrderItem.objects.filter(farmer=request.user).select_related("product"),
 			to_attr="my_items",
 		)
+	# Paso de apoyo dentro del flujo principal de la funcionalidad.
 	).select_related("customer")
 
 	return render(request, "pedidos/orders_farmer.html", {
@@ -81,6 +122,13 @@ def orders_farmer(request):
 
 @never_cache
 def order_farmer_detail(request, order_id):
+	"""Renderiza el detalle de un pedido desde la perspectiva del agricultor.
+
+	Si el agricultor no tiene items en el pedido, redirige al listado para
+	evitar acceso a pedidos ajenos.
+	"""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -98,12 +146,20 @@ def order_farmer_detail(request, order_id):
 		"order": order,
 		"items": items,
 		"farmer_total": farmer_total,
+	# Paso de apoyo dentro del flujo principal de la funcionalidad.
 	})
 
 
 @require_POST
 @never_cache
 def update_order_status(request, order_id):
+	"""Actualiza el estado de un pedido cuando el agricultor tiene items.
+
+	Restringe los cambios a estados permitidos y evita modificar pedidos
+	que ya fueron cancelados.
+	"""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -127,6 +183,9 @@ def update_order_status(request, order_id):
 @require_POST
 @never_cache
 def cancel_order(request, order_id):
+	"""Cancela un pedido del cliente dentro de la ventana permitida."""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -140,6 +199,9 @@ def cancel_order(request, order_id):
 
 @never_cache
 def order_receipt(request, order_id):
+	"""Genera la vista de comprobante para un pedido del cliente."""
+	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
+	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 

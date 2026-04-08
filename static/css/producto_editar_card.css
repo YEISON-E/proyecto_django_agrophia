@@ -1,6 +1,6 @@
 /* Estilo para edición de producto admin, igual disposición que usuario_editar_card */
 .product-detail-main {
-  max-width: 800px;
+  max-width: 1120px;
   margin: 32px auto;
   background: #f3f4f8;
   border-radius: 12px;
@@ -9,21 +9,41 @@
   color: #232323;
   border: 1px solid #e5e7eb;
 }
+.product-detail-main--create {
+  max-width: 920px;
+}
+.product-detail-title {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #6366f1;
+  margin-bottom: 18px;
+  text-align: center;
+}
 .product-detail-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px 24px;
-  align-items: start;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 16px;
+  align-items: stretch;
   margin-bottom: 16px;
+}
+.product-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.product-detail-field--full {
+  grid-column: 1 / -1;
 }
 .product-detail-label {
   font-weight: 600;
   color: #232323;
-  margin-bottom: 1px;
-  font-size: 1em;
-  border-bottom: 2px solid #6366f1;
-  display: inline-block;
-  padding-bottom: 2px;
+  margin-bottom: 0;
+  font-size: 0.9em;
+  border-bottom: 1px solid #6366f1;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 1px;
 }
 .product-detail-value {
   color: #232323;
@@ -31,7 +51,7 @@
   background: #e5e7eb;
   border-radius: 6px;
   padding: 7px 12px;
-  margin-bottom: 6px;
+  margin-bottom: 0;
   word-break: break-word;
   box-shadow: 0 1px 2px 0 rgba(60,60,120,0.03);
   border: 1px solid #d1d5db;
@@ -52,14 +72,68 @@
   flex-wrap: wrap;
   gap: 8px;
 }
-.product-detail-image-item img {
-  width: 70px;
-  height: 70px;
+.product-detail-image-item {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  border-radius: 10px;
+}
+.product-detail-image-thumb {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   border-radius: 10px;
   border: 2.5px solid #6366f1;
   background: #fff;
   box-shadow: 0 1px 6px 0 rgba(99,102,241,0.10);
+}
+.product-image-delete-btn {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.16);
+}
+.product-image-delete-btn:hover {
+  background: #b91c1c;
+}
+.product-detail-image-item.is-marked-delete {
+  display: none;
+}
+.product-images-helper {
+  margin-top: 8px;
+  font-size: 0.9em;
+  color: #475569;
+}
+.product-images-helper.is-error {
+  color: #b91c1c;
+  font-weight: 600;
+}
+.product-new-images-preview {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.product-new-image-item {
+  width: 78px;
+  height: 78px;
+  border-radius: 10px;
+  border: 2px solid #a5b4fc;
+  object-fit: cover;
+  background: #fff;
 }
 .shop-edit-footer {
   display: flex;
@@ -76,7 +150,9 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-width: 180px;
+  width: 240px;
+  min-width: 240px;
+  max-width: 240px;
   padding: 12px 24px;
   border-radius: 999px;
   border: none;
@@ -93,9 +169,9 @@
   box-shadow: 0 10px 24px rgba(22,163,74,0.16);
 }
 .shop-edit-cancel {
-  background: linear-gradient(90deg, #6366f1 60%, #a5b4fc 100%);
+  background: linear-gradient(90deg, #515151 60%, #6b7280 100%);
   color: #fff;
-  box-shadow: 0 10px 24px rgba(99,102,241,0.16);
+  box-shadow: 0 10px 24px rgba(81,81,81,0.16);
 }
 .shop-edit-btn:hover,
 .shop-edit-cancel:hover {
@@ -107,7 +183,7 @@
   background: linear-gradient(90deg, #15803d 60%, #16a34a 100%);
 }
 .shop-edit-cancel:hover {
-  background: linear-gradient(90deg, #3730a3 60%, #6366f1 100%);
+  background: linear-gradient(90deg, #3b3b3b 60%, #515151 100%);
 }
 .form-error {
   color: #dc2626;
@@ -124,6 +200,14 @@
 }
 
 @media (max-width: 640px) {
+  .product-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .product-detail-field--full {
+    grid-column: auto;
+  }
+
   .shop-edit-footer {
     flex-direction: column-reverse;
     align-items: stretch;
@@ -133,5 +217,11 @@
   .shop-edit-cancel {
     width: 100%;
     min-width: 0;
+  }
+}
+
+@media (max-width: 1100px) {
+  .product-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

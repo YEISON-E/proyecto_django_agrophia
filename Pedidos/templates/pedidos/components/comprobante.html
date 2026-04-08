@@ -28,7 +28,11 @@
       <div class="invoice__ref">
         <div class="invoice__ref-label">Comprobante</div>
         <div class="invoice__ref-number">#{{ order.id|stringformat:"06d" }}</div>
-        <div class="invoice__ref-date">{{ order.created_at|date:"d \d\e F \d\e Y, H:i" }}</div>
+        <div
+          class="invoice__ref-date receipt-local-datetime"
+          data-iso="{{ order.created_at|date:'c' }}"
+          data-format="long"
+        >{{ order.created_at|date:"d \d\e F \d\e Y, H:i" }}</div>
       </div>
     </div>
 
@@ -53,7 +57,11 @@
           </div>
           <div class="invoice__info-item">
             <div class="invoice__info-label">Fecha</div>
-            <div class="invoice__info-value">{{ order.created_at|date:"d/m/Y H:i" }}</div>
+            <div
+              class="invoice__info-value receipt-local-datetime"
+              data-iso="{{ order.created_at|date:'c' }}"
+              data-format="short"
+            >{{ order.created_at|date:"d/m/Y H:i" }}</div>
           </div>
           {% if order.delivery_address %}
           <div class="invoice__info-item" style="grid-column: 1 / -1;">

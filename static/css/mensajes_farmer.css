@@ -238,7 +238,9 @@
 }
 
 .messages__bubble-wrap--farmer {
-  align-self: flex-end;
+  align-self: stretch;
+  width: 100%;
+  max-width: 100%;
   text-align: right;
 }
 
@@ -333,6 +335,10 @@
   justify-content: space-between;
   height: 40px;
   gap: 8px;
+}
+
+.messages__row-buttons--right {
+  justify-content: flex-end;
 }
 
 .messages__row-buttons--next{
@@ -500,6 +506,11 @@
 
   .messages__bubble-wrap {
     max-width: 88%;
+  }
+
+  .messages__bubble-wrap--farmer {
+    width: 100%;
+    max-width: 100%;
   }
 
   .messages__content--client {

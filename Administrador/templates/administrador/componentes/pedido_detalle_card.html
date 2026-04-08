@@ -1,8 +1,8 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/shop-edit-card.css' %}">
-<div class="shop-edit-main">
+<div class="shop-edit-main shop-edit-main--order-detail">
   <h2 style="text-align:center;color:#16a34a;margin-bottom:18px;">Detalle del Pedido</h2>
-  <div class="shop-edit-grid">
+  <div class="shop-edit-grid shop-edit-grid--order-detail">
     <div class="shop-edit-label">ID Pedido</div>
     <div class="shop-edit-value">#{{ pedido.id }}</div>
     <div class="shop-edit-label">Cliente</div>
@@ -18,8 +18,9 @@
   </div>
   <div class="shop-edit-footer">
     <a href="{% url 'administrador:orders_page' %}" class="shop-edit-cancel">&larr; Volver</a>
-    <a href="{% url 'administrador:pedido_admin_editar' pedido.id %}" class="shop-edit-btn">
+    <a href="{% url 'administrador:pedido_admin_editar' pedido.id %}?from=detail" class="shop-edit-btn">
       <img src="{% static 'icons/edit.svg' %}" alt="Editar" class="shop-edit-action-icon">Editar
     </a>
   </div>
 </div>
+<script src="{% static 'js/components/pedido_detalle_card.js' %}" defer></script>

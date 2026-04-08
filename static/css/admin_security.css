@@ -8,24 +8,32 @@
 }
 
 .admin-auth__card {
-  width: min(460px, 100%);
+  width: min(420px, 100%);
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
-  padding: 24px;
+  padding: 26px;
 }
 
 .admin-auth__title {
   margin: 0 0 14px;
   color: #14532d;
-  font-size: 1.35rem;
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
 }
 
 .admin-auth__hint,
 .admin-auth__timer {
   margin: 0 0 12px;
-  color: #374151;
-  font-size: 0.95rem;
+  color: #111827;
+  font-size: 1.08rem;
+  line-height: 1.45;
+}
+
+.admin-auth__timer strong {
+  color: #111827;
 }
 
 .admin-auth__timer--expired {
@@ -39,9 +47,10 @@
 
 .admin-auth__message {
   margin: 0 0 8px;
-  padding: 9px 11px;
+  padding: 11px 13px;
   border-radius: 8px;
-  font-size: 0.92rem;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .admin-auth__message--error {
@@ -69,16 +78,16 @@
 }
 
 .admin-auth__label {
-  font-size: 0.92rem;
+  font-size: 1.03rem;
   color: #374151;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .admin-auth__input {
   border: 1px solid #d1d5db;
   border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 0.95rem;
+  padding: 12px 14px;
+  font-size: 1.08rem;
 }
 
 .admin-auth__input--code {
@@ -92,8 +101,8 @@
   margin-top: 6px;
   border: none;
   border-radius: 9px;
-  padding: 11px 14px;
-  font-size: 0.95rem;
+  padding: 13px 16px;
+  font-size: 1.06rem;
   font-weight: 700;
   color: #fff;
   background: linear-gradient(90deg, #15803d, #22c55e);
@@ -104,6 +113,28 @@
   display: inline-block;
   margin-top: 12px;
   color: #166534;
-  font-size: 0.92rem;
+  font-size: 1rem;
+  font-weight: 600;
   text-decoration: none;
+}
+
+@media (max-width: 640px) {
+  .admin-auth__card {
+    width: min(420px, 100%);
+    padding: 22px;
+  }
+
+  .admin-auth__title {
+    font-size: 1.45rem;
+  }
+
+  .admin-auth__hint,
+  .admin-auth__timer,
+  .admin-auth__message,
+  .admin-auth__label,
+  .admin-auth__input,
+  .admin-auth__button,
+  .admin-auth__link {
+    font-size: 1rem;
+  }
 }

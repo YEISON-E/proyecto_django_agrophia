@@ -1,10 +1,10 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/shop-edit-card.css' %}">
-<div class="shop-edit-main">
-  <form method="post" autocomplete="off">
+<div class="shop-edit-main shop-edit-main--order-detail">
+  <form id="order-edit-form" method="post" action="{% url 'administrador:pedido_admin_editar' pedido.id %}{% if request.GET.from %}?from={{ request.GET.from }}{% endif %}" autocomplete="off">
     {% csrf_token %}
     <h2 style="text-align:center;color:#16a34a;margin-bottom:18px;">Editar Pedido</h2>
-    <div class="shop-edit-grid">
+    <div class="shop-edit-grid shop-edit-grid--order-detail">
       <div class="shop-edit-label">ID Pedido</div>
       <div class="shop-edit-value">#{{ pedido.id }}</div>
       <div class="shop-edit-label">Cliente</div>
@@ -36,8 +36,21 @@
       </div>
     {% endif %}
     <div class="shop-edit-footer">
-      <a href="{% url 'administrador:orders_page' %}" class="shop-edit-cancel">&larr; Cancelar</a>
+      <a href="{% if request.GET.from == 'detail' %}{% url 'administrador:pedido_admin_detalle' pedido.id %}{% else %}{% url 'administrador:orders_page' %}{% endif %}" class="shop-edit-cancel">Volver</a>
       <button type="submit" class="shop-edit-btn" {% if pedido.status == 'cancelled' %}disabled{% endif %}>Actualizar pedido</button>
     </div>
   </form>
+
+  <div class="shop-confirm-modal" id="order-confirm-modal" aria-hidden="true">
+    <div class="shop-confirm-modal__backdrop" data-order-confirm-close></div>
+    <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="order-confirm-title" aria-describedby="order-confirm-text">
+      <h3 class="shop-confirm-modal__title" id="order-confirm-title">Confirmar cambios</h3>
+      <p class="shop-confirm-modal__text" id="order-confirm-text">¿Deseas guardar los cambios del pedido?</p>
+      <div class="shop-confirm-modal__actions">
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="order-confirm-cancel">Cancelar</button>
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="order-confirm-accept">Sí, guardar</button>
+      </div>
+    </div>
+  </div>
 </div>
+<script src="{% static 'js/components/pedido_editar_card.js' %}" defer></script>

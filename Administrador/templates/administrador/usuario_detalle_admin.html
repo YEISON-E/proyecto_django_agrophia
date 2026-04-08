@@ -1,12 +1,40 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle de Usuario</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
 </head>
 <body>
+        {% if messages %}
+            <div class="admin-detail-messages">
+                {% for message in messages %}
+                    <div class="admin-detail-message admin-detail-message--{{ message.tags|default:'info' }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const contenedorMensajes = document.querySelector('.admin-detail-messages');
+                    const mensajes = document.querySelectorAll('.admin-detail-message');
+                    if (!contenedorMensajes || !mensajes.length) {
+                        return;
+                    }
+
+                    window.setTimeout(function () {
+                        contenedorMensajes.classList.add('is-hiding');
+                        mensajes.forEach(function (mensaje) {
+                            mensaje.classList.add('is-hiding');
+                        });
+                        window.setTimeout(function () {
+                            contenedorMensajes.remove();
+                        }, 380);
+                    }, 4000);
+                });
+            </script>
+        {% endif %}
     {% include 'administrador/componentes/usuario_detalle_card.html' %}
 </body>
 </html>

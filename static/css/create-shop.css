@@ -100,16 +100,21 @@
     grid-column: 1 / -1;
 }
 
-#create-shop-step2-form.create-shop-step2--grid .input-error {
-    grid-column: 1 / -1;
-}
-
 .form-shop__group{
     margin: 0;
     display:flex;
     flex-direction:column;
     gap:4px;
+    position: relative;
   
+}
+
+#create-shop-form .form-shop__group .input-error,
+#create-shop-step2-form .form-shop__group .input-error {
+    position: absolute;
+    top: 90%;
+    left: 4px;
+    z-index: 5;
 }
 .form-shop__label {
     display: block;

@@ -1,37 +1,103 @@
-<div class="client-messages">
-  <div class="client-messages__header">
-    <h2 class="client-messages__title">Mis mensajes</h2>
-    <p class="client-messages__subtitle">Aquí puedes ver los mensajes que has enviado y sus respuestas</p>
+{% load static %}
+
+<div class="messages messages--sent">
+  <div class="messages__header">
+    <h2 class="messages__title">Mis chats</h2>
   </div>
 
-  <div class="client-messages__list">
-    {% for message in messages_sent %}
-    <div class="client-messages__item">
-      <div class="client-messages__sent">
-        <div class="client-messages__info">
-          <span class="client-messages__date">{{ message.created_at|date:"d \d\e F \d\e Y" }}</span>
-          <span class="client-messages__status {% if message.status == 'replied' %}client-messages__status--replied{% elif message.status == 'rejected' %}client-messages__status--rejected{% else %}client-messages__status--pending{% endif %}">{{ message.get_status_display }}</span>
+  <div class="messages__layout {% if selected_conversation %}messages__layout--chat-open{% endif %}">
+    <aside class="messages__contacts">
+      <div class="messages__contacts-head">Conversaciones</div>
+      <div class="messages__contacts-list">
+        {% for chat in conversations %}
+        <a href="{% url 'mensajes:sent_messages' %}?receiver={{ chat.receiver.id }}&product={{ chat.product.id }}" class="messages__contact {% if selected_conversation and selected_conversation.receiver.id == chat.receiver.id and selected_conversation.product.id == chat.product.id %}messages__contact--active{% endif %}">
+          <div class="messages__contact-avatar">{{ chat.receiver.first_name|default:chat.receiver.username|slice:":1"|upper }}</div>
+          <div class="messages__contact-body">
+            <div class="messages__contact-main">
+              <span class="messages__contact-name">{{ chat.receiver.first_name|default:chat.receiver.username }}</span>
+              <span class="messages__contact-side">
+                <span class="messages__contact-date">{{ chat.last_message_at|date:"d/m/Y" }}</span>
+                {% if chat.last_status_label %}
+                <span class="messages__contact-status messages__contact-status--{{ chat.last_status }}">{{ chat.last_status_label }}</span>
+                {% endif %}
+              </span>
+            </div>
+            <div class="messages__contact-meta">
+              <span class="messages__contact-preview">{{ chat.product.nombre }} · {{ chat.last_preview|default:"Sin mensajes" }}</span>
+            </div>
+          </div>
+        </a>
+        {% empty %}
+        <div class="messages__empty-chatlist">Aún no tienes conversaciones.</div>
+        {% endfor %}
+      </div>
+    </aside>
+
+    <section class="messages__chat-panel">
+      {% if selected_conversation %}
+      <header class="messages__chat-header">
+        <a href="{% url 'mensajes:sent_messages' %}?view=list" class="messages__chat-back" aria-label="Volver a conversaciones" title="Volver a conversaciones">
+          <img src="{% static 'icons/back.svg' %}" alt="" class="messages__chat-back-icon" aria-hidden="true">
+        </a>
+        <div class="messages__chat-avatar">{{ selected_conversation.receiver.first_name|default:selected_conversation.receiver.username|slice:":1"|upper }}</div>
+        <div class="messages__chat-user">
+          <h3 class="messages__chat-title">{{ selected_conversation.receiver.first_name|default:selected_conversation.receiver.username }}</h3>
+          <p class="messages__chat-subtitle">Producto: {{ selected_conversation.product.nombre }}</p>
         </div>
-        <p class="client-messages__content">{{ message.content }}</p>
+        <form method="post" action="{% url 'mensajes:delete_sent_conversation' %}" class="messages__chat-delete-form" data-delete-message-form>
+          {% csrf_token %}
+          <input type="hidden" name="receiver_id" value="{{ selected_conversation.receiver.id }}">
+          <input type="hidden" name="product_id" value="{{ selected_conversation.product.id }}">
+          <button type="submit" class="messages__chat-delete" aria-label="Eliminar chat actual" title="Eliminar chat">
+            <img src="{% static 'icons/trash.svg' %}" alt="" class="messages__chat-delete-icon" aria-hidden="true">
+          </button>
+        </form>
+      </header>
+
+      <div class="messages__conversation">
+        {% for item in chat_items %}
+        <article class="messages__thread">
+          {% if item.kind == 'customer' %}
+          <div class="messages__bubble-wrap messages__bubble-wrap--farmer">
+            <span class="messages__bubble-label">Tú</span>
+            <p class="messages__content messages__content--farmer">{{ item.content }}</p>
+            <span class="messages__bubble-time">{{ item.created_at|date:"d/m/Y H:i" }}</span>
+          </div>
+          {% else %}
+          <div class="messages__bubble-wrap messages__bubble-wrap--client">
+            <span class="messages__bubble-label">Vendedor</span>
+            <p class="messages__content messages__content--client">{{ item.content }}</p>
+            <span class="messages__bubble-time">{{ item.created_at|date:"d/m/Y H:i" }}</span>
+          </div>
+          {% endif %}
+        </article>
+        {% endfor %}
       </div>
 
-      <div class="client-messages__reply">
-        {% if message.farmer_replies.all %}
-        {% for reply in message.farmer_replies.all %}
-        <div class="client-messages__reply-item">
-          <p class="client-messages__reply-content">{{ reply.content }}</p>
-          <span class="client-messages__reply-time">{{ reply.created_at|date:"d/m/Y H:i" }}</span>
-        </div>
-        {% endfor %}
-        {% else %}
-        <p class="client-messages__reply-content">Aún no hay respuesta del vendedor.</p>
-        {% endif %}
+      <form method="post" action="{% url 'mensajes:customer_reply_message' selected_base_message_id %}" class="messages__reply messages__reply--composer">
+        {% csrf_token %}
+        <textarea name="reply" class="messages__reply-text" placeholder="Escribe tu mensaje para continuar el chat..." maxlength="500" required></textarea>
+        <button type="submit" class="messages__send-icon-btn" aria-label="Enviar mensaje" title="Enviar mensaje">
+          <img src="{% static 'icons/send-2.svg' %}" alt="" class="messages__send-icon" aria-hidden="true">
+        </button>
+      </form>
+      {% else %}
+      <div class="messages__empty-state">
+        <p>Selecciona una conversación para ver el chat.</p>
+      </div>
+      {% endif %}
+    </section>
+  </div>
+
+  <div id="delete-message-modal" class="client-messages-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="delete-message-modal-title">
+    <div class="client-messages-modal__backdrop" data-close-delete-modal></div>
+    <div class="client-messages-modal__dialog">
+      <h3 id="delete-message-modal-title" class="client-messages-modal__title">Eliminar chat</h3>
+      <p class="client-messages-modal__text">Esta acción eliminará todos los mensajes de esta conversación. ¿Deseas continuar?</p>
+      <div class="client-messages-modal__actions">
+        <button type="button" class="client-messages-modal__btn client-messages-modal__btn--cancel" id="delete-modal-cancel" data-close-delete-modal>Cancelar</button>
+        <button type="button" class="client-messages-modal__btn client-messages-modal__btn--confirm" id="delete-modal-confirm">Eliminar</button>
       </div>
     </div>
-    {% empty %}
-    <div class="client-messages__item">
-      <p class="client-messages__content">Aún no has enviado mensajes.</p>
-    </div>
-    {% endfor %}
   </div>
 </div>

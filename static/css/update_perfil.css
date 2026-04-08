@@ -119,6 +119,19 @@
   justify-content: center;
 }
 
+.profile-update__group-file__photo_review {
+  width: clamp(92px, 18vw, 120px);
+  height: clamp(92px, 18vw, 120px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
 .profile-update__input {
   border: none;
   height: 48px;
@@ -283,7 +296,7 @@ select.profile-update__input--locked:disabled {
     padding: 24px;
     gap: 12px;
     width: 712px;
-    margin: 0 auto;
+    margin: 12px auto;
   }
 
   .profile-update__form {
@@ -314,7 +327,7 @@ select.profile-update__input--locked:disabled {
     padding: 24px;
     gap: 12px;
     width: auto;
-    margin: 0 auto 24px auto;
+    margin: 24px auto 24px auto;
     max-width: max-content;
   }
 

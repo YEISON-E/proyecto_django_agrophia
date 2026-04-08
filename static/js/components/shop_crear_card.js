@@ -1,0 +1,292 @@
+document.addEventListener("DOMContentLoaded", function () {
+  const departamentosNode = document.getElementById("departamentos-municipios-data");
+  const usuariosNode = document.getElementById("usuarios-disponibles-data");
+
+  if (!departamentosNode || !usuariosNode) {
+    return;
+  }
+
+  const departamentosMunicipios = JSON.parse(departamentosNode.textContent || "{}");
+  const usuariosDisponibles = JSON.parse(usuariosNode.textContent || "[]");
+  const usuariosPorId = Object.fromEntries(
+    usuariosDisponibles.map(function (usuario) {
+      return [String(usuario.id_usuario), usuario];
+    })
+  );
+
+  const ownerSelect = document.getElementById("owner-select");
+  const departamentoSelect = document.getElementById("departamento-select");
+  const municipioSelect = document.getElementById("municipio-select");
+  const puntoFisicoSelect = document.getElementById("punto-fisico-select");
+  const telefonoInput = document.getElementById("telefono-input");
+  const nombreInput = document.getElementById("nombre-input");
+  const emailInput = document.getElementById("email-input");
+  const direccionInput = document.getElementById("direccion-input");
+  const direccionLabel = document.getElementById("direccion-label");
+  const direccionField = document.getElementById("direccion-field");
+  const horarioInput = document.getElementById("horario-input");
+  const horarioLabel = document.getElementById("horario-label");
+  const horarioField = document.getElementById("horario-field");
+  const form = ownerSelect ? ownerSelect.closest("form") : null;
+  const confirmModal = document.getElementById("shop-create-confirm-modal");
+  const confirmAcceptBtn = document.getElementById("shop-create-confirm-accept");
+  const confirmCancelBtn = document.getElementById("shop-create-confirm-cancel");
+  const confirmCloseBackdrop = confirmModal?.querySelector("[data-create-confirm-close]");
+  const successNode = document.querySelector("#shop-create-success-modal[data-redirect-url]");
+  let envioConfirmado = false;
+
+  if (!ownerSelect || !departamentoSelect || !municipioSelect || !telefonoInput || !emailInput || !direccionInput || !nombreInput) {
+    return;
+  }
+
+  const validarNombreTienda = function () {
+    const valor = (nombreInput.value || "").trim();
+    if (!valor) {
+      nombreInput.setCustomValidity("");
+      return true;
+    }
+    if (valor.length > 50) {
+      nombreInput.setCustomValidity("El nombre de la tienda no puede superar 50 caracteres.");
+      return false;
+    }
+    if (!/^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(valor)) {
+      nombreInput.setCustomValidity("El nombre de la tienda solo puede contener letras y espacios.");
+      return false;
+    }
+    nombreInput.setCustomValidity("");
+    return true;
+  };
+
+  const municipioSeleccionado = municipioSelect.dataset.selectedMunicipio || "";
+
+  function renderMunicipios(departamento, municipioActual) {
+    municipioSelect.innerHTML = '<option value="">Selecciona un municipio</option>';
+    if (!departamentosMunicipios[departamento]) {
+      return;
+    }
+
+    departamentosMunicipios[departamento].forEach(function (mun) {
+      const opt = document.createElement("option");
+      opt.value = mun;
+      opt.textContent = mun;
+      if (mun === municipioActual) {
+        opt.selected = true;
+      }
+      municipioSelect.appendChild(opt);
+    });
+  }
+
+  function autocompletarDesdeUsuario() {
+    const usuario = usuariosPorId[ownerSelect.value];
+    if (!usuario) {
+      return;
+    }
+
+    if (!telefonoInput.value.trim()) {
+      telefonoInput.value = usuario.telefono || "";
+    }
+    if (!emailInput.value.trim()) {
+      emailInput.value = usuario.correo_electronico || "";
+    }
+    if (!departamentoSelect.value.trim()) {
+      departamentoSelect.value = usuario.departamento || "";
+      renderMunicipios(departamentoSelect.value, usuario.municipio || "");
+    } else if (!municipioSelect.value.trim() && usuario.departamento === departamentoSelect.value) {
+      renderMunicipios(departamentoSelect.value, usuario.municipio || "");
+    }
+    if (!direccionInput.value.trim()) {
+      direccionInput.value = usuario.direccion_completa || "";
+    }
+  }
+
+  departamentoSelect.addEventListener("change", function () {
+    renderMunicipios(departamentoSelect.value, "");
+  });
+
+  ownerSelect.addEventListener("change", autocompletarDesdeUsuario);
+
+  if (departamentoSelect.value) {
+    renderMunicipios(departamentoSelect.value, municipioSeleccionado);
+  }
+
+  if (ownerSelect.value) {
+    autocompletarDesdeUsuario();
+  }
+
+  const ajustarCamposPuntoFisico = function () {
+    const usaPuntoFisico = puntoFisicoSelect?.value === "True";
+
+    if (direccionLabel) {
+      direccionLabel.hidden = !usaPuntoFisico;
+      direccionLabel.style.display = usaPuntoFisico ? "inline-block" : "none";
+    }
+    if (direccionField) {
+      direccionField.hidden = !usaPuntoFisico;
+      direccionField.style.display = usaPuntoFisico ? "block" : "none";
+    }
+    if (horarioLabel) {
+      horarioLabel.hidden = !usaPuntoFisico;
+      horarioLabel.style.display = usaPuntoFisico ? "inline-block" : "none";
+    }
+    if (horarioField) {
+      horarioField.hidden = !usaPuntoFisico;
+      horarioField.style.display = usaPuntoFisico ? "block" : "none";
+    }
+
+    if (direccionInput) {
+      direccionInput.required = usaPuntoFisico;
+      if (!usaPuntoFisico) {
+        direccionInput.setCustomValidity("");
+      }
+    }
+    if (horarioInput) {
+      horarioInput.required = usaPuntoFisico;
+      if (!usaPuntoFisico) {
+        horarioInput.setCustomValidity("");
+      }
+    }
+  };
+
+  const validarHorario = function () {
+    if (!horarioInput) {
+      return true;
+    }
+
+    if (puntoFisicoSelect && puntoFisicoSelect.value === "False") {
+      horarioInput.setCustomValidity("");
+      return true;
+    }
+
+    const valorHorario = horarioInput.value.trim();
+    if (!valorHorario) {
+      horarioInput.setCustomValidity("");
+      return true;
+    }
+
+    const match = valorHorario.match(/^((?:0?[1-9]|1[0-2]):[0-5][0-9]\s*[AaPp][Mm])\s*-\s*((?:0?[1-9]|1[0-2]):[0-5][0-9]\s*[AaPp][Mm])$/);
+    if (!match) {
+      horarioInput.setCustomValidity("Usa formato HH:MM AM/PM - HH:MM AM/PM.");
+      return false;
+    }
+
+    const convertirAMPM = function (horaTexto) {
+      const timeMatch = horaTexto.trim().match(/^(0?[1-9]|1[0-2]):([0-5][0-9])\s*([AaPp][Mm])$/);
+      if (!timeMatch) {
+        return null;
+      }
+      let horas = Number(timeMatch[1]);
+      const minutos = Number(timeMatch[2]);
+      const meridiano = timeMatch[3].toUpperCase();
+
+      if (meridiano === "AM") {
+        if (horas === 12) {
+          horas = 0;
+        }
+      } else if (horas !== 12) {
+        horas += 12;
+      }
+
+      return horas * 60 + minutos;
+    };
+
+    const apertura = convertirAMPM(match[1]);
+    const cierre = convertirAMPM(match[2]);
+    if (apertura === null || cierre === null) {
+      horarioInput.setCustomValidity("Usa formato HH:MM AM/PM - HH:MM AM/PM.");
+      return false; 
+    }
+
+    if (cierre <= apertura) {
+      horarioInput.setCustomValidity("La hora de cierre debe ser mayor que la de apertura.");
+      return false;
+    }
+
+    horarioInput.setCustomValidity("");
+    return true;
+  };
+
+  horarioInput?.addEventListener("input", validarHorario);
+  horarioInput?.addEventListener("blur", validarHorario);
+  nombreInput?.addEventListener("input", validarNombreTienda);
+  nombreInput?.addEventListener("blur", validarNombreTienda);
+  puntoFisicoSelect?.addEventListener("change", function () {
+    ajustarCamposPuntoFisico();
+    validarHorario();
+  });
+
+  ajustarCamposPuntoFisico();
+
+  const abrirConfirmacion = function () {
+    if (!confirmModal) {
+      return;
+    }
+    confirmModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("user-lightbox-open");
+    confirmAcceptBtn?.focus();
+  };
+
+  const cerrarConfirmacion = function () {
+    if (!confirmModal) {
+      return;
+    }
+    confirmModal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("user-lightbox-open");
+  };
+
+  confirmCancelBtn?.addEventListener("click", function () {
+    cerrarConfirmacion();
+  });
+
+  confirmCloseBackdrop?.addEventListener("click", function () {
+    cerrarConfirmacion();
+  });
+
+  confirmAcceptBtn?.addEventListener("click", function () {
+    cerrarConfirmacion();
+    envioConfirmado = true;
+    form?.requestSubmit();
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && confirmModal?.getAttribute("aria-hidden") === "false") {
+      cerrarConfirmacion();
+    }
+  });
+
+  form?.addEventListener("submit", function (event) {
+    if (envioConfirmado) {
+      envioConfirmado = false;
+      return;
+    }
+
+    if (!validarNombreTienda()) {
+      event.preventDefault();
+      nombreInput?.reportValidity();
+      return;
+    }
+
+    if (!validarHorario()) {
+      event.preventDefault();
+      horarioInput?.reportValidity();
+      return;
+    }
+
+    if (form && !form.checkValidity()) {
+      event.preventDefault();
+      form.reportValidity();
+      return;
+    }
+
+    event.preventDefault();
+    abrirConfirmacion();
+  });
+
+  if (successNode) {
+    const redirectUrl = successNode.dataset.redirectUrl;
+    if (redirectUrl) {
+      setTimeout(function () {
+        window.location.href = redirectUrl;
+      }, 2200);
+    }
+  }
+});

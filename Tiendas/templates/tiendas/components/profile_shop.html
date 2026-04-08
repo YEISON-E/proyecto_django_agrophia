@@ -1,7 +1,7 @@
 {% load static %}
 
 <div class="profile-content2">
-  <!-- <h1 class="profile__title-principal">Informacion de perfil</h1> -->
+    <!-- <h1 class="profile__title-principal">Información de perfil</h1> -->
   <div class="profile-shop2">
     <div class="profile__header">
       <div class="profile__img-container">
@@ -20,7 +20,7 @@
             <div class="profile_group profile_group--personal">
                 
                 <div class="profile__group--body">
-                    <h1 class="profile-shop__title profile__title--shop">Informacion Personal</h1>
+                    <h1 class="profile-shop__title profile__title--shop">Información Personal</h1>
                     <div class="profile__body2">
                         <div class="profile__item">
                             <span class="profile__label">Tipo de documento</span>
@@ -72,7 +72,7 @@
             </div>
             <div class="profile_group profile-shop profile_group--shop">
                 <div class="profile__group--body">
-                    <h1 class="profile-shop__title profile__title--shop">Informacion de la Tienda</h1>
+                    <h1 class="profile-shop__title profile__title--shop">Información de la Tienda</h1>
 
                     <div class="profile__body2">
                         <div class="profile__item">
@@ -80,11 +80,11 @@
                             <div class="profile__value">{{ shop.nombre|default:'Sin tienda registrada' }}</div>
                         </div>
                         <div class="profile__item">
-                            <span class="profile__label">Telefono</span>
+                            <span class="profile__label">Teléfono</span>
                             <div class="profile__value">{{ shop.telefono|default:'-' }}</div>
                         </div>
                         <div class="profile__item">
-                            <span class="profile__label">Correo Electronico</span>
+                            <span class="profile__label">Correo Electrónico</span>
                             <div class="profile__value">{{ shop.email|default:'-' }}</div>
                         </div>
                         <div class="profile__item">
@@ -96,19 +96,19 @@
                             <div class="profile__value">{{ shop.municipio|default:'-' }}</div>
                         </div>
                         <div class="profile__item">
-                            <span class="profile__label">Punto fisico</span>
-                            <div class="profile__value">{% if shop and shop.punto_fisico %}Si{% else %}No{% endif %}</div>
+                            <span class="profile__label">Punto físico</span>
+                            <div class="profile__value">{% if shop and shop.punto_fisico %}Sí{% else %}No{% endif %}</div>
                         </div>
                         <div class="profile__item">
                             <span class="profile__label">Horario</span>
                             <div class="profile__value">{% if shop and shop.punto_fisico %}{{ shop.horario|default:'-' }}{% else %}No aplica{% endif %}</div>
                         </div>
                         <div class="profile__item">
-                            <span class="profile__label">Direccion</span>
+                            <span class="profile__label">Dirección</span>
                             <div class="profile__value">{% if shop and shop.punto_fisico %}{{ shop.direccion|default:'-' }}{% else %}No aplica{% endif %}</div>
                         </div>
                         <div class="profile__item">
-                            <span class="profile__label">Descripcion</span>
+                            <span class="profile__label">Descripción</span>
                             <div class="profile__value">{{ shop.descripcion|default:'-' }}</div>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
         <p class="profile-shop-alert__message">¿Seguro que deseas deshabilitar tu tienda? Tus productos dejarán de estar visibles para los clientes.</p>
         <div class="profile-shop-alert__actions">
             <button type="button" class="profile-shop-alert__button profile-shop-alert__button--secondary" data-disable-shop-cancel>Cancelar</button>
-            <button type="button" class="profile-shop-alert__button profile-shop-alert__button--danger" data-disable-shop-confirm>Si, deshabilitar</button>
+            <button type="button" class="profile-shop-alert__button profile-shop-alert__button--danger" data-disable-shop-confirm>Sí, deshabilitar</button>
         </div>
     </div>
 </div>

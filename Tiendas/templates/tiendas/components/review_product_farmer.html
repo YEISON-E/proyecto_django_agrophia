@@ -17,8 +17,8 @@
       <p class="product-detail__type"><strong>Tipo:</strong> {% if product.tipo == 'Otros' and product.tipo_otro %}{{ product.tipo_otro }}{% else %}{{ product.get_tipo_display }}{% endif %}</p>
       <p class="product-detail__price"><strong>Precio:</strong> ${{ product.precio }}</p>
       <p class="product-detail__unit"><strong>Unidad de medida:</strong> {{ product.get_unidad_display }}</p>
-      <p class="product-detail__description"><strong>Descripcion:</strong> {{ product.descripcion }}</p>
-      <p class="product-detail__warranty"><strong>Garantia:</strong> {{ product.garantia }}</p>
+      <p class="product-detail__description"><strong>Descripción:</strong> {{ product.descripcion }}</p>
+      <p class="product-detail__warranty"><strong>Durabilidad del producto:</strong> {{ product.garantia }}</p>
 
       <div class="product-detail__actions">
         <a href="{% url 'tiendas:interface_farmer' %}" class="product-detail__btn--back">Volver</a>
@@ -28,8 +28,8 @@
             action="{% url 'tiendas:disable_product_farmer' product.id %}"
             data-product-action-form
             data-confirm-title="Deshabilitar producto"
-            data-confirm-message="¿Seguro que deseas deshabilitar este producto? Dejara de estar visible para los clientes."
-            data-confirm-button="Si, deshabilitar"
+            data-confirm-message="¿Seguro que deseas deshabilitar este producto? Dejará de estar visible para los clientes."
+            data-confirm-button="Sí, deshabilitar"
           >
             {% csrf_token %}
             <button type="submit" class="product-detail__btn--disable">Deshabilitar</button>
@@ -40,8 +40,8 @@
             action="{% url 'productos:activate_product' product.id %}"
             data-product-action-form
             data-confirm-title="Habilitar producto"
-            data-confirm-message="¿Seguro que deseas habilitar este producto? Volvera a estar visible para los clientes."
-            data-confirm-button="Si, habilitar"
+            data-confirm-message="¿Seguro que deseas habilitar este producto? Volverá a estar visible para los clientes."
+            data-confirm-button="Sí, habilitar"
           >
             {% csrf_token %}
             <button type="submit" class="product-detail__btn--enable">Habilitar</button>
@@ -55,10 +55,10 @@
 <div class="reset-success-overlay profile-shop-alert-overlay" id="disable-product-overlay" aria-hidden="true">
   <div class="reset-success-alert profile-shop-alert" role="dialog" aria-modal="true" aria-labelledby="disable-product-title">
     <h3 id="disable-product-title" class="profile-shop-alert__title" data-confirm-title>Deshabilitar producto</h3>
-    <p class="profile-shop-alert__message" data-confirm-message>¿Seguro que deseas deshabilitar este producto? Dejara de estar visible para los clientes.</p>
+    <p class="profile-shop-alert__message" data-confirm-message>¿Seguro que deseas deshabilitar este producto? Dejará de estar visible para los clientes.</p>
     <div class="profile-shop-alert__actions">
       <button type="button" class="profile-shop-alert__button profile-shop-alert__button--secondary" data-disable-product-cancel>Cancelar</button>
-      <button type="button" class="profile-shop-alert__button profile-shop-alert__button--danger" data-disable-product-confirm data-confirm-button>Si, deshabilitar</button>
+      <button type="button" class="profile-shop-alert__button profile-shop-alert__button--danger" data-disable-product-confirm data-confirm-button>Sí, deshabilitar</button>
     </div>
   </div>
 </div>

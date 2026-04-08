@@ -10,9 +10,9 @@
                     {% csrf_token %}
 
                     <div class="shop-update__group">
-                        <label for="tiene_punto_fisico" class="shop-update__label">La tienda cuenta con punto fisico?</label>
+                        <label for="tiene_punto_fisico" class="shop-update__label">La tienda cuenta con punto físico?</label>
                         <select id="tiene_punto_fisico" name="tiene_punto_fisico" class="shop-update__option" required>
-                            <option value="si" {% if valores.tiene_punto_fisico != 'no' %}selected{% endif %}>Si</option>
+                            <option value="si" {% if valores.tiene_punto_fisico != 'no' %}selected{% endif %}>Sí</option>
                             <option value="no" {% if valores.tiene_punto_fisico == 'no' %}selected{% endif %}>No</option>
                         </select>
                     </div>
@@ -31,16 +31,16 @@
                     </div>
 
                     <div class="shop-update__textarea">
-                        <label for="direccion" class="shop-update__label">Direccion de la tienda</label>
-                        <textarea id="direccion" name="direccion" class="shop-update__description" placeholder="Direccion de la tienda">{{ valores.direccion|default:'' }}</textarea>
+                        <label for="direccion" class="shop-update__label">Dirección de la tienda</label>
+                        <textarea id="direccion" name="direccion" class="shop-update__description" placeholder="Dirección de la tienda">{{ valores.direccion|default:'' }}</textarea>
                         {% if errores.direccion %}<small class="form-error">{{ errores.direccion }}</small>{% endif %}
                     </div>
 
                     </div>
 
                     <div class="shop-update__textarea">
-                        <label for="descripcion" class="shop-update__label">Descripcion breve de la tienda (opcional)</label>
-                        <textarea id="descripcion" name="descripcion" class="shop-update__description" placeholder="Descripcion breve de la tienda">{{ valores.descripcion|default:'' }}</textarea>
+                        <label for="descripcion" class="shop-update__label">Descripción breve de la tienda (opcional)</label>
+                        <textarea id="descripcion" name="descripcion" class="shop-update__description" placeholder="Descripción breve de la tienda">{{ valores.descripcion|default:'' }}</textarea>
                     </div>
 
                 </form>
@@ -56,11 +56,56 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
+    const STEP2_STORAGE_KEY = "agrophia.update_shop.step2";
     const form = document.getElementById("update-shop-step2-form");
     const puntoFisicoSelect = document.getElementById("tiene_punto_fisico");
     const physicalFields = document.getElementById("update-shop-physical-fields");
     const horarioInput = document.getElementById("horario");
     const direccionInput = document.getElementById("direccion");
+    const urlInput = document.getElementById("url");
+    const descripcionInput = document.getElementById("descripcion");
+
+    const persistStep2Fields = () => {
+        try {
+            const payload = {
+                tiene_punto_fisico: puntoFisicoSelect?.value || "si",
+                horario: horarioInput?.value || "",
+                direccion: direccionInput?.value || "",
+                url: urlInput?.value || "",
+                descripcion: descripcionInput?.value || "",
+            };
+            sessionStorage.setItem(STEP2_STORAGE_KEY, JSON.stringify(payload));
+        } catch (error) {
+            console.warn("No se pudo guardar el paso 2 de edición de tienda en sessionStorage.", error);
+        }
+    };
+
+    const restoreStep2Fields = () => {
+        try {
+            const raw = sessionStorage.getItem(STEP2_STORAGE_KEY);
+            if (!raw) {
+                return;
+            }
+            const saved = JSON.parse(raw);
+            if (puntoFisicoSelect && saved.tiene_punto_fisico) {
+                puntoFisicoSelect.value = saved.tiene_punto_fisico;
+            }
+            if (horarioInput && !horarioInput.value && saved.horario) {
+                horarioInput.value = saved.horario;
+            }
+            if (direccionInput && !direccionInput.value && saved.direccion) {
+                direccionInput.value = saved.direccion;
+            }
+            if (urlInput && !urlInput.value && saved.url) {
+                urlInput.value = saved.url;
+            }
+            if (descripcionInput && !descripcionInput.value && saved.descripcion) {
+                descripcionInput.value = saved.descripcion;
+            }
+        } catch (error) {
+            console.warn("No se pudo restaurar el paso 2 de edición de tienda desde sessionStorage.", error);
+        }
+    };
 
     const togglePhysicalFields = () => {
         const mostrar = !puntoFisicoSelect || puntoFisicoSelect.value !== "no";
@@ -81,6 +126,14 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     puntoFisicoSelect?.addEventListener("change", togglePhysicalFields);
+    [puntoFisicoSelect, horarioInput, direccionInput, urlInput, descripcionInput].forEach((field) => {
+        field?.addEventListener("input", persistStep2Fields);
+        field?.addEventListener("change", persistStep2Fields);
+    });
+
+    form?.addEventListener("submit", persistStep2Fields);
+
+    restoreStep2Fields();
     togglePhysicalFields();
 });
 </script>

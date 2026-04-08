@@ -1,85 +1,270 @@
-{% comment %} Componente: Formulario crear usuario admin {% endcomment %}
-<div class="crear-usuario-container">
-  <a href="{% url 'administrador:usuarios_admin' %}" style="display:inline-block;margin-bottom:18px;color:#16a34a;font-weight:600;text-decoration:none;font-size:1.08em;">
-    ← Volver al listado
-  </a>
-  <div class="crear-usuario-title">Crear nuevo usuario</div>
-  {% if success %}
-    <div class="crear-usuario-success">Usuario creado exitosamente.</div>
-  {% endif %}
-  <form method="post" class="crear-usuario-form">
+{% comment %} Componente: Formulario crear usuario admin (misma estructura visual que editar) {% endcomment %}
+<div class="user-detail-main user-detail-main--crear-usuario">
+  <h2 class="crear-usuario-heading">Crear nuevo usuario</h2>
+
+  <form method="post" id="crear-usuario-form">
     {% csrf_token %}
-    <div>
-      <label for="nombres">Nombres</label>
-      <input type="text" name="nombres" id="nombres" value="{{ valores.nombres|default:'' }}" required>
-      {% if errores.nombres %}<div class="form-error">{{ errores.nombres }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="apellidos">Apellidos</label>
-      <input type="text" name="apellidos" id="apellidos" value="{{ valores.apellidos|default:'' }}" required>
-      {% if errores.apellidos %}<div class="form-error">{{ errores.apellidos }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="tipo_documento">Tipo de documento</label>
-      <select name="tipo_documento" id="tipo_documento" required>
-        <option value="CC" {% if valores.tipo_documento == 'CC' %}selected{% endif %}>Cédula</option>
-        <option value="CE" {% if valores.tipo_documento == 'CE' %}selected{% endif %}>Cédula Extranjería</option>
-        <option value="NIT" {% if valores.tipo_documento == 'NIT' %}selected{% endif %}>NIT</option>
-        <option value="PAS" {% if valores.tipo_documento == 'PAS' %}selected{% endif %}>Pasaporte</option>
-      </select>
-      {% if errores.tipo_documento %}<div class="form-error">{{ errores.tipo_documento }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="numero_documento">Número de documento</label>
-      <input type="text" name="numero_documento" id="numero_documento" value="{{ valores.numero_documento|default:'' }}" required>
-      {% if errores.numero_documento %}<div class="form-error">{{ errores.numero_documento }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="correo_electronico">Correo electrónico</label>
-      <input type="email" name="correo_electronico" id="correo_electronico" value="{{ valores.correo_electronico|default:'' }}" required>
-      {% if errores.correo_electronico %}<div class="form-error">{{ errores.correo_electronico }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="telefono">Teléfono</label>
-      <input type="text" name="telefono" id="telefono" value="{{ valores.telefono|default:'' }}" required>
-      {% if errores.telefono %}<div class="form-error">{{ errores.telefono }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="departamento">Departamento</label>
-      <select name="departamento" id="departamento" required>
-        <option value="">Seleccione...</option>
-        {% for dep, municipios in departamentos_municipios.items %}
-          <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
-        {% endfor %}
-      </select>
-      {% if errores.departamento %}<div class="form-error">{{ errores.departamento }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="municipio">Municipio</label>
-      <select name="municipio" id="municipio" required>
-        <option value="">Seleccione...</option>
-        <!-- Las opciones de municipio se llenan por JS -->
-      </select>
-      {% if errores.municipio %}<div class="form-error">{{ errores.municipio }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="direccion_completa">Dirección</label>
-      <input type="text" name="direccion_completa" id="direccion_completa" value="{{ valores.direccion_completa|default:'' }}" required>
-      {% if errores.direccion_completa %}<div class="form-error">{{ errores.direccion_completa }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="descripcion_perfil">Descripción</label>
-      <textarea name="descripcion_perfil" id="descripcion_perfil" rows="2" style="width:100%;border-radius:6px;border:1px solid #d1d5db;padding:8px 10px;">{{ valores.descripcion_perfil|default:'' }}</textarea>
-      {% if errores.descripcion_perfil %}<div class="form-error">{{ errores.descripcion_perfil }}</div>{% endif %}
-    </div>
-    <div>
-      <label for="contrasena">Contraseña</label>
-      <input type="password" name="contrasena" id="contrasena" required>
-      {% if errores.contrasena %}<div class="form-error">{{ errores.contrasena }}</div>{% endif %}
-    </div>
-    <div>
-      <button type="submit">Crear usuario</button>
+    <div class="user-detail-grid">
+      <div>
+        <div class="user-detail-label">Nombres</div>
+        <div class="user-detail-value">
+          <input type="text" name="nombres" id="nombres" value="{{ valores.nombres|default:'' }}" required>
+          {% if errores.nombres %}<div class="form-error">{{ errores.nombres }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <div class="user-detail-label">Apellidos</div>
+        <div class="user-detail-value">
+          <input type="text" name="apellidos" id="apellidos" value="{{ valores.apellidos|default:'' }}" required>
+          {% if errores.apellidos %}<div class="form-error">{{ errores.apellidos }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <div class="user-detail-label">Tipo de documento</div>
+        <div class="user-detail-value">
+          <select name="tipo_documento" id="tipo_documento" required>
+            <option value="CC" {% if valores.tipo_documento == 'CC' %}selected{% endif %}>Cédula</option>
+            <option value="TI" {% if valores.tipo_documento == 'TI' %}selected{% endif %}>Tarjeta de identidad</option>
+          </select>
+          {% if errores.tipo_documento %}<div class="form-error">{{ errores.tipo_documento }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <div class="user-detail-label">Número documento</div>
+        <div class="user-detail-value">
+          <input type="text" name="numero_documento" id="numero_documento" value="{{ valores.numero_documento|default:'' }}" inputmode="numeric" pattern="\d{7,10}" maxlength="10" title="Debe tener entre 7 y 10 dígitos numéricos" required>
+          {% if errores.numero_documento %}<div class="form-error">{{ errores.numero_documento }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <div class="user-detail-label">Correo</div>
+        <div class="user-detail-value">
+          <input type="email" name="correo_electronico" id="correo_electronico" value="{{ valores.correo_electronico|default:'' }}" required>
+          {% if errores.correo_electronico %}<div class="form-error">{{ errores.correo_electronico }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <div class="user-detail-label">Teléfono</div>
+        <div class="user-detail-value">
+          <input type="text" name="telefono" id="telefono" value="{{ valores.telefono|default:'' }}" inputmode="numeric" pattern="3\d{9}" maxlength="10" title="Debe tener 10 dígitos y empezar por 3" required>
+          {% if errores.telefono %}<div class="form-error">{{ errores.telefono }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <div class="user-detail-label">Departamento</div>
+        <div class="user-detail-value">
+          <select name="departamento" id="departamento" required>
+            <option value="">Seleccione...</option>
+            {% for dep, municipios in departamentos_municipios.items %}
+              <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
+            {% endfor %}
+          </select>
+          {% if errores.departamento %}<div class="form-error">{{ errores.departamento }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <div class="user-detail-label">Municipio</div>
+        <div class="user-detail-value">
+          <select name="municipio" id="municipio" data-selected-municipio="{{ valores.municipio|default:''|escapejs }}" required>
+            <option value="">Seleccione...</option>
+            <!-- Las opciones de municipio se llenan por JS -->
+          </select>
+          {% if errores.municipio %}<div class="form-error">{{ errores.municipio }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div style="grid-column: 1 / 3;">
+        <div class="user-detail-label">Dirección</div>
+        <div class="user-detail-value">
+          <input type="text" name="direccion_completa" id="direccion_completa" value="{{ valores.direccion_completa|default:'' }}" required>
+          {% if errores.direccion_completa %}<div class="form-error">{{ errores.direccion_completa }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div style="grid-column: 1 / 3;">
+        <div class="user-detail-label">Descripción perfil</div>
+        <div class="user-detail-value">
+          <textarea name="descripcion_perfil" id="descripcion_perfil" rows="2">{{ valores.descripcion_perfil|default:'' }}</textarea>
+          {% if errores.descripcion_perfil %}<div class="form-error">{{ errores.descripcion_perfil }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div style="grid-column: 1 / 3;">
+        <div class="user-detail-label">Contraseña</div>
+        <div class="user-detail-value">
+          <input type="password" name="contrasena" id="contrasena" maxlength="20" required>
+          {% if errores.contrasena %}<div class="form-error">{{ errores.contrasena }}</div>{% endif %}
+        </div>
+      </div>
+
+      <div class="shop-edit-footer" style="grid-column: 1 / 3;">
+        <button type="button" id="btn-volver-usuarios" class="shop-edit-cancel">Volver</button>
+        <button type="submit" class="shop-edit-btn">Crear usuario</button>
+      </div>
     </div>
   </form>
 </div>
+
+<div class="shop-confirm-modal" id="crear-usuario-confirm-modal" aria-hidden="true">
+  <div class="shop-confirm-modal__backdrop" data-crear-usuario-confirm-close></div>
+  <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="crear-usuario-confirm-title" aria-describedby="crear-usuario-confirm-text">
+    <h3 class="shop-confirm-modal__title" id="crear-usuario-confirm-title">Confirmar cambios</h3>
+    <p class="shop-confirm-modal__text" id="crear-usuario-confirm-text">¿Deseas guardar los cambios del usuario?</p>
+    <div class="shop-confirm-modal__actions">
+      <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="crear-usuario-confirm-cancel">Cancelar</button>
+      <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="crear-usuario-confirm-accept">Sí, guardar</button>
+    </div>
+  </div>
+</div>
+
+{% if success %}
+  <div class="shop-confirm-modal" id="crear-usuario-modal" aria-hidden="false">
+    <div class="shop-confirm-modal__backdrop"></div>
+    <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="crear-usuario-modal-title" aria-describedby="crear-usuario-modal-text">
+      <p class="shop-confirm-modal__text" id="crear-usuario-modal-text">Usuario creado correctamente.</p>
+    </div>
+  </div>
+{% endif %}
+
+{{ departamentos_municipios|json_script:"departamentos-municipios-data-usuario" }}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('crear-usuario-form');
+  const volverBtn = document.getElementById('btn-volver-usuarios');
+  const departamentoSelect = document.getElementById('departamento');
+  const municipioSelect = document.getElementById('municipio');
+  const dataNode = document.getElementById('departamentos-municipios-data-usuario');
+  const confirmModal = document.getElementById('crear-usuario-confirm-modal');
+  const confirmAcceptBtn = document.getElementById('crear-usuario-confirm-accept');
+  const confirmCancelBtn = document.getElementById('crear-usuario-confirm-cancel');
+  const confirmBackdrop = confirmModal ? confirmModal.querySelector('[data-crear-usuario-confirm-close]') : null;
+  const successModal = document.getElementById('crear-usuario-modal');
+  const usersListUrl = "{% url 'administrador:usuarios_admin' %}";
+  let envioConfirmado = false;
+
+  const abrirConfirmacion = function () {
+    if (!confirmModal) {
+      return;
+    }
+    confirmModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('user-lightbox-open');
+    if (confirmAcceptBtn) {
+      confirmAcceptBtn.focus();
+    }
+  };
+
+  const cerrarConfirmacion = function () {
+    if (!confirmModal) {
+      return;
+    }
+    confirmModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('user-lightbox-open');
+  };
+
+  if (confirmCancelBtn) {
+    confirmCancelBtn.addEventListener('click', cerrarConfirmacion);
+  }
+  if (confirmBackdrop) {
+    confirmBackdrop.addEventListener('click', cerrarConfirmacion);
+  }
+  if (confirmAcceptBtn) {
+    confirmAcceptBtn.addEventListener('click', function () {
+      cerrarConfirmacion();
+      envioConfirmado = true;
+      if (form) {
+        form.requestSubmit();
+      }
+    });
+  }
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && confirmModal && confirmModal.getAttribute('aria-hidden') === 'false') {
+      cerrarConfirmacion();
+    }
+  });
+
+  if (form) {
+    form.addEventListener('submit', function (event) {
+      if (envioConfirmado) {
+        envioConfirmado = false;
+        return;
+      }
+
+      if (!form.checkValidity()) {
+        return;
+      }
+
+      event.preventDefault();
+      abrirConfirmacion();
+    });
+  }
+
+  if (successModal) {
+    window.setTimeout(function () {
+      window.location.href = usersListUrl;
+    }, 1800);
+  }
+
+  if (volverBtn) {
+    volverBtn.addEventListener('click', function () {
+      window.location.href = usersListUrl;
+    });
+  }
+
+  if (!departamentoSelect || !municipioSelect || !dataNode) {
+    return;
+  }
+
+  let departamentosMunicipios = {};
+  try {
+    departamentosMunicipios = JSON.parse(dataNode.textContent) || {};
+  } catch (error) {
+    console.error('No se pudo parsear departamentos/municipios.', error);
+    return;
+  }
+
+  const municipioInicial = municipioSelect.dataset.selectedMunicipio || '';
+
+  function poblarMunicipios(municipioPreferido) {
+    const departamento = departamentoSelect.value;
+    const municipios = departamentosMunicipios[departamento] || [];
+
+    municipioSelect.innerHTML = '';
+
+    const optionDefault = document.createElement('option');
+    optionDefault.value = '';
+    optionDefault.textContent = municipios.length ? 'Seleccione...' : 'Primero seleccione un departamento';
+    municipioSelect.appendChild(optionDefault);
+
+    municipios.forEach(function (municipio) {
+      const option = document.createElement('option');
+      option.value = municipio;
+      option.textContent = municipio;
+      if (municipioPreferido && municipio === municipioPreferido) {
+        option.selected = true;
+      }
+      municipioSelect.appendChild(option);
+    });
+
+    municipioSelect.disabled = !departamento;
+
+    if (municipioPreferido && !municipios.includes(municipioPreferido)) {
+      municipioSelect.value = '';
+    }
+  }
+
+  departamentoSelect.addEventListener('change', function () {
+    poblarMunicipios('');
+  });
+
+  poblarMunicipios(municipioInicial);
+});
+</script>
 

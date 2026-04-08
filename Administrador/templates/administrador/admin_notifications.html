@@ -9,18 +9,27 @@
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   <link rel="stylesheet" href="{% static 'css/admin_notifications.css' %}">
 </head>
-<body>
+<body class="admin-page-shell admin-notifications-page" style="background: #f8fafc;">
   <div class="govco-container__one">
     {% include 'components/gov-co__one.html' %}
   </div>
 
   {% include 'administrador/componentes/toolbar_home.html' %}
 
-  <main class="admin-notifications">
+  <main class="admin-page-main admin-notifications">
     <div class="admin-notifications__header">
       <h1 class="admin-notifications__title">Mensajes recibidos</h1>
       <p class="admin-notifications__subtitle">Solicitudes enviadas por agricultores sobre productos deshabilitados.</p>
+      <button type="button" class="admin-notifications__back" id="admin-notifications-back" data-fallback-url="{% url 'administrador:home_admin' %}">&larr; Volver</button>
     </div>
+
+    {% if messages %}
+    <div class="admin-notifications__flash-list">
+      {% for message in messages %}
+      <div class="admin-notifications__flash admin-notifications__flash--{{ message.tags|default:'info' }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
 
     <section class="admin-notifications__list">
       {% for notification in notifications %}
@@ -45,6 +54,46 @@
         {% endif %}
 
         <p class="admin-notifications__message">{{ notification.message }}</p>
+
+        <details class="admin-notifications__details">
+          <summary class="admin-notifications__details-trigger">Ver más detalles</summary>
+          <div class="admin-notifications__details-content">
+            <div class="admin-notifications__details-top">
+              <p class="admin-notifications__id-line"><strong>ID notificación:</strong> {{ notification.id }}</p>
+              {% if notification.notification_type == 'blocked_login_attempt' %}
+                {% if notification.sender_register or notification.sender_user %}
+                <form method="post" action="{% url 'administrador:admin_notification_unblock_user' notification.id %}" data-confirm-message="¿Seguro que deseas desbloquear este usuario?" class="admin-notifications__inline-unblock">
+                  {% csrf_token %}
+                  <button type="submit" class="admin-notifications__btn admin-notifications__btn--success">Desbloquear usuario</button>
+                </form>
+                {% endif %}
+              {% endif %}
+            </div>
+            <p><strong>Fecha de envío:</strong> {{ notification.created_at|date:'d/m/Y H:i:s' }}</p>
+            {% if notification.sender_register %}
+              <p><strong>ID usuario:</strong> {{ notification.sender_register.id_usuario }}</p>
+              <p><strong>Documento:</strong> {{ notification.sender_register.tipo_documento }} {{ notification.sender_register.numero_documento }}</p>
+              <p><strong>Correo:</strong> {{ notification.sender_register.correo_electronico|default:'No registrado' }}</p>
+              <p><strong>Teléfono:</strong> {{ notification.sender_register.telefono|default:'No registrado' }}</p>
+              <p><strong>Ubicación:</strong> {{ notification.sender_register.departamento|default:'-' }}, {{ notification.sender_register.municipio|default:'-' }}</p>
+            {% elif notification.sender_user %}
+              <p><strong>ID usuario:</strong> {{ notification.sender_user.id }}</p>
+              <p><strong>Usuario:</strong> {{ notification.sender_user.username }}</p>
+              <p><strong>Correo:</strong> {{ notification.sender_user.email|default:'No registrado' }}</p>
+            {% else %}
+              <p><strong>Remitente:</strong> Usuario no disponible.</p>
+            {% endif %}
+
+            <div class="admin-notifications__details-actions">
+              <form method="post" action="{% url 'administrador:admin_notification_reply' notification.id %}" class="admin-notifications__reply-form" data-confirm-message="¿Confirmas el envío de esta respuesta al correo del usuario?">
+                {% csrf_token %}
+                <label for="reply_message_{{ notification.id }}" class="admin-notifications__reply-label">Responder al usuario</label>
+                <textarea id="reply_message_{{ notification.id }}" name="reply_message" class="admin-notifications__reply-textarea" rows="3" required placeholder="Escribe tu respuesta"></textarea>
+                <button type="submit" class="admin-notifications__btn admin-notifications__btn--primary">Enviar respuesta</button>
+              </form>
+            </div>
+          </div>
+        </details>
 
         <div class="admin-notifications__actions">
           {% if notification.product %}
@@ -73,5 +122,45 @@
   <div class="govco-container__two">
     {% include 'components/gov-co__one.html' %}
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const backButton = document.getElementById('admin-notifications-back');
+      if (!backButton) {
+        return;
+      }
+
+      backButton.addEventListener('click', function () {
+        const fallbackUrl = backButton.getAttribute('data-fallback-url') || '/administrador/home/';
+        window.location.href = fallbackUrl;
+      });
+
+      const confirmForms = document.querySelectorAll('form[data-confirm-message]');
+      confirmForms.forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          const confirmText = form.getAttribute('data-confirm-message') || '¿Confirmas esta acción?';
+          if (!window.confirm(confirmText)) {
+            event.preventDefault();
+          }
+        });
+      });
+
+      const replyTextareas = document.querySelectorAll('.admin-notifications__reply-textarea');
+      const autoResize = function (textarea) {
+        textarea.style.height = 'auto';
+        const maxHeight = 220;
+        const nextHeight = Math.min(textarea.scrollHeight, maxHeight);
+        textarea.style.height = nextHeight + 'px';
+        textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+      };
+
+      replyTextareas.forEach(function (textarea) {
+        autoResize(textarea);
+        textarea.addEventListener('input', function () {
+          autoResize(textarea);
+        });
+      });
+    });
+  </script>
 </body>
 </html>

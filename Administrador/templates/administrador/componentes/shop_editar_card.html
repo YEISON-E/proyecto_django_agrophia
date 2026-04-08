@@ -1,83 +1,281 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/shop-edit-card.css' %}">
-<div class="shop-edit-main">
-  <form method="post">
-    {% csrf_token %}
-    <h2 style="text-align:center;color:#16a34a;margin-bottom:18px;">Editar Tienda</h2>
-    <div class="shop-edit-grid">
-      <div class="shop-edit-label">Nombre</div>
-      <div class="shop-edit-value"><input type="text" name="nombre" value="{{ valores.nombre|default:'' }}" required></div>
-      <div class="shop-edit-label">Teléfono</div>
-      <div class="shop-edit-value"><input type="text" name="telefono" value="{{ valores.telefono|default:'' }}" required></div>
-      <div class="shop-edit-label">Correo electrónico</div>
-      <div class="shop-edit-value"><input type="email" name="email" value="{{ valores.email|default:'' }}" required></div>
-      <div class="shop-edit-label">Departamento</div>
-      <div class="shop-edit-value">
-        <select id="departamento-select" name="departamento" required>
-          <option value="">Selecciona un departamento</option>
-          {% for dep, municipios in departamentos_municipios.items %}
-            <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="shop-edit-label">Municipio</div>
-      <div class="shop-edit-value">
-        <select id="municipio-select" name="municipio" required>
-          <option value="">Selecciona un municipio</option>
-          {% if valores.departamento and valores.municipio %}
-            {% with municipios=departamentos_municipios|dictsort:valores.departamento %}
-              {% for dep, municipios_list in departamentos_municipios.items %}
-                {% if dep == valores.departamento %}
-                  {% for mun in municipios_list %}
-                    <option value="{{ mun }}" {% if valores.municipio == mun %}selected{% endif %}>{{ mun }}</option>
-                  {% endfor %}
-                {% endif %}
-              {% endfor %}
-            {% endwith %}
-          {% endif %}
-        </select>
-      </div>
-      </div>
-      <script>
-      // Diccionario de departamentos y municipios para JS
-      const departamentosMunicipios = {
-        {% for dep, municipios in departamentos_municipios.items %}
-          "{{ dep }}": [{% for mun in municipios %}"{{ mun }}"{% if not forloop.last %},{% endif %}{% endfor %}],
-        {% endfor %}
-      };
-
-      const departamentoSelect = document.getElementById('departamento-select');
-      const municipioSelect = document.getElementById('municipio-select');
-
-      departamentoSelect.addEventListener('change', function() {
-        const dep = this.value;
-        municipioSelect.innerHTML = '<option value="">Selecciona un municipio</option>';
-        if (departamentosMunicipios[dep]) {
-          departamentosMunicipios[dep].forEach(function(mun) {
-            const opt = document.createElement('option');
-            opt.value = mun;
-            opt.textContent = mun;
-            municipioSelect.appendChild(opt);
-          });
-        }
-      });
-      </script>
-      <div class="shop-edit-label">Dirección</div>
-      <div class="shop-edit-value"><input type="text" name="direccion" value="{{ valores.direccion|default:'' }}"></div>
-      <div class="shop-edit-label">Horario</div>
-      <div class="shop-edit-value"><input type="text" name="horario" value="{{ valores.horario|default:'' }}"></div>
-      <div class="shop-edit-label">Descripción</div>
-      <div class="shop-edit-value"><textarea name="descripcion">{{ valores.descripcion|default:'' }}</textarea></div>
+<link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
+<div class="user-detail-main user-detail-main--shop-detail user-detail-main--shop-detail-view">
+  {% if request.GET.recovery_mail == 'sent' %}
+    <div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:#ecfdf3;border:1px solid #86d3ab;color:#0f5132;font-weight:600;">
+      Se envio el correo de recuperacion al propietario.
     </div>
-    {% if errores %}
-      <div class="form-error" style="margin-top:12px;">{{ errores.nombre }}{{ errores.telefono }}{{ errores.email }}{{ errores.departamento }}{{ errores.municipio }}</div>
+  {% elif request.GET.recovery_mail == 'error' %}
+    <div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:#fff4ee;border:1px solid #ffc29a;color:#8a2f00;font-weight:600;">
+      No se pudo enviar el correo de recuperacion. Intenta nuevamente.
+    </div>
+  {% elif request.GET.recovery_mail == 'missing_email' %}
+    <div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:#fff4ee;border:1px solid #ffc29a;color:#8a2f00;font-weight:600;">
+      El propietario no tiene correo registrado para enviar recuperacion.
+    </div>
+  {% endif %}
+
+  <form method="post" action="{% url 'administrador:tienda_admin_editar' tienda.id %}{% if request.GET.from %}?from={{ request.GET.from }}{% endif %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="user-detail-grid">
+      <div class="user-detail-avatar">
+        {% if usuario_info and usuario_info.foto %}
+          <img src="{{ usuario_info.foto.url }}" alt="Foto del propietario" style="width:55px;height:55px;border-radius:50%;object-fit:cover;">
+        {% else %}
+          <span style="display:flex;align-items:center;justify-content:center;width:55px;height:55px;font-size:1.2em;background:#6366f1;color:#fff;border-radius:50%;">{{ tienda.nombre|slice:":1"|upper }}</span>
+        {% endif %}
+      </div>
+      <div>
+        <div class="user-detail-label">ID tienda</div>
+        <div class="user-detail-value"><input type="text" value="{{ tienda.id }}" readonly></div>
+      </div>
+      <div>
+        <div class="user-detail-label">Nombre tienda</div>
+        <div class="user-detail-value">
+          <input type="text" name="nombre" value="{{ valores.nombre|default:'' }}" required>
+          <div class="shop-edit-inline-error" data-error-for="nombre">{% if errores.nombre %}{{ errores.nombre }}{% endif %}</div>
+        </div>
+      </div>
+      <div>
+        <div class="user-detail-label">Teléfono</div>
+        <div class="user-detail-value">
+          <input type="text" name="telefono" value="{{ valores.telefono|default:'' }}" inputmode="numeric" maxlength="10" pattern="^3\d{9}$" title="Debe tener 10 dígitos y empezar por 3" required>
+          <div class="shop-edit-inline-error" data-error-for="telefono">{% if errores.telefono %}{{ errores.telefono }}{% endif %}</div>
+        </div>
+      </div>
+      <div>
+        <div class="user-detail-label">Correo</div>
+        <div class="user-detail-value">
+          <input type="email" name="email" value="{{ valores.email|default:'' }}" required>
+          <div class="shop-edit-inline-error" data-error-for="email">{% if errores.email %}{{ errores.email }}{% endif %}</div>
+        </div>
+      </div>
+      <div>
+        <div class="user-detail-label">Departamento</div>
+        <div class="user-detail-value">
+          <select id="departamento-select" name="departamento" required>
+            <option value="">Selecciona un departamento</option>
+            {% for dep, municipios in departamentos_municipios.items %}
+              <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
+            {% endfor %}
+          </select>
+          <div class="shop-edit-inline-error" data-error-for="departamento">{% if errores.departamento %}{{ errores.departamento }}{% endif %}</div>
+        </div>
+      </div>
+      <div>
+        <div class="user-detail-label">Municipio</div>
+        <div class="user-detail-value">
+          <select id="municipio-select" name="municipio" data-selected="{{ valores.municipio|default:'' }}" required>
+            <option value="">Selecciona un municipio</option>
+          </select>
+          <div class="shop-edit-inline-error" data-error-for="municipio">{% if errores.municipio %}{{ errores.municipio }}{% endif %}</div>
+        </div>
+      </div>
+      <div id="horario-row">
+        <div class="user-detail-label" id="horario-label">Horario</div>
+        <div class="user-detail-value" id="horario-field">
+          <input type="text" name="horario" id="horario-input" value="{{ valores.horario|default:'' }}" placeholder="08:00 AM - 05:00 PM" pattern="^(0?[1-9]|1[0-2]):[0-5][0-9]\s*[AaPp][Mm]\s*-\s*(0?[1-9]|1[0-2]):[0-5][0-9]\s*[AaPp][Mm]$" title="Usa formato HH:MM AM/PM - HH:MM AM/PM">
+          <div class="shop-edit-inline-error" data-error-for="horario">{% if errores.horario %}{{ errores.horario }}{% endif %}</div>
+        </div>
+      </div>
+      <div>
+        <div class="user-detail-label">Punto físico</div>
+        <div class="user-detail-value">
+          <select name="punto_fisico" id="punto-fisico-select" required>
+            <option value="True" {% if valores.punto_fisico == 'True' %}selected{% endif %}>Sí</option>
+            <option value="False" {% if valores.punto_fisico == 'False' %}selected{% endif %}>No</option>
+          </select>
+          <div class="shop-edit-inline-error" data-error-for="punto_fisico">{% if errores.punto_fisico %}{{ errores.punto_fisico }}{% endif %}</div>
+        </div>
+      </div>
+      <div>
+        <div class="user-detail-label">Estado tienda</div>
+        <div class="user-detail-value">
+          <select name="estado_tienda" id="estado-tienda-select" required>
+            <option value="activa" {% if valores.estado_tienda == 'activa' %}selected{% endif %}>Activa</option>
+            <option value="inactiva" {% if valores.estado_tienda == 'inactiva' %}selected{% endif %}>Inactiva</option>
+          </select>
+          <div class="shop-edit-inline-error" data-error-for="estado_tienda">{% if errores.estado_tienda %}{{ errores.estado_tienda }}{% endif %}</div>
+        </div>
+      </div>
+      <div id="direccion-row">
+        <div class="user-detail-label">Dirección</div>
+        <div class="user-detail-value">
+          <input type="text" name="direccion" id="direccion-input" value="{{ valores.direccion|default:'' }}">
+          <div class="shop-edit-inline-error" data-error-for="direccion">{% if errores.direccion %}{{ errores.direccion }}{% endif %}</div>
+        </div>
+      </div>
+      <div class="user-detail-grid__full-row">
+        <div class="user-detail-label">Descripción</div>
+        <div class="user-detail-value">
+          <textarea name="descripcion">{{ valores.descripcion|default:'' }}</textarea>
+          <div class="shop-edit-inline-error" data-error-for="descripcion">{% if errores.descripcion %}{{ errores.descripcion }}{% endif %}</div>
+        </div>
+      </div>
+    </div>
+
+    {% if usuario_info %}
+      <div class="user-detail-owner-card">
+        <div class="user-detail-owner-card__title">Propietario de la tienda</div>
+        <div class="user-detail-grid user-detail-grid--owner">
+          <div>
+            <div class="user-detail-label">ID usuario</div>
+            <div class="user-detail-value"><input type="text" value="{{ usuario_info.id_usuario }}" readonly></div>
+          </div>
+          <div>
+            <div class="user-detail-label">Foto propietario</div>
+            <div class="user-detail-value">
+              <input type="file" name="owner_foto" accept="image/*">
+              <div class="shop-edit-inline-error" data-error-for="owner_foto">{% if errores.owner_foto %}{{ errores.owner_foto }}{% endif %}</div>
+            </div>
+          </div>
+          <div>
+            <div class="user-detail-label">Nombre</div>
+            <div class="user-detail-value">
+              <input type="text" value="{{ valores.owner_nombres|default:'' }} {{ valores.owner_apellidos|default:'' }}" readonly>
+              <input type="hidden" name="owner_nombres" value="{{ valores.owner_nombres|default:'' }}">
+              <input type="hidden" name="owner_apellidos" value="{{ valores.owner_apellidos|default:'' }}">
+            </div>
+          </div>
+          <div>
+            <div class="user-detail-label">Correo</div>
+            <div class="user-detail-value">
+              <input type="email" name="owner_correo_electronico" value="{{ valores.owner_correo_electronico|default:'' }}" required>
+              <div class="shop-edit-inline-error" data-error-for="owner_correo_electronico">{% if errores.owner_correo_electronico %}{{ errores.owner_correo_electronico }}{% endif %}</div>
+            </div>
+          </div>
+          <div>
+            <div class="user-detail-label">Teléfono</div>
+            <div class="user-detail-value">
+              <input type="text" name="owner_telefono" value="{{ valores.owner_telefono|default:'' }}" inputmode="numeric" maxlength="10" pattern="^3\d{9}$" title="Debe tener 10 dígitos y empezar por 3" required>
+              <div class="shop-edit-inline-error" data-error-for="owner_telefono">{% if errores.owner_telefono %}{{ errores.owner_telefono }}{% endif %}</div>
+            </div>
+          </div>
+          <div>
+            <div class="user-detail-label">Tipo documento</div>
+            <div class="user-detail-value">
+              <select name="owner_tipo_documento" required>
+                <option value="">Seleccione...</option>
+                <option value="TI" {% if valores.owner_tipo_documento == 'TI' %}selected{% endif %}>TI</option>
+                <option value="CC" {% if valores.owner_tipo_documento == 'CC' %}selected{% endif %}>CC</option>
+              </select>
+              <div class="shop-edit-inline-error" data-error-for="owner_tipo_documento">{% if errores.owner_tipo_documento %}{{ errores.owner_tipo_documento }}{% endif %}</div>
+            </div>
+          </div>
+          <div>
+            <div class="user-detail-label">Número documento</div>
+            <div class="user-detail-value">
+              <input type="text" name="owner_numero_documento" value="{{ valores.owner_numero_documento|default:'' }}" inputmode="numeric" maxlength="15" pattern="^\d{6,15}$" title="Debe tener solo dígitos (6 a 15)" required>
+              <div class="shop-edit-inline-error" data-error-for="owner_numero_documento">{% if errores.owner_numero_documento %}{{ errores.owner_numero_documento }}{% endif %}</div>
+            </div>
+          </div>
+          <div>
+            <div class="user-detail-label">Departamento</div>
+            <div class="user-detail-value">
+              <select id="owner-departamento-select" name="owner_departamento" required>
+                <option value="">Selecciona un departamento</option>
+                {% for dep, municipios in departamentos_municipios.items %}
+                  <option value="{{ dep }}" {% if valores.owner_departamento == dep %}selected{% endif %}>{{ dep }}</option>
+                {% endfor %}
+              </select>
+              <div class="shop-edit-inline-error" data-error-for="owner_departamento">{% if errores.owner_departamento %}{{ errores.owner_departamento }}{% endif %}</div>
+            </div>
+          </div>
+          <div>
+            <div class="user-detail-label">Municipio</div>
+            <div class="user-detail-value">
+              <select id="owner-municipio-select" name="owner_municipio" data-selected="{{ valores.owner_municipio|default:'' }}" required>
+                <option value="">Selecciona un municipio</option>
+              </select>
+              <div class="shop-edit-inline-error" data-error-for="owner_municipio">{% if errores.owner_municipio %}{{ errores.owner_municipio }}{% endif %}</div>
+            </div>
+          </div>
+          <div>
+            <div class="user-detail-label">Dirección</div>
+            <div class="user-detail-value">
+              <input type="text" name="owner_direccion_completa" value="{{ valores.owner_direccion_completa|default:'' }}" required>
+              <div class="shop-edit-inline-error" data-error-for="owner_direccion_completa">{% if errores.owner_direccion_completa %}{{ errores.owner_direccion_completa }}{% endif %}</div>
+            </div>
+          </div>
+          <div>
+            <div class="user-detail-label">Estado</div>
+            <div class="user-detail-value"><input type="text" value="{{ usuario_info.estado|title }}" readonly></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="shop-edit-recovery-card user-detail-grid__full-row">
+        <div class="user-detail-label shop-edit-recovery-title">Recuperación de contraseña del propietario</div>
+        <div class="shop-edit-recovery-row">
+          <div class="shop-edit-recovery-copy">
+            <div class="shop-edit-recovery-copy__help">El administrador no puede editar directamente la contraseña del propietario.</div>
+            <div class="shop-edit-recovery-copy__target">
+              Se enviará a: <span id="owner-recovery-destination">{{ valores.owner_correo_electronico|default:'(sin correo)' }}</span>
+            </div>
+          </div>
+          <button
+            type="submit"
+            form="send-owner-recovery-mail-form"
+            class="shop-edit-recovery-btn"
+          >Enviar correo de recuperación</button>
+        </div>
+      </div>
     {% endif %}
+
     <div class="shop-edit-footer">
-      <a href="{% url 'administrador:store_admin' %}" class="shop-edit-cancel">&larr; Cancelar</a>
+      <a href="{% if request.GET.from == 'detail' %}{% url 'administrador:tienda_admin_detalle' tienda.id %}{% else %}{% url 'administrador:store_admin' %}{% endif %}" class="shop-edit-cancel">&larr; Volver</a>
       <button type="submit" class="shop-edit-btn">Guardar cambios</button>
     </div>
-    {% if success %}
-      <div class="editar-tienda-success">Tienda editada exitosamente.</div>
-    {% endif %}
+
   </form>
+
+  <div class="shop-confirm-modal" id="shop-confirm-modal" aria-hidden="true">
+    <div class="shop-confirm-modal__backdrop" data-confirm-close></div>
+    <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="shop-confirm-title" aria-describedby="shop-confirm-text">
+      <h3 class="shop-confirm-modal__title" id="shop-confirm-title">Confirmar cambios</h3>
+      <p class="shop-confirm-modal__text" id="shop-confirm-text">¿Deseas guardar los cambios de la tienda?</p>
+      <div class="shop-confirm-modal__actions">
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="shop-confirm-cancel">Cancelar</button>
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="shop-confirm-accept">Sí, guardar</button>
+      </div>
+    </div>
+  </div>
+
+  {% if usuario_info %}
+    <form id="send-owner-recovery-mail-form" method="post" action="{% url 'administrador:usuario_admin_enviar_recuperacion' usuario_info.id %}">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+      <input type="hidden" name="target_email" id="owner-recovery-target-email" value="{{ valores.owner_correo_electronico|default:'' }}">
+    </form>
+  {% endif %}
 </div>
+{{ departamentos_municipios|json_script:"departamentos-municipios-data" }}
+<script src="{% static 'js/components/shop_editar_card.js' %}" defer></script>
+<script>
+  (function () {
+    const recoveryForm = document.getElementById('send-owner-recovery-mail-form');
+    const recoveryTarget = document.getElementById('owner-recovery-target-email');
+    const ownerEmailInput = document.querySelector('input[name="owner_correo_electronico"]');
+    const destinationLabel = document.getElementById('owner-recovery-destination');
+
+    if (!recoveryForm || !recoveryTarget || !ownerEmailInput) {
+      return;
+    }
+
+    const actualizarDestino = function () {
+      const correo = (ownerEmailInput.value || '').trim();
+      recoveryTarget.value = correo;
+      if (destinationLabel) {
+        destinationLabel.textContent = correo || '(sin correo)';
+      }
+    };
+
+    ownerEmailInput.addEventListener('input', actualizarDestino);
+    ownerEmailInput.addEventListener('change', actualizarDestino);
+    actualizarDestino();
+
+    recoveryForm.addEventListener('submit', function () {
+      actualizarDestino();
+    });
+  })();
+</script>

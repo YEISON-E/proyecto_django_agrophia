@@ -9,7 +9,6 @@
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
   <script src="{% static 'js/components/gov-co__one.js' %}"></script>
   <script src="{% static 'js/components/gov-co__two.js' %}"></script>
-  <script src="{% static 'js/components/footer.js' %}" defer></script>
 </head>
 <body>
   <div class="govco-container__one">
@@ -17,7 +16,9 @@
   </div>
   <div class="create-farmer"></div>
   {% include 'tiendas/components/create-shop.html' %}
-  <footer class="footer-container"></footer>
+  <footer class="footer-container">
+    {% include 'components/footer.html' %}
+  </footer>
   <div class="govco-container__two">
     {% include 'components/gov-co__one.html' %}
   </div>

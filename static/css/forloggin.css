@@ -1,10 +1,26 @@
 
 .login-container {
-  min-height: 100vh;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* arriba y centro */
+  justify-content: flex-start;
   box-sizing: border-box;
+}
+
+.login-page-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.page__left_login {
+  display: none;
+}
+
+.page__right_login {
+  width: 100%;
+  flex: 1;
+  display: flex;
 }
 
 .register__back {
@@ -30,7 +46,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 100%;
-  margin: 0 24px 24px 24px;
+  margin: 0 24px;
 }
 
 /* Mantén el resto de tu estilo igual */
@@ -169,21 +185,13 @@
 }
 @media (width > 1024px){
   .page__left_login {
-  position: absolute;
-  /* top: 0; */
-  /* left: 0; */
-  width: 50%;
-  height: 86vh;   /* altura del viewport dinámico real */
-  overflow: hidden;
+  position: relative;
   display: flex;
+  width: 50%;
+  min-height: 100%;
+  overflow: hidden;
   justify-content: center;
   align-items: center;
-  background: 
-    linear-gradient(var(--overlay-dark), var(--overlay-dark)), 
-    url("{% static 'img/farmer.jpg' %}");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
 .login__title-left {
@@ -197,15 +205,20 @@
 
 .page__right_login{
   position: relative;
-  margin-left:50%;
   width:50%;
-  height: 86vh;
+  min-height: 100%;
   color: var(--black);
   display:flex;
   flex-direction:row;
   align-items:center;
   justify-content: center;
 }
+
+.login-page-layout {
+  flex-direction: row;
+  align-items: stretch;
+}
+
 .page__right::before, .page__right::after { 
   content:""; 
   display:block; 
@@ -233,18 +246,23 @@
     margin-top: 6px;
     margin-left: 4px;
     font-weight: 500;
-  display: none;
+  display: flex;
     align-items: center;
     gap: 6px;
     animation: slideDown 0.3s ease-out;
+}
+
+.input-error[style*="display: none"],
+.input-error[style*="display:none"] {
+  display: none !important;
 }
 
 .input-error.is-visible {
   display: flex;
 }
 
-.input-error.is-visible::before {
-    content: '⚠️'; /* Icono de advertencia */
+.input-error.is-visible:not(:empty)::before {
+  content: '⚠'; /* Icono de advertencia */
     flex-shrink: 0;
 }
 

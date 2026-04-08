@@ -17,7 +17,6 @@
 
   <script src="/frontend/public/js/components/toolbar.js" defer></script>
   <script src="/frontend/public/js/components/sidebar_admin.js" defer></script>
-  <script src="/frontend/public/js/components/footer.js" defer></script>
 
 
 
@@ -35,7 +34,9 @@
     <div class="table_users"></div>
 
     <footer class="footer">  
-        <div class="footer-container"></div>
+      <div class="footer-container">
+        {% include 'components/footer.html' %}
+      </div>
     </footer> 
   <div class="govco-container__two">
     {% include 'components/gov-co__one.html' %}

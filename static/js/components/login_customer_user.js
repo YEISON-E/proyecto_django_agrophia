@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const customerHomeNotice = document.getElementById("customer-home-notice");
   if (customerHomeNotice) {
-    const noticeTotalDurationMs = 1500;
+    const noticeTotalDurationMs = 4000;
     const noticeFadeDurationMs = 250;
 
     window.setTimeout(() => {
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
       window.setTimeout(() => {
         alertBox.remove();
       }, isError ? 0 : 250);
-    }, 1500);
+    }, 4000);
   };
 
   const requestProductQuantity = () => new Promise((resolve) => {

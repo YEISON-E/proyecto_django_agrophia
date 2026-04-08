@@ -20,7 +20,10 @@ def admin_nav_context(request):
                 "admin_display_email": fallback_email,
             }
 
-        unread_count = AdminNotification.objects.filter(is_read=False).count()
+        unread_count = AdminNotification.objects.filter(is_read=False).exclude(
+            notification_type=AdminNotification.TYPE_BLOCKED_LOGIN_ATTEMPT,
+            message__startswith='El usuario bloqueado intento iniciar sesion.'
+        ).count()
         full_name = f"{register_admin.nombres} {register_admin.apellidos}".strip()
         display_name = full_name or (request.user.get_full_name() or "Administrador").strip()
         display_email = (register_admin.correo_electronico or request.user.email or "admin@correo.com").strip()

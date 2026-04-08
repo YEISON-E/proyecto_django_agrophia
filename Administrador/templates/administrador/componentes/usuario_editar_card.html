@@ -1,7 +1,21 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
 <div class="user-detail-main">
-  <form method="post" enctype="multipart/form-data">
+  {% if request.GET.recovery_mail == 'sent' %}
+    <div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:#ecfdf3;border:1px solid #86d3ab;color:#0f5132;font-weight:600;">
+      Se envio el correo de recuperacion al usuario.
+    </div>
+  {% elif request.GET.recovery_mail == 'error' %}
+    <div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:#fff4ee;border:1px solid #ffc29a;color:#8a2f00;font-weight:600;">
+      No se pudo enviar el correo de recuperacion. Intenta nuevamente.
+    </div>
+  {% elif request.GET.recovery_mail == 'missing_email' %}
+    <div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:#fff4ee;border:1px solid #ffc29a;color:#8a2f00;font-weight:600;">
+      El usuario no tiene correo registrado para enviar recuperacion.
+    </div>
+  {% endif %}
+
+  <form id="admin-profile-edit-form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="user-detail-grid">
       <div class="user-detail-avatar">
@@ -29,11 +43,21 @@
       </div>
       <div>
         <div class="user-detail-label">Correo</div>
-        <div class="user-detail-value">{{ form.correo_electronico }}</div>
+        <div class="user-detail-value">
+          {{ form.correo_electronico }}
+          {% for error in form.correo_electronico.errors %}
+            <div class="shop-edit-inline-error" style="margin-top:6px;">{{ error }}</div>
+          {% endfor %}
+        </div>
       </div>
       <div>
         <div class="user-detail-label">Teléfono</div>
-        <div class="user-detail-value">{{ form.telefono }}</div>
+        <div class="user-detail-value">
+          {{ form.telefono }}
+          {% for error in form.telefono.errors %}
+            <div class="shop-edit-inline-error" style="margin-top:6px;">{{ error }}</div>
+          {% endfor %}
+        </div>
       </div>
       <div>
         <div class="user-detail-label">Departamento</div>
@@ -124,45 +148,90 @@
         <div class="user-detail-label">Descripción perfil</div>
         <div class="user-detail-value">{{ form.descripcion_perfil }}</div>
       </div>
-      <div style="grid-column: 1 / 4;">
-        <div class="user-detail-label">Contraseña</div>
-        <div class="user-detail-value">{{ form.contrasena }}</div>
+      <div style="grid-column: 1 / 4; background:#f8fafc; border:1px solid #dbe3ee; border-radius:8px; padding:12px 14px;">
+        <div class="user-detail-label" style="margin-bottom:8px;">Recuperación de contraseña</div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+          <div style="font-size:.95em; color:#45556c;">El administrador no puede editar directamente la contraseña.</div>
+          <button
+            type="submit"
+            form="send-recovery-mail-form"
+            style="background:#0f766e;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;"
+          >Enviar correo de recuperación</button>
+        </div>
+      </div>
+      <div class="shop-edit-footer">
+        <a href="{% if request.GET.from == 'detail' %}{% url 'administrador:usuario_admin_detalle' usuario.id %}{% else %}{% url 'administrador:usuarios_admin' %}{% endif %}" class="shop-edit-cancel">&larr; Volver</a>
+        <button type="submit" class="shop-edit-btn">Guardar cambios</button>
       </div>
     </div>
-    {% if tienda %}
-      <div style="margin-top:24px;padding:16px 20px;background:#f0fdf4;border-radius:8px;grid-column: 1 / 4;">
-        <strong style="color:#16a34a;">Editar información de tienda</strong><br>
-        <div class="user-detail-label">Nombre tienda</div>
-        <input type="text" name="tienda_nombre" value="{{ tienda.nombre }}" class="user-detail-value" style="width:100%;margin-bottom:8px;">
-        <div class="user-detail-label">Email tienda</div>
-        <input type="email" name="tienda_email" value="{{ tienda.email }}" class="user-detail-value" style="width:100%;margin-bottom:8px;">
-        <div class="user-detail-label">Teléfono tienda</div>
-        <input type="text" name="tienda_telefono" value="{{ tienda.telefono }}" class="user-detail-value" style="width:100%;margin-bottom:8px;">
-        <div class="user-detail-label">Departamento</div>
-        <input type="text" name="tienda_departamento" value="{{ tienda.departamento }}" class="user-detail-value" style="width:100%;margin-bottom:8px;">
-        <div class="user-detail-label">Municipio</div>
-        <input type="text" name="tienda_municipio" value="{{ tienda.municipio }}" class="user-detail-value" style="width:100%;margin-bottom:8px;">
-        <div class="user-detail-label">Dirección</div>
-        <input type="text" name="tienda_direccion" value="{{ tienda.direccion }}" class="user-detail-value" style="width:100%;margin-bottom:8px;">
-        <div class="user-detail-label">Descripción</div>
-        <textarea name="tienda_descripcion" class="user-detail-value" style="width:100%;margin-bottom:8px;">{{ tienda.descripcion }}</textarea>
-        <div class="user-detail-label">Horario</div>
-        <input type="text" name="tienda_horario" value="{{ tienda.horario }}" class="user-detail-value" style="width:100%;margin-bottom:8px;">
-        <div class="user-detail-label">¿Punto físico?</div>
-        <select name="tienda_punto_fisico" class="user-detail-value" style="width:100%;margin-bottom:8px;">
-          <option value="True" {% if tienda.punto_fisico %}selected{% endif %}>Sí</option>
-          <option value="False" {% if not tienda.punto_fisico %}selected{% endif %}>No</option>
-        </select>
-        <div class="user-detail-label">Estado tienda</div>
-        <select name="tienda_is_active" class="user-detail-value" style="width:100%;margin-bottom:8px;">
-          <option value="True" {% if tienda.is_active %}selected{% endif %}>Activa</option>
-          <option value="False" {% if not tienda.is_active %}selected{% endif %}>Inactiva</option>
-        </select>
+
+  </form>
+
+  <div class="shop-confirm-modal" id="user-edit-confirm-modal" aria-hidden="true">
+    <div class="shop-confirm-modal__backdrop" data-user-confirm-close></div>
+    <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="user-edit-confirm-title" aria-describedby="user-edit-confirm-text">
+      <h3 class="shop-confirm-modal__title" id="user-edit-confirm-title">Confirmar cambios</h3>
+      <p class="shop-confirm-modal__text" id="user-edit-confirm-text">¿Deseas guardar los cambios del usuario?</p>
+      <div class="shop-confirm-modal__actions">
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="user-edit-confirm-cancel">Cancelar</button>
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="user-edit-confirm-accept">Sí, guardar</button>
       </div>
-    {% endif %}
-    <div class="shop-edit-footer">
-      <a href="{% url 'administrador:usuario_admin_detalle' usuario.id %}" class="shop-edit-cancel">&larr; Cancelar</a>
-      <button type="submit" class="shop-edit-btn">Guardar cambios</button>
     </div>
+  </div>
+
+  <form id="send-recovery-mail-form" method="post" action="{% url 'administrador:usuario_admin_enviar_recuperacion' usuario.id %}">
+    {% csrf_token %}
   </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('admin-profile-edit-form');
+  const modal = document.getElementById('user-edit-confirm-modal');
+  const btnAccept = document.getElementById('user-edit-confirm-accept');
+  const btnCancel = document.getElementById('user-edit-confirm-cancel');
+  const backdrop = modal ? modal.querySelector('[data-user-confirm-close]') : null;
+
+  if (!form || !modal || !btnAccept || !btnCancel) {
+    return;
+  }
+
+  let envioConfirmado = false;
+
+  const abrir = function () {
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('user-lightbox-open');
+    btnAccept.focus();
+  };
+
+  const cerrar = function () {
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('user-lightbox-open');
+  };
+
+  form.addEventListener('submit', function (event) {
+    if (envioConfirmado) {
+      envioConfirmado = false;
+      return;
+    }
+
+    event.preventDefault();
+    abrir();
+  });
+
+  btnAccept.addEventListener('click', function () {
+    cerrar();
+    envioConfirmado = true;
+    form.requestSubmit();
+  });
+
+  btnCancel.addEventListener('click', cerrar);
+  backdrop?.addEventListener('click', cerrar);
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
+      cerrar();
+    }
+  });
+});
+</script>

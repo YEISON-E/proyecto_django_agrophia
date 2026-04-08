@@ -5,7 +5,7 @@
     {% csrf_token %}
     <h2 style="text-align:center;color:#16a34a;margin-bottom:18px;">Crear Tienda</h2>
     <div style="margin-bottom:18px;">
-      <div class="shop-edit-label" style="margin-bottom:8px;">Usuario cliente asociado</div>
+      <div class="shop-edit-label" style="margin-bottom:2px;">Usuario cliente asociado</div>
       <div class="shop-edit-value">
         <select name="owner_id" id="owner-select" required>
           <option value="">Selecciona un cliente existente</option>
@@ -17,124 +17,103 @@
         </select>
       </div>
       {% if errores.owner_id %}
-        <div class="form-error" style="margin-top:8px;">{{ errores.owner_id }}</div>
+        <div class="shop-edit-inline-error" style="margin-top:8px;">{{ errores.owner_id }}</div>
       {% endif %}
       <div style="margin-top:8px;font-size:0.95em;color:#4b5563;">
-        La tienda se crea sobre un cliente existente. Ese usuario conservara su usuario y contraseña para iniciar sesión como tienda.
+        La tienda se crea sobre un cliente existente. Ese usuario conservará su usuario y contraseña para iniciar sesión como tienda.
       </div>
     </div>
-    <div class="shop-edit-grid">
-      <div class="shop-edit-label">Nombre</div>
-      <div class="shop-edit-value"><input type="text" name="nombre" value="{{ valores.nombre|default:'' }}" required></div>
-      <div class="shop-edit-label">Teléfono</div>
-      <div class="shop-edit-value"><input type="text" name="telefono" id="telefono-input" value="{{ valores.telefono|default:'' }}" required></div>
-      <div class="shop-edit-label">Correo electrónico</div>
-      <div class="shop-edit-value"><input type="email" name="email" id="email-input" value="{{ valores.email|default:'' }}" required></div>
-      <div class="shop-edit-label">Departamento</div>
-      <div class="shop-edit-value">
-        <select id="departamento-select" name="departamento" required>
-          <option value="">Selecciona un departamento</option>
-          {% for dep, municipios in departamentos_municipios.items %}
-            <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
-          {% endfor %}
-        </select>
+    <div class="shop-edit-grid shop-edit-grid--two-cols">
+      <div class="shop-edit-field">
+        <div class="shop-edit-label">Nombre</div>
+        <div class="shop-edit-value"><input type="text" name="nombre" id="nombre-input" value="{{ valores.nombre|default:'' }}" maxlength="50" pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$" title="Solo se permiten letras y espacios." required></div>
       </div>
-      <div class="shop-edit-label">Municipio</div>
-      <div class="shop-edit-value">
-        <select id="municipio-select" name="municipio" required>
-          <option value="">Selecciona un municipio</option>
-        </select>
+      <div class="shop-edit-field">
+        <div class="shop-edit-label">Teléfono</div>
+        <div class="shop-edit-value">
+          <input type="text" name="telefono" id="telefono-input" value="{{ valores.telefono|default:'' }}" required>
+          {% if errores.telefono %}<div class="shop-edit-inline-error" style="margin-top:6px;">{{ errores.telefono }}</div>{% endif %}
+        </div>
       </div>
-      <div class="shop-edit-label">Dirección</div>
-      <div class="shop-edit-value"><input type="text" name="direccion" id="direccion-input" value="{{ valores.direccion|default:'' }}"></div>
-      <div class="shop-edit-label">Horario</div>
-      <div class="shop-edit-value"><input type="text" name="horario" value="{{ valores.horario|default:'' }}"></div>
-      <div class="shop-edit-label">Descripción</div>
-      <div class="shop-edit-value"><textarea name="descripcion">{{ valores.descripcion|default:'' }}</textarea></div>
+      <div class="shop-edit-field">
+        <div class="shop-edit-label">Correo electrónico</div>
+        <div class="shop-edit-value">
+          <input type="email" name="email" id="email-input" value="{{ valores.email|default:'' }}" required>
+          {% if errores.email %}<div class="shop-edit-inline-error" style="margin-top:6px;">{{ errores.email }}</div>{% endif %}
+        </div>
+      </div>
+      <div class="shop-edit-field">
+        <div class="shop-edit-label">Departamento</div>
+        <div class="shop-edit-value">
+          <select id="departamento-select" name="departamento" required>
+            <option value="">Selecciona un departamento</option>
+            {% for dep, municipios in departamentos_municipios.items %}
+              <option value="{{ dep }}" {% if valores.departamento == dep %}selected{% endif %}>{{ dep }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="shop-edit-field">
+        <div class="shop-edit-label">Municipio</div>
+        <div class="shop-edit-value">
+          <select id="municipio-select" name="municipio" data-selected-municipio="{{ valores.municipio|default:''|escapejs }}" required>
+            <option value="">Selecciona un municipio</option>
+          </select>
+        </div>
+      </div>
+      <div class="shop-edit-field">
+        <div class="shop-edit-label">¿Punto físico?</div>
+        <div class="shop-edit-value">
+          <select name="punto_fisico" id="punto-fisico-select" required>
+            <option value="">Selecciona una opción</option>
+            <option value="True" {% if valores.punto_fisico == 'True' %}selected{% endif %}>Sí</option>
+            <option value="False" {% if valores.punto_fisico == 'False' %}selected{% endif %}>No</option>
+          </select>
+        </div>
+      </div>
+      <div class="shop-edit-field">
+        <div class="shop-edit-label" id="direccion-label">Dirección</div>
+        <div class="shop-edit-value" id="direccion-field"><input type="text" name="direccion" id="direccion-input" value="{{ valores.direccion|default:'' }}"></div>
+      </div>
+      <div class="shop-edit-field">
+        <div class="shop-edit-label" id="horario-label">Horario</div>
+        <div class="shop-edit-value" id="horario-field"><input type="text" name="horario" id="horario-input" value="{{ valores.horario|default:'' }}" placeholder="08:00 AM - 05:00 PM" pattern="^(0?[1-9]|1[0-2]):[0-5][0-9]\s*[AaPp][Mm]\s*-\s*(0?[1-9]|1[0-2]):[0-5][0-9]\s*[AaPp][Mm]$" title="Usa formato HH:MM AM/PM - HH:MM AM/PM"></div>
+      </div>
+      <div class="shop-edit-field shop-edit-field--full">
+        <div class="shop-edit-label">Descripción</div>
+        <div class="shop-edit-value"><textarea name="descripcion">{{ valores.descripcion|default:'' }}</textarea></div>
+      </div>
     </div>
     {% if errores %}
-      <div class="form-error" style="margin-top:12px;">{{ errores.nombre }}{{ errores.telefono }}{{ errores.email }}{{ errores.departamento }}{{ errores.municipio }}</div>
+      <div class="form-error" style="margin-top:12px;">{{ errores.nombre }}{{ errores.telefono }}{{ errores.email }}{{ errores.departamento }}{{ errores.municipio }}{{ errores.punto_fisico }}{{ errores.direccion }}{{ errores.horario }}</div>
     {% endif %}
     <div class="shop-edit-footer">
-      <button type="submit" class="shop-edit-btn">Crear tienda</button>
       <a href="{% url 'administrador:store_admin' %}" class="shop-edit-cancel">&larr; Cancelar</a>
+      <button type="submit" class="shop-edit-btn">Crear tienda</button>
     </div>
     {% if success %}
-      <div class="editar-tienda-success">Tienda creada exitosamente. Redirigiendo...</div>
-      <script>setTimeout(function(){ window.location.href = "{% url 'administrador:store_admin' %}"; }, 1200);</script>
+      <div class="shop-confirm-modal" id="shop-create-success-modal" aria-hidden="false" data-redirect-url="{% url 'administrador:store_admin' %}">
+        <div class="shop-confirm-modal__backdrop"></div>
+        <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-describedby="shop-create-success-text">
+          <p class="shop-confirm-modal__text" id="shop-create-success-text" style="text-align:center; margin-bottom:0;">Tienda creada correctamente.</p>
+        </div>
+      </div>
     {% endif %}
   </form>
+
+  <div class="shop-confirm-modal" id="shop-create-confirm-modal" aria-hidden="true">
+    <div class="shop-confirm-modal__backdrop" data-create-confirm-close></div>
+    <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="shop-create-confirm-title" aria-describedby="shop-create-confirm-text">
+      <h3 class="shop-confirm-modal__title" id="shop-create-confirm-title">Confirmar cambios</h3>
+      <p class="shop-confirm-modal__text" id="shop-create-confirm-text">¿Deseas guardar los cambios de la tienda?</p>
+      <div class="shop-confirm-modal__actions">
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="shop-create-confirm-cancel">Cancelar</button>
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="shop-create-confirm-accept">Sí, guardar</button>
+      </div>
+    </div>
+  </div>
+
   {{ departamentos_municipios|json_script:"departamentos-municipios-data" }}
   {{ usuarios_disponibles_data|json_script:"usuarios-disponibles-data" }}
-  <script>
-  const departamentosMunicipios = JSON.parse(
-    document.getElementById('departamentos-municipios-data').textContent
-  );
-  const usuariosDisponibles = JSON.parse(
-    document.getElementById('usuarios-disponibles-data').textContent
-  );
-  const usuariosPorId = Object.fromEntries(
-    usuariosDisponibles.map((usuario) => [String(usuario.id_usuario), usuario])
-  );
-
-  const ownerSelect = document.getElementById('owner-select');
-  const departamentoSelect = document.getElementById('departamento-select');
-  const municipioSelect = document.getElementById('municipio-select');
-  const telefonoInput = document.getElementById('telefono-input');
-  const emailInput = document.getElementById('email-input');
-  const direccionInput = document.getElementById('direccion-input');
-  const municipioSeleccionado = "{{ valores.municipio|default:''|escapejs }}";
-
-  function renderMunicipios(departamento, municipioActual = '') {
-    municipioSelect.innerHTML = '<option value="">Selecciona un municipio</option>';
-    if (departamentosMunicipios[departamento]) {
-      departamentosMunicipios[departamento].forEach(function(mun) {
-        const opt = document.createElement('option');
-        opt.value = mun;
-        opt.textContent = mun;
-        if (mun === municipioActual) {
-          opt.selected = true;
-        }
-        municipioSelect.appendChild(opt);
-      });
-    }
-  }
-
-  function autocompletarDesdeUsuario() {
-    const usuario = usuariosPorId[ownerSelect.value];
-    if (!usuario) {
-      return;
-    }
-
-    if (!telefonoInput.value.trim()) {
-      telefonoInput.value = usuario.telefono || '';
-    }
-    if (!emailInput.value.trim()) {
-      emailInput.value = usuario.correo_electronico || '';
-    }
-    if (!departamentoSelect.value.trim()) {
-      departamentoSelect.value = usuario.departamento || '';
-      renderMunicipios(departamentoSelect.value, usuario.municipio || '');
-    } else if (!municipioSelect.value.trim() && usuario.departamento === departamentoSelect.value) {
-      renderMunicipios(departamentoSelect.value, usuario.municipio || '');
-    }
-    if (!direccionInput.value.trim()) {
-      direccionInput.value = usuario.direccion_completa || '';
-    }
-  }
-
-  departamentoSelect.addEventListener('change', function() {
-    renderMunicipios(this.value, '');
-  });
-
-  ownerSelect.addEventListener('change', autocompletarDesdeUsuario);
-
-  if (departamentoSelect.value) {
-    renderMunicipios(departamentoSelect.value, municipioSeleccionado);
-  }
-
-  if (ownerSelect.value) {
-    autocompletarDesdeUsuario();
-  }
-  </script>
+  <script src="{% static 'js/components/shop_crear_card.js' %}" defer></script>
 </div>

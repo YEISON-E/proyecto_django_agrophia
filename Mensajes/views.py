@@ -42,7 +42,7 @@ def sent_messages(request):
 
 	messages_sent = CustomerMessage.objects.select_related("product", "receiver").filter(sender=request.user)
 	messages_sent = messages_sent.prefetch_related("farmer_replies").order_by("created_at")
-	notice = request.session.pop("sent_messages_notice", "")
+	request.session.pop("sent_messages_notice", None)
 
 	# 1) Agrupa mensajes por (vendedor, producto) para representar conversaciones.
 	conversations_by_key = {}
@@ -96,6 +96,16 @@ def sent_messages(request):
 			# Paso de apoyo dentro del flujo principal de la funcionalidad.
 			conversation["last_preview"] = (items[-1]["content"] or "").strip()[:60]
 
+		last_base_message = conversation["base_messages"][-1]
+		status = (last_base_message.status or "").strip().lower()
+		status_label_map = {
+			CustomerMessage.STATUS_PENDING: "Sin respuesta",
+			CustomerMessage.STATUS_REPLIED: "Respondido",
+			CustomerMessage.STATUS_REJECTED: "Rechazado",
+		}
+		conversation["last_status"] = status
+		conversation["last_status_label"] = status_label_map.get(status, "")
+
 	# 3) Ordena conversaciones por actividad reciente y resuelve seleccion activa.
 	conversations = sorted(
 		conversations_by_key.values(),
@@ -106,12 +116,11 @@ def sent_messages(request):
 
 	selected_receiver = (request.GET.get("receiver") or "").strip()
 	selected_product = (request.GET.get("product") or "").strip()
+	list_mode = (request.GET.get("view") or "").strip().lower() == "list"
 	selected_conversation = None
-	if selected_receiver.isdigit() and selected_product.isdigit():
+	if not list_mode and selected_receiver.isdigit() and selected_product.isdigit():
 		# Actualización de estado intermedio que será utilizada en pasos posteriores.
 		selected_conversation = conversations_by_key.get((int(selected_receiver), int(selected_product)))
-	if not selected_conversation and conversations:
-		selected_conversation = conversations[0]
 
 	# 4) Prepara payload final para render del panel izquierdo + chat.
 	chat_items = selected_conversation["chat_items"] if selected_conversation else []
@@ -125,7 +134,6 @@ def sent_messages(request):
 		"chat_items": chat_items,
 		# Paso de apoyo dentro del flujo principal de la funcionalidad.
 		"selected_base_message_id": selected_base_message_id,
-		"notice": notice,
 	})
 
 
@@ -139,6 +147,33 @@ def delete_sent_message(request, message_id):
 
 	message = get_object_or_404(CustomerMessage, pk=message_id, sender=request.user)
 	message.delete()
+
+	return redirect("mensajes:sent_messages")
+
+
+@require_POST
+def delete_sent_conversation(request):
+	"""Elimina todo el chat del cliente con un vendedor para un producto."""
+	if not request.user.is_authenticated:
+		return redirect("usuarios:login")
+
+	receiver_id = (request.POST.get("receiver_id") or "").strip()
+	product_id = (request.POST.get("product_id") or "").strip()
+
+	if not receiver_id.isdigit() or not product_id.isdigit():
+		request.session["sent_messages_notice"] = "No se pudo eliminar el chat seleccionado."
+		return redirect("mensajes:sent_messages")
+
+	deleted_count, _ = CustomerMessage.objects.filter(
+		sender=request.user,
+		receiver_id=int(receiver_id),
+		product_id=int(product_id),
+	).delete()
+
+	if deleted_count:
+		request.session["sent_messages_notice"] = "Chat eliminado correctamente."
+	else:
+		request.session["sent_messages_notice"] = "No se encontraron mensajes para eliminar."
 
 	return redirect("mensajes:sent_messages")
 
@@ -221,6 +256,15 @@ def farmer_messages(request):
 	# 2) Orden cronologico interno de cada chat + orden global por recencia.
 	for conversation in conversations_by_sender.values():
 		conversation["messages"].sort(key=lambda item: item.created_at)
+		last_message = conversation["messages"][-1]
+		status = (last_message.status or "").strip().lower()
+		status_label_map = {
+			CustomerMessage.STATUS_PENDING: "Sin respuesta",
+			CustomerMessage.STATUS_REPLIED: "Respondido",
+			CustomerMessage.STATUS_REJECTED: "Rechazado",
+		}
+		conversation["last_status"] = status
+		conversation["last_status_label"] = status_label_map.get(status, "")
 
 	conversations = sorted(
 		conversations_by_sender.values(),
@@ -237,9 +281,6 @@ def farmer_messages(request):
 		selected_chat_id = None
 	elif requested_chat.isdigit() and int(requested_chat) in conversations_by_sender:
 		selected_chat_id = int(requested_chat)
-	elif conversations:
-		# Actualización de estado intermedio que será utilizada en pasos posteriores.
-		selected_chat_id = conversations[0]["sender"].id
 
 	# 3) Renderiza lista de conversaciones y panel de chat seleccionado.
 	selected_conversation = conversations_by_sender.get(selected_chat_id)

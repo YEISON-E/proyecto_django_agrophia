@@ -10,23 +10,11 @@
     <link rel="stylesheet" href="{% static 'css/navbar-store.css' %}">
     <script src="{% static 'js/components/mensajes-farmer.js' %}" defer></script>
 </head>
-<body class="page-messages-farmer">
-    <div class="govco-container__one">
-        {% include 'components/gov-co__one.html' %}
-    </div>
-
+<body class="page-messages-farmer sent-messages-page">
     {% include 'tiendas/components/navbar-store.html' %}
 
     <div class="mensajes-farmer">
         {% include 'mensajes/components/farmer_messages.html' %}
-    </div>
-
-    <footer class="footer-container">
-        {% include 'components/footer.html' %}
-    </footer>
-
-    <div class="govco-container__two">
-        {% include 'components/gov-co__one.html' %}
     </div>
 </body>
 </html>

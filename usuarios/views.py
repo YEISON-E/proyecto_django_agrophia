@@ -20,6 +20,9 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 
 from django.views.generic.edit import CreateView,  UpdateView, DeleteView, FormView
 from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.middleware.csrf import rotate_token
 
 from django.contrib.auth.views import LoginView
 
@@ -611,12 +614,19 @@ def logout_user(request):
     response["Expires"] = "0"
     return response
 
+@method_decorator(never_cache, name="dispatch")
+@method_decorator(ensure_csrf_cookie, name="dispatch")
 class Logueo(LoginView):
     """
     Define la clase Logueo y su comportamiento dentro del flujo de vistas.
     """
     template_name = "login.html"
     redirect_authenticated_user = False
+
+    def get(self, request, *args, **kwargs):
+        # Evita reutilizar tokens antiguos cuando el usuario vuelve con botón atrás.
+        rotate_token(request)
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         # Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.

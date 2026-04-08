@@ -1814,11 +1814,15 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import ensure_csrf_cookie
 # Importación de dependencias necesarias para ejecutar esta vista.
 from django.http import HttpResponse
 from datetime import datetime
 import csv
 
+@never_cache
+@ensure_csrf_cookie
 def admin_verify_code_view(request):
     """
     Gestiona la vista Admin verify code view.

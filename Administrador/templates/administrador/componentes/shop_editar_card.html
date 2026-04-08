@@ -1,6 +1,7 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
 <div class="user-detail-main user-detail-main--shop-detail user-detail-main--shop-detail-view">
+  <!-- Feedback de envio de recuperación (query param recovery_mail). -->
   {% if request.GET.recovery_mail == 'sent' %}
     <div style="margin-bottom:14px;padding:10px 14px;border-radius:8px;background:#ecfdf3;border:1px solid #86d3ab;color:#0f5132;font-weight:600;">
       Se envio el correo de recuperacion al propietario.
@@ -15,8 +16,10 @@
     </div>
   {% endif %}
 
+  <!-- Formulario principal de edición de tienda y propietario. -->
   <form method="post" action="{% url 'administrador:tienda_admin_editar' tienda.id %}{% if request.GET.from %}?from={{ request.GET.from }}{% endif %}" enctype="multipart/form-data">
     {% csrf_token %}
+    <!-- Datos base de la tienda. -->
     <div class="user-detail-grid">
       <div class="user-detail-avatar">
         {% if usuario_info and usuario_info.foto %}
@@ -115,6 +118,7 @@
     </div>
 
     {% if usuario_info %}
+      <!-- Datos del propietario asociado a la tienda. -->
       <div class="user-detail-owner-card">
         <div class="user-detail-owner-card__title">Propietario de la tienda</div>
         <div class="user-detail-grid user-detail-grid--owner">
@@ -204,6 +208,7 @@
         </div>
       </div>
 
+      <!-- Bloque para disparar correo de recuperación al propietario. -->
       <div class="shop-edit-recovery-card user-detail-grid__full-row">
         <div class="user-detail-label shop-edit-recovery-title">Recuperación de contraseña del propietario</div>
         <div class="shop-edit-recovery-row">
@@ -222,6 +227,7 @@
       </div>
     {% endif %}
 
+    <!-- Acciones finales del formulario. -->
     <div class="shop-edit-footer">
       <a href="{% if request.GET.from == 'detail' %}{% url 'administrador:tienda_admin_detalle' tienda.id %}{% else %}{% url 'administrador:store_admin' %}{% endif %}" class="shop-edit-cancel">&larr; Volver</a>
       <button type="submit" class="shop-edit-btn">Guardar cambios</button>
@@ -229,6 +235,7 @@
 
   </form>
 
+  <!-- Modal de confirmación antes de guardar cambios. -->
   <div class="shop-confirm-modal" id="shop-confirm-modal" aria-hidden="true">
     <div class="shop-confirm-modal__backdrop" data-confirm-close></div>
     <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="shop-confirm-title" aria-describedby="shop-confirm-text">
@@ -242,6 +249,7 @@
   </div>
 
   {% if usuario_info %}
+    <!-- Formulario auxiliar para enviar recuperación sin mezclar con guardado. -->
     <form id="send-owner-recovery-mail-form" method="post" action="{% url 'administrador:usuario_admin_enviar_recuperacion' usuario_info.id %}">
       {% csrf_token %}
       <input type="hidden" name="next" value="{{ request.get_full_path }}">
@@ -249,10 +257,13 @@
     </form>
   {% endif %}
 </div>
+<!-- Datos serializados para selects dependientes departamento/municipio. -->
 {{ departamentos_municipios|json_script:"departamentos-municipios-data" }}
+<!-- Lógica principal del componente (validaciones, modal y dependencias). -->
 <script src="{% static 'js/components/shop_editar_card.js' %}" defer></script>
 <script>
   (function () {
+    // Sincroniza correo visible con el destino real del formulario de recuperación.
     const recoveryForm = document.getElementById('send-owner-recovery-mail-form');
     const recoveryTarget = document.getElementById('owner-recovery-target-email');
     const ownerEmailInput = document.querySelector('input[name="owner_correo_electronico"]');

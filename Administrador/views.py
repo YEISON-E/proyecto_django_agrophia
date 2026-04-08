@@ -186,6 +186,10 @@ def tienda_admin_crear_view(request):
             # Se registra el error en el diccionario "errores" usando la clave "nombre"
             # para que la vista pueda mostrar este mensaje exactamente en el input de nombre.
             errores['nombre'] = 'El nombre es obligatorio.'
+        elif len(nombre) > 50:
+            errores['nombre'] = 'El nombre de la tienda no puede superar 50 caracteres.'
+        elif not re.fullmatch(r'[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+', nombre):
+            errores['nombre'] = 'El nombre de la tienda solo puede contener letras y espacios.'
         # Misma validación para teléfono: al estar vacío, se corta el flujo normal de guardado.
         if not telefono:
             # Guardamos el mensaje de validación asociado a la clave "telefono".
@@ -1814,11 +1818,15 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import ensure_csrf_cookie
 # Importación de dependencias necesarias para ejecutar esta vista.
 from django.http import HttpResponse
 from datetime import datetime
 import csv
 
+@never_cache
+@ensure_csrf_cookie
 def admin_verify_code_view(request):
     """
     Gestiona la vista Admin verify code view.

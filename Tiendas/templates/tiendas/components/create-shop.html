@@ -13,7 +13,7 @@
 
                     <div class="form-shop__group">
                         <label for="nombre" class="form-shop__label">Nombre de la tienda</label>
-                        <input type="text" id="nombre" name="nombre" class="form-shop__input" placeholder="Nombre tienda" value="{{ valores.nombre|default:'' }}" maxlength="50" required>
+                        <input type="text" id="nombre" name="nombre" class="form-shop__input" placeholder="Nombre tienda" value="{{ valores.nombre|default:'' }}" maxlength="50" pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$" title="Solo se permiten letras y espacios." required>
                         <div id="error-nombre" class="input-error" style="display: none;" data-server-error="{{ errores.nombre|default:'' }}"></div>
                     </div>
 

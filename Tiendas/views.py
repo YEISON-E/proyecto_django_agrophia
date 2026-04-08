@@ -32,6 +32,7 @@ from django.core.exceptions import ValidationError
 from datetime import datetime
 from urllib.parse import urlencode
 import uuid
+import re
 
 from .models import Shop
 from Productos.models import Product
@@ -378,8 +379,9 @@ def create_shop_step1(request):
 		if not nombre:
 			errores["nombre"] = "El nombre de la tienda es obligatorio."
 		elif len(nombre) > 50:
-			# Paso de apoyo dentro del flujo principal de la funcionalidad.
 			errores["nombre"] = "El nombre de la tienda no puede superar 50 caracteres."
+		elif not re.fullmatch(r"[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+", nombre):
+			errores["nombre"] = "El nombre de la tienda solo puede contener letras y espacios."
 
 		if not telefono:
 			errores["telefono"] = "El telefono es obligatorio."

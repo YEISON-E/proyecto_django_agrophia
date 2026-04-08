@@ -112,6 +112,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const validarEmail = (valor) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor);
     // Valida teléfono exactamente de 10 dígitos numéricos.
     const validarTelefono = (valor) => /^\d{10}$/.test(valor);
+    // Valida que el nombre tenga solo letras y espacios.
+    const validarNombreTienda = (valor) => /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$/.test(valor);
 
     // Carga municipios según el departamento seleccionado
     // Rellena el select de municipios de acuerdo al departamento actual.
@@ -197,6 +199,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 setError("error-nombre", "El nombre de la tienda no puede superar 50 caracteres.");
             }
             // Marca error de validación.
+            hasErrors = true;
+        } else if (!validarNombreTienda(nombre)) {
+            if (shouldShowError("nombre")) {
+                setError("error-nombre", "El nombre de la tienda solo puede contener letras y espacios.");
+            }
             hasErrors = true;
         } else {
             // Si es válido, limpia error de nombre.

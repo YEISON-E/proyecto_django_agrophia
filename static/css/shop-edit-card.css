@@ -62,6 +62,7 @@
 
 .order-page-center-shell {
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   padding: 24px;
   box-sizing: border-box;
@@ -69,6 +70,10 @@
   align-items: center;
   justify-content: center;
   background: #f8fafc;
+}
+
+.order-page-center-shell .shop-edit-main {
+  width: min(100%, 760px);
 }
 
 .shop-edit-value {
@@ -157,7 +162,21 @@
   flex: 0 0 18px;
 }
 
+.shop-edit-btn--products {
+  justify-content: center;
+}
+
+.shop-edit-btn--products .shop-edit-btn__label {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
 @media (max-width: 640px) {
+  .order-page-center-shell {
+    padding: 16px 12px;
+  }
+
   .shop-edit-grid--two-cols {
     grid-template-columns: 1fr;
   }

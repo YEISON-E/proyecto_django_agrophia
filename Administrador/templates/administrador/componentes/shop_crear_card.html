@@ -26,7 +26,7 @@
     <div class="shop-edit-grid shop-edit-grid--two-cols">
       <div class="shop-edit-field">
         <div class="shop-edit-label">Nombre</div>
-        <div class="shop-edit-value"><input type="text" name="nombre" value="{{ valores.nombre|default:'' }}" required></div>
+        <div class="shop-edit-value"><input type="text" name="nombre" id="nombre-input" value="{{ valores.nombre|default:'' }}" maxlength="50" pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$" title="Solo se permiten letras y espacios." required></div>
       </div>
       <div class="shop-edit-field">
         <div class="shop-edit-label">Teléfono</div>

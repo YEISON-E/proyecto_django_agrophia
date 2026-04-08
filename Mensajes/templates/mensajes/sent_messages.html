@@ -8,23 +8,11 @@
     <link rel="icon" href="{% static 'icons/planta.png' %}">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
-<body>
-    <div class="govco-container__one">
-        {% include 'components/gov-co__one.html' %}
-    </div>
-
+<body class="sent-messages-page">
     {% include 'components/navbar-home.html' %}
 
     <div class="mensajes-sends">
         {% include 'mensajes/components/sent_messages.html' %}
-    </div>
-
-    <footer class="footer-container">
-        {% include 'components/footer.html' %}
-    </footer>
-
-    <div class="govco-container__two">
-        {% include 'components/gov-co__one.html' %}
     </div>
     <script src="{% static 'js/components/mensajes-sends.js' %}" defer></script>
     <script src="{% static 'js/components/sent_messages_delete_modal.js' %}" defer></script>

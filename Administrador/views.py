@@ -3051,7 +3051,7 @@ def usuario_admin_crear_view(request):
             'municipio': municipio,
             'direccion_completa': direccion_completa,
         }
-        # Bloque 3: validaciones de obligatoriedad, formato y duplicados.
+        # Bloque 3: validaciones de campos obligatorios, formato y duplicados.
         nombres_error = _validate_person_name(nombres, 'nombre')
         if nombres_error:
             errores['nombres'] = nombres_error

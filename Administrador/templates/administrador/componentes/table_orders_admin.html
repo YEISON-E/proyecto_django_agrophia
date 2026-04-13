@@ -1,3 +1,4 @@
+
 {% load static %}
 <div class="table-container">
   <table class="products-table">
@@ -29,8 +30,8 @@
           <a href="{% url 'administrador:pedido_admin_editar' pedido.id %}?from=table" class="products-table__button products-table__button--edit" title="Editar pedido">
             <img src="{% static 'icons/edit.svg' %}" alt="Editar" width="20" height="20">
           </a>
-          <a href="{% url 'administrador:pedido_admin_detalle' pedido.id %}" class="products-table__button products-table__button--view" title="Ver más" style="margin-left:4px;background:#e0e7ff;border:1px solid #6366f1;color:#3730a3;font-weight:600;" data-order-id="{{ pedido.id }}" data-order-customer="{{ pedido.customer.get_full_name|default:pedido.customer.username|escape }}" data-order-status="{{ pedido.get_status_display|escape }}">
-            Ver más
+          <a href="{% url 'administrador:pedido_admin_detalle' pedido.id %}" class="products-table__button products-table__button--view" title="Ver m&aacute;s" data-order-id="{{ pedido.id }}" data-order-customer="{{ pedido.customer.get_full_name|default:pedido.customer.username|escape }}" data-order-status="{{ pedido.get_status_display|escape }}">
+            Ver m&aacute;s
           </a>
         </td>
       </tr>

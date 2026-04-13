@@ -575,6 +575,9 @@ def create_shop_step2(request):
 			# Actualización de estado intermedio que será utilizada en pasos posteriores.
 			direccion = None
 
+		if len(descripcion) > 255:
+			errores["descripcion"] = "La descripción no puede superar los 255 caracteres."
+
 		if errores:
 			return render(request, "tiendas/create-shop2.html", {
 				"errores": errores,
@@ -630,6 +633,17 @@ def update_shop_step1(request):
 	if not shop:
 		return redirect("tiendas:create_shop_step1")
 
+	next_url = (
+		request.POST.get("next", "").strip()
+		if request.method == "POST"
+		else request.GET.get("next", "").strip()
+	)
+	if not next_url:
+		next_url = (request.session.get("update_shop_next") or "").strip()
+	if not next_url.startswith("/"):
+		next_url = reverse("tiendas:interface_farmer")
+	request.session["update_shop_next"] = next_url
+
 	errores = {}
 	valores = {
 		"nombre": shop.nombre or "",
@@ -680,6 +694,7 @@ def update_shop_step1(request):
 				"errores": errores,
 				# Paso de apoyo dentro del flujo principal de la funcionalidad.
 				"valores": valores,
+				"next_url": next_url,
 			})
 
 		request.session["update_shop_step1"] = valores
@@ -689,6 +704,7 @@ def update_shop_step1(request):
 		"shop": shop,
 		"errores": errores,
 		"valores": valores,
+		"next_url": next_url,
 	# Paso de apoyo dentro del flujo principal de la funcionalidad.
 	})
 
@@ -704,6 +720,10 @@ def update_shop_step2(request):
 	shop = Shop.objects.filter(owner=request.user).order_by("-created_at").first()
 	if not shop:
 		return redirect("tiendas:create_shop_step1")
+
+	next_url = (request.session.get("update_shop_next") or "").strip()
+	if not next_url.startswith("/"):
+		next_url = reverse("tiendas:interface_farmer")
 
 	step1 = request.session.get("update_shop_step1", {})
 	if not step1:
@@ -728,6 +748,11 @@ def update_shop_step2(request):
 	}
 
 	if request.method == "POST":
+		posted_next = request.POST.get("next", "").strip()
+		if posted_next.startswith("/"):
+			next_url = posted_next
+			request.session["update_shop_next"] = next_url
+
 		tiene_punto_fisico = request.POST.get("tiene_punto_fisico", "si").strip()
 		usa_punto_fisico = tiene_punto_fisico == "si"
 		horario = request.POST.get("horario", "").strip()
@@ -755,12 +780,16 @@ def update_shop_step2(request):
 			horario = "No aplica"
 			direccion = None
 
+		if len(descripcion) > 255:
+			errores["descripcion"] = "La descripción no puede superar los 255 caracteres."
+
 		if errores:
 			return render(request, "tiendas/update_shop2.html", {
 				"shop": shop,
 				"errores": errores,
 				# Paso de apoyo dentro del flujo principal de la funcionalidad.
 				"valores": valores,
+				"next_url": next_url,
 			})
 
 		shop.nombre = step1.get("nombre", shop.nombre)
@@ -777,11 +806,13 @@ def update_shop_step2(request):
 		shop.save()
 
 		request.session.pop("update_shop_step1", None)
-		return redirect("tiendas:interface_farmer")
+		request.session.pop("update_shop_next", None)
+		return redirect(next_url)
 
 	return render(request, "tiendas/update_shop2.html", {
 		"shop": shop,
 		"errores": errores,
 		"valores": valores,
+		"next_url": next_url,
 	# Paso de apoyo dentro del flujo principal de la funcionalidad.
 	})

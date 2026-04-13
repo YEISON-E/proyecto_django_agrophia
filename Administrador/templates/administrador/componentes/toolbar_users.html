@@ -1,3 +1,4 @@
+
 {% load static %}
 <header class="header">
   <nav class="header__navbar">
@@ -21,8 +22,8 @@
       </div>
       <div class="toolbar-admin-mobile-menu">
         <details>
-          <summary class="toolbar-admin-mobile-trigger" aria-label="Abrir menú de opciones">
-            <img src="{% static 'icons/menu.svg' %}" alt="Menú" width="20" height="20">
+          <summary class="toolbar-admin-mobile-trigger" aria-label="Abrir men&uacute; de opciones">
+            <img src="{% static 'icons/menu.svg' %}" alt="Men&uacute;" width="20" height="20">
           </summary>
           <ul class="toolbar-admin-mobile-options">
             <li><button type="button" class="toolbar-admin-mobile-link js-toolbar-users-report-trigger">Generar reporte</button></li>
@@ -31,7 +32,7 @@
             <li><a href="{% url 'administrador:admin_notifications' %}" class="toolbar-admin-mobile-link">Notificaciones</a></li>
             <li><a href="{% url 'administrador:admin_perfil' %}" class="toolbar-admin-mobile-link">Ver perfil</a></li>
             <li><a href="{% url 'administrador:admin_editar_perfil' %}" class="toolbar-admin-mobile-link">Editar perfil</a></li>
-            <li><a href="/administrador/logout/" class="toolbar-admin-mobile-link toolbar-admin-mobile-link--danger">Cerrar sesión</a></li>
+            <li><a href="/administrador/logout/" class="toolbar-admin-mobile-link toolbar-admin-mobile-link--danger">Cerrar sesi&oacute;n</a></li>
           </ul>
         </details>
       </div>
@@ -52,7 +53,7 @@
             <hr style="margin:8px 0;">
             <a href="{% url 'administrador:admin_perfil' %}" style="color:#16a34a;font-weight:600;text-decoration:none;display:block;margin-bottom:8px;">Ver perfil</a>
             <a href="{% url 'administrador:admin_editar_perfil' %}" style="color:#16a34a;font-weight:600;text-decoration:none;display:block;margin-bottom:8px;">Editar perfil</a>
-            <a href="/administrador/logout/" style="color:#dc2626;font-weight:600;text-decoration:none;">Cerrar sesión</a>
+            <a href="/administrador/logout/" style="color:#dc2626;font-weight:600;text-decoration:none;">Cerrar sesi&oacute;n</a>
           </div>
         </div>
       </div>
@@ -63,7 +64,7 @@
   <div class="toolbar-report__modal" role="dialog" aria-modal="true" aria-labelledby="toolbar-users-report-title">
     <div class="toolbar-report__header">
       <h2 id="toolbar-users-report-title" class="toolbar-report__title">Reporte de usuarios</h2>
-      <button type="button" class="toolbar-report__close" id="toolbar-users-report-close" aria-label="Cerrar">×</button>
+      <button type="button" class="toolbar-report__close" id="toolbar-users-report-close" aria-label="Cerrar">&times;</button>
     </div>
     <form method="get" action="{% url 'administrador:reporte_usuarios' %}" id="toolbar-users-report-form" class="toolbar-report__form">
       <label class="toolbar-report__field">
@@ -79,7 +80,7 @@
         <label class="toolbar-report__field">
           <span>Usuario individual (ID)</span>
           <input type="number" name="usuario_id" id="toolbar-users-id-input" min="1" placeholder="Ej: 25">
-          <small id="toolbar-users-id-hint" class="toolbar-report__hint">Escribe un ID y verás la sugerencia del usuario.</small>
+          <small id="toolbar-users-id-hint" class="toolbar-report__hint">Escribe un ID y ver&aacute;s la sugerencia del usuario.</small>
         </label>
       </section>
 
@@ -126,20 +127,20 @@
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="nombres"> Nombres</label>
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="apellidos"> Apellidos</label>
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="tipo_documento"> Tipo doc.</label>
-          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="numero_documento"> Número doc.</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="numero_documento"> N&uacute;mero doc.</label>
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="correo"> Correo</label>
-          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="telefono"> Teléfono</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="telefono"> Tel&eacute;fono</label>
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="departamento"> Departamento</label>
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="municipio"> Municipio</label>
-          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="direccion"> Dirección</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="direccion"> Direcci&oacute;n</label>
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="estado"> Estado</label>
         </div>
       </fieldset>
       <input type="hidden" name="output_format" value="pdf">
       <p class="toolbar-report__help">
         Usa <strong>General</strong> para listar varios usuarios con filtros (nombre, departamento, municipio, estado).
-        Usa <strong>Individual</strong> cuando quieras un solo usuario: escribe su ID en "Usuario individual (ID)" y el reporte incluirá sus datos de perfil + su historial en el sistema.
-        Si dejas "Todos los campos" activo, se exportan todos; si lo desmarcas, solo saldrán los campos que marques.
+        Usa <strong>Individual</strong> cuando quieras un solo usuario: escribe su ID en "Usuario individual (ID)" y el reporte incluir&aacute; sus datos de perfil + su historial en el sistema.
+        Si dejas "Todos los campos" activo, se exportan todos; si lo desmarcas, solo saldr&aacute;n los campos que marques.
       </p>
       <div class="toolbar-report__actions">
         <button type="button" class="toolbar-report__button toolbar-report__button--secondary" id="toolbar-users-report-cancel">Cancelar</button>

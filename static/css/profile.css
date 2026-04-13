@@ -17,7 +17,7 @@
   /* margin-top: 20px; */
 }
 .profile {
-  width: auto;
+  width: min(100%, 840px);
   margin: 24px auto;
   border-radius: 12px;
   overflow: hidden;
@@ -71,6 +71,61 @@
   object-fit: cover;
 }
 
+.profile__img--zoomable {
+  cursor: zoom-in;
+}
+
+.user-image-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.82);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 3000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.user-image-lightbox[aria-hidden="false"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+.user-image-lightbox__img {
+  max-width: min(92vw, 980px);
+  max-height: 88vh;
+  border-radius: 12px;
+  border: 3px solid #ffffff;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+  object-fit: contain;
+  background: #ffffff;
+}
+
+.user-image-lightbox__close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  width: 42px;
+  height: 42px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  color: #111827;
+  font-size: 30px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.user-lightbox-open {
+  overflow: hidden;
+}
+
 .profile__title {
   font-size: var(--fs-sm);
   color: var(--white);
@@ -84,7 +139,9 @@
 
 /* === CUERPO CON CAMPOS === */
 .profile__body {
-  padding: 24px 32px;
+  width: 100%;
+  flex: 1;
+  padding: 24px 36px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -124,6 +181,73 @@
   color: var(--black);
 }
 
+.profile__item--description {
+  position: relative;
+}
+
+.profile__item--description .profile__value--description {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  line-height: 1.4;
+  min-height: calc(1.4em * 2 + 8px);
+  cursor: pointer;
+}
+
+.profile__description-popover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 10px);
+  z-index: 20;
+  background: #ffffff;
+  border: 1px solid var(--gray-300);
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  padding: 14px 14px 12px;
+}
+
+.profile__description-popover-title {
+  font-size: var(--fs-xxxs);
+  font-weight: 700;
+  color: var(--gray-700);
+  margin-bottom: 6px;
+}
+
+.profile__description-popover-text {
+  margin: 0;
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+  color: var(--black);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.profile__description-popover-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 999px;
+  background: var(--gray-200);
+  color: var(--gray-700);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.profile__description-popover-close:hover {
+  opacity: 0.85;
+}
+
 .profile-shop {
   width: 100%;
 }
@@ -132,6 +256,12 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+}
+
+.profile_group {
+  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 
 .profile-shop__title {
@@ -194,6 +324,7 @@
 
 .profile__actions--back{
   display: flex;
+  width: 100%;
   box-sizing: border-box;
   background-color: var(--gray-700);
   color: var(--white);
@@ -212,8 +343,9 @@
   opacity: 60%;
 }
 .profile__actions--edit{
+  display: flex;
+  width: 100%;
   text-align: center;
-  /* display: flex; */
   background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
   color: var(--white);
   padding: 12px 24px;
@@ -259,7 +391,7 @@
   }
 
   .profile{
-    width: 500px;
+    width: min(100%, 560px);
   }
   .profile-shop2{
     width: 500px;
@@ -312,13 +444,18 @@
     justify-content: center;
   }
   .profile{
-    width: 700px;
+    width: min(100%, 760px);
     display: flex;
     flex-direction: row;
   }
 
   .profile__subcontainer-actions{
     flex-direction: row;
+  }
+
+  .profile__actions--back,
+  .profile__actions--edit {
+    width: auto;
   }
 
   .profile-shop2{
@@ -330,7 +467,7 @@
   .profile__body::before{
     display: none;
   }
-  .profile__group{
+  .profile_group{
     display: flex;
     flex-direction: column;
     gap: 24px;

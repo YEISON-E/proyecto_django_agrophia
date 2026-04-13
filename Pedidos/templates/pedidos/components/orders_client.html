@@ -63,9 +63,11 @@
           <button type="submit" class="orders__btn orders__btn--confirm">Confirmar pedido</button>
           {% endif %}
         </form>
+        {% if order.status == 'confirmed' %}
         <a href="{% url 'pedidos:order_receipt' order.id %}" target="_blank" class="orders__btn orders__btn--receipt">
           📄 Ver comprobante
         </a>
+        {% endif %}
       </div>
       {% endif %}
     </div>

@@ -5,7 +5,7 @@ import re
 
 
 PRODUCT_NAME_ALLOWED_RE = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,\-]+$")
-PRODUCT_GUARANTEE_ALLOWED_RE = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,:/%\-]+$")
+PRODUCT_DURABILITY_ALLOWED_RE = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,:/%\-]+$")
 
 
 class Product(models.Model):
@@ -69,7 +69,7 @@ class Product(models.Model):
 	precio = models.DecimalField(max_digits=12, decimal_places=2)
 	stock = models.PositiveIntegerField(default=1)
 	descripcion = models.TextField()
-	garantia = models.CharField(max_length=120)
+	tiempo_durabilidad = models.CharField(max_length=120)
 	is_active = models.BooleanField(default=True)
 	disabled_by_admin = models.BooleanField(default=False)
 
@@ -119,12 +119,12 @@ class Product(models.Model):
 		elif (self.descripcion or "").strip() and len(self.descripcion.strip()) > 255:
 			errors["descripcion"] = "La descripción no debe superar 255 caracteres."
 
-		if (self.garantia or "").strip() and len(self.garantia.strip()) < 3:
-			errors["garantia"] = "La garantía debe tener al menos 3 caracteres."
-		elif (self.garantia or "").strip() and len(self.garantia.strip()) > 120:
-			errors["garantia"] = "La garantía no debe superar 120 caracteres."
-		elif (self.garantia or "").strip() and not PRODUCT_GUARANTEE_ALLOWED_RE.fullmatch(self.garantia.strip()):
-			errors["garantia"] = "La garantía contiene caracteres no permitidos."
+		if (self.tiempo_durabilidad or "").strip() and len(self.tiempo_durabilidad.strip()) < 3:
+			errors["tiempo_durabilidad"] = "El tiempo de durabilidad debe tener al menos 3 caracteres."
+		elif (self.tiempo_durabilidad or "").strip() and len(self.tiempo_durabilidad.strip()) > 120:
+			errors["tiempo_durabilidad"] = "El tiempo de durabilidad no debe superar 120 caracteres."
+		elif (self.tiempo_durabilidad or "").strip() and not PRODUCT_DURABILITY_ALLOWED_RE.fullmatch(self.tiempo_durabilidad.strip()):
+			errors["tiempo_durabilidad"] = "El tiempo de durabilidad contiene caracteres no permitidos."
 
 		if errors:
 			raise ValidationError(errors)

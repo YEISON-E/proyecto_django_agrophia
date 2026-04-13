@@ -13,7 +13,7 @@
 
           <div class="profile-update__group">
             <label class="profile-update__label" for="input-telefono">Teléfono</label>
-            <input id="input-telefono" class="profile-update__input" type="tel" name="telefono" value="{{ valores.telefono }}" placeholder="315678934" autocomplete="tel" pattern="[0-9]{7,15}" required />
+            <input id="input-telefono" class="profile-update__input" type="tel" name="telefono" value="{{ valores.telefono }}" placeholder="3XXXXXXXXX" autocomplete="tel" inputmode="numeric" minlength="10" maxlength="10" pattern="3[0-9]{9}" title="Usa 10 dígitos e inicia en 3." required />
             {% if errores.telefono %}<div class="input-error is-visible">{{ errores.telefono }}</div>{% endif %}
           </div>
           
@@ -57,7 +57,7 @@
         </div>
         <div class="profile-update__group-textarea">
           <label class="profile-update__label" for="input-descripcion">Descripción de perfil (opcional)</label>
-          <textarea id="input-direccion" class="profile-update__textarea" name="descripcion" placeholder="Máximo 120 caracteres" maxlength="120" autocomplete="street-address">{{ valores.descripcion }}</textarea>
+          <textarea id="input-descripcion" class="profile-update__textarea" name="descripcion" placeholder="Máximo 100 caracteres" maxlength="100" autocomplete="street-address">{{ valores.descripcion }}</textarea>
           {% if errores.descripcion %}<div class="input-error is-visible">{{ errores.descripcion }}</div>{% endif %}
         </div>
         <div class="profile-update__group">

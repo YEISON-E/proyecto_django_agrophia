@@ -9,31 +9,6 @@
  */
 // Espera a que el DOM esté listo antes de buscar elementos o registrar eventos.
 document.addEventListener("DOMContentLoaded", function () {
-    // Busca el botón que vuelve a la vista anterior usando un atributo de datos.
-    const backButton = document.querySelector("[data-history-back='true']");
-    // Si existe el botón de volver, registra su comportamiento personalizado.
-    backButton?.addEventListener("click", function (event) {
-        // Evita la navegación inmediata del enlace para controlar la lógica manualmente.
-        event.preventDefault();
-        // Define URL de respaldo: prioriza data-fallback-url, luego href, y por último la raíz.
-        const fallbackUrl = backButton.getAttribute("data-fallback-url") || backButton.getAttribute("href") || "/";
-        // Obtiene la URL previa del navegador para decidir el tipo de retroceso.
-        const referrer = document.referrer || "";
-        // Determina si la navegación previa viene de login para evitar volver allí.
-        const cameFromLogin = referrer.includes("/usuarios/login/");
-
-        // Si hay historial y no viene de login, usa historial para volver.
-        if (window.history.length > 1 && !cameFromLogin) {
-            // Retrocede una página en el historial.
-            window.history.back();
-            // Finaliza para no ejecutar redirección por URL.
-            return;
-        }
-
-        // Si no puede volver de forma segura, redirige a la URL de respaldo.
-        window.location.href = fallbackUrl;
-    });
-
     // Formulario principal del paso 1
     const form = document.querySelector(".form-shop__body");
     // Si no existe el formulario, no hay nada que inicializar.
@@ -217,7 +192,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Muestra mensaje solo cuando se deba visualizar.
             if (shouldShowError("telefono")) {
                 // Informa que el teléfono es requerido.
-                setError("error-telefono", "El telefono es obligatorio.");
+                setError("error-telefono", "El teléfono es obligatorio.");
             }
             // Acumula error.
             hasErrors = true;
@@ -226,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Muestra error de formato cuando corresponda.
             if (shouldShowError("telefono")) {
                 // Informa formato esperado para teléfono.
-                setError("error-telefono", "El telefono debe tener 10 digitos.");
+                setError("error-telefono", "El teléfono debe tener 10 dígitos.");
             }
             // Acumula error.
             hasErrors = true;
@@ -251,7 +226,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Muestra error de formato si corresponde.
             if (shouldShowError("email")) {
                 // Informa que el correo no es válido.
-                setError("error-email", "Correo invalido.");
+                setError("error-email", "Correo inválido.");
             }
             // Acumula error.
             hasErrors = true;

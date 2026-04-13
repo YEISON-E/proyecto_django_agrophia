@@ -1,3 +1,4 @@
+
 {% load static l10n %}
 <link rel="stylesheet" href="{% static 'css/producto_editar_card.css' %}">
 <div class="product-detail-main product-detail-main--create">
@@ -55,21 +56,21 @@
         <div class="product-detail-value"><input type="number" name="stock" id="stock" value="{{ valores.stock|default:'' }}" min="1" step="1" required></div>
       </div>
       <div class="product-detail-field">
-        <div class="product-detail-label">Garantía</div>
+        <div class="product-detail-label">Tiempo de durabilidad</div>
         <div class="product-detail-value">
-          <input type="text" name="garantia" id="garantia" value="{{ valores.garantia|default:'' }}" required>
-          {% if errores.garantia %}<div class="shop-edit-inline-error" style="margin-top:6px;">{{ errores.garantia }}</div>{% endif %}
+          <input type="text" name="tiempo_durabilidad" id="tiempo_durabilidad" value="{{ valores.tiempo_durabilidad|default:'' }}" required>
+          {% if errores.tiempo_durabilidad %}<div class="shop-edit-inline-error" style="margin-top:6px;">{{ errores.tiempo_durabilidad }}</div>{% endif %}
         </div>
       </div>
       <div class="product-detail-field product-detail-field--full">
-        <div class="product-detail-label">Descripción</div>
+        <div class="product-detail-label">Descripci&oacute;n</div>
         <div class="product-detail-value"><textarea name="descripcion" id="descripcion" required>{{ valores.descripcion|default:'' }}</textarea></div>
       </div>
       <div class="product-detail-field product-detail-field--full">
-        <div class="product-detail-label">Imágenes</div>
+        <div class="product-detail-label">Im&aacute;genes</div>
         <div class="product-detail-value">
           <input type="file" name="fotos" id="fotos" accept="image/*" multiple required>
-          <div class="product-images-helper" id="create-images-info">Máximo 8 imágenes por producto.</div>
+          <div class="product-images-helper" id="create-images-info">M&aacute;ximo 8 im&aacute;genes por producto.</div>
           <div class="product-new-images-preview" id="create-images-preview"></div>
         </div>
       </div>
@@ -94,11 +95,11 @@
   <div class="shop-confirm-modal" id="product-create-confirm-modal" aria-hidden="true">
     <div class="shop-confirm-modal__backdrop" data-product-create-confirm-close></div>
     <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="product-create-confirm-title" aria-describedby="product-create-confirm-text">
-      <h3 class="shop-confirm-modal__title" id="product-create-confirm-title">Confirmar creación</h3>
-      <p class="shop-confirm-modal__text" id="product-create-confirm-text">¿Deseas crear este producto con los datos ingresados?</p>
+      <h3 class="shop-confirm-modal__title" id="product-create-confirm-title">Confirmar creaci&oacute;n</h3>
+      <p class="shop-confirm-modal__text" id="product-create-confirm-text">&iquest;Deseas crear este producto con los datos ingresados?</p>
       <div class="shop-confirm-modal__actions">
         <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="product-create-confirm-cancel">Cancelar</button>
-        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="product-create-confirm-accept">Sí, crear</button>
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="product-create-confirm-accept">S&iacute;, crear</button>
       </div>
     </div>
   </div>

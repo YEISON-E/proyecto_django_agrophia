@@ -122,6 +122,23 @@
   color: var(--white);
 }
 
+.products-table__button--view {
+  margin-left: 4px;
+  background: #e0e7ff;
+  border: 1px solid #6366f1;
+  color: #3730a3;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.products-table__button--view:hover,
+.products-table__button--view:focus,
+.products-table__button--view:active,
+.products-table__button--view:visited {
+  color: #3730a3;
+  text-decoration: none;
+}
+
 /* Icono dentro del botón */
 .products-table__button__icon {
   width: 16px;

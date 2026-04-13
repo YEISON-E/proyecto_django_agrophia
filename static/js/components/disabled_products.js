@@ -246,7 +246,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const result = await submitFormWithCsrf(pendingForm);
             // Si backend exige mensaje al administrador, informa al usuario.
             if (result && result.requires_admin_message) {
-                showFeedback("Este producto fue deshabilitado por el administrador si desea activarlo por favor enviar un mensaje al administrador.");
+                showFeedback("Este producto fue deshabilitado por el administrador; si desea activarlo, por favor envíe un mensaje al administrador.");
                 // Obtiene URL de solicitud desde data attribute del formulario.
                 const requestUrl = pendingForm.dataset.requestUrl || "";
                 // Si hay URL y modal disponible, abre flujo de solicitud al admin.
@@ -258,7 +258,7 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         } catch (error) {
             // Muestra error genérico si falla activación.
-            showFeedback("No se pudo completar la accion. Recarga la pagina e intenta de nuevo.");
+            showFeedback("No se pudo completar la acción. Recarga la página e intenta de nuevo.");
         } finally {
             // Rehabilita botón confirmar al finalizar intento.
             confirmButton.disabled = false;

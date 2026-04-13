@@ -222,3 +222,15 @@
         grid-template-columns: 1fr;
     }
 }
+
+@media print {
+    .navbar.navbar--store,
+    .footer-container {
+        display: none !important;
+    }
+
+    .order-detail__btn--back,
+    .order-detail__btn--print {
+        display: none !important;
+    }
+}

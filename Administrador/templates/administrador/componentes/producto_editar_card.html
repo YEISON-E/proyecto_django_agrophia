@@ -1,3 +1,4 @@
+
 {% load static l10n %}
 <link rel="stylesheet" href="{% static 'css/producto_editar_card.css' %}">
 <div class="product-detail-main">
@@ -48,15 +49,15 @@
         <div class="product-detail-value"><input type="number" name="stock" value="{{ valores.stock|default:'' }}" min="1" step="1" required></div>
       </div>
       <div class="product-detail-field">
-        <div class="product-detail-label">Garantía</div>
-        <div class="product-detail-value"><input type="text" name="garantia" value="{{ valores.garantia|default:'' }}" required></div>
+        <div class="product-detail-label">Tiempo de durabilidad</div>
+        <div class="product-detail-value"><input type="text" name="tiempo_durabilidad" value="{{ valores.tiempo_durabilidad|default:'' }}" required></div>
       </div>
       <div class="product-detail-field product-detail-field--full">
-        <div class="product-detail-label">Descripción</div>
+        <div class="product-detail-label">Descripci&oacute;n</div>
         <div class="product-detail-value"><textarea name="descripcion" required>{{ valores.descripcion|default:'' }}</textarea></div>
       </div>
       <div class="product-detail-field product-detail-field--full">
-        <div class="product-detail-label">Imágenes actuales</div>
+        <div class="product-detail-label">Im&aacute;genes actuales</div>
         <div class="product-detail-value product-detail-images">
           {% for image in existing_images %}
             <div class="product-detail-image-item" data-image-item>
@@ -65,15 +66,15 @@
               <input type="checkbox" name="delete_images" value="{{ image.id }}" class="product-image-delete-input" hidden>
             </div>
           {% empty %}
-            <p>No hay imágenes registradas.</p>
+            <p>No hay im&aacute;genes registradas.</p>
           {% endfor %}
         </div>
       </div>
       <div class="product-detail-field product-detail-field--full">
-        <div class="product-detail-label">Agregar nuevas imágenes</div>
+        <div class="product-detail-label">Agregar nuevas im&aacute;genes</div>
         <div class="product-detail-value">
           <input type="file" id="new-images-input" name="new_images" accept="image/*" multiple {% if not can_upload_more_images %}disabled{% endif %}>
-          <div class="product-images-helper" id="images-limit-info">Máximo 8 imágenes en total (actuales + nuevas).</div>
+          <div class="product-images-helper" id="images-limit-info">M&aacute;ximo 8 im&aacute;genes en total (actuales + nuevas).</div>
           <div class="product-new-images-preview" id="new-images-preview"></div>
         </div>
       </div>
@@ -81,7 +82,7 @@
 
     {% if errores %}
       <div class="form-error" style="margin-top:12px;">
-        {{ errores.fotos }} {{ errores.nombre }} {{ errores.tipo }} {{ errores.tipo_otro }} {{ errores.unidad }} {{ errores.precio }} {{ errores.stock }} {{ errores.descripcion }} {{ errores.garantia }}
+        {{ errores.fotos }} {{ errores.nombre }} {{ errores.tipo }} {{ errores.tipo_otro }} {{ errores.unidad }} {{ errores.precio }} {{ errores.stock }} {{ errores.descripcion }} {{ errores.tiempo_durabilidad }}
       </div>
     {% endif %}
 
@@ -99,10 +100,10 @@
     <div class="shop-confirm-modal__backdrop" data-product-confirm-close></div>
     <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="product-edit-confirm-title" aria-describedby="product-edit-confirm-text">
       <h3 class="shop-confirm-modal__title" id="product-edit-confirm-title">Confirmar cambios</h3>
-      <p class="shop-confirm-modal__text" id="product-edit-confirm-text">¿Deseas guardar los cambios del producto?</p>
+      <p class="shop-confirm-modal__text" id="product-edit-confirm-text">&iquest;Deseas guardar los cambios del producto?</p>
       <div class="shop-confirm-modal__actions">
         <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="product-edit-confirm-cancel">Cancelar</button>
-        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="product-edit-confirm-accept">Sí, guardar</button>
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="product-edit-confirm-accept">S&iacute;, guardar</button>
       </div>
     </div>
   </div>

@@ -11,6 +11,7 @@
           <div class="shop-update">
               <form id="update-shop-step1-form" class="shop-update__body" method="post" action="{% url 'tiendas:update_shop_step1' %}">
                   {% csrf_token %}
+                  <input type="hidden" name="next" value="{{ next_url|default:'' }}">
 
                   <div class="shop-update__group">
                       <label for="nombre" class="shop-update__label">Nombre de la tienda</label>
@@ -55,7 +56,7 @@
               </form>
 
               <div class="form-content__register--row-buttons">
-                  <a href="{% url 'tiendas:profile_shop' %}" class="form-content__register--row-buttons__back">Volver</a>
+                  <a href="{{ next_url|default:'' }}" class="form-content__register--row-buttons__back">Volver</a>
                   <button type="submit" form="update-shop-step1-form" class="form-shop__button">Siguiente</button>
               </div>
           </div>

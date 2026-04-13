@@ -3,6 +3,68 @@ document.addEventListener("DOMContentLoaded", function () {
     const overlay = document.getElementById("disable-shop-overlay");
     const cancelButton = document.querySelector("[data-disable-shop-cancel]");
     const confirmButton = document.querySelector("[data-disable-shop-confirm]");
+    const descriptionTrigger = document.querySelector("[data-description-trigger]");
+    const descriptionPopover = document.querySelector("[data-description-popover]");
+    const descriptionCloseButton = document.querySelector("[data-description-close]");
+
+    const openDescription = function () {
+        if (!descriptionTrigger || !descriptionPopover) {
+            return;
+        }
+        descriptionPopover.hidden = false;
+        descriptionTrigger.setAttribute("aria-expanded", "true");
+    };
+
+    const closeDescription = function () {
+        if (!descriptionTrigger || !descriptionPopover) {
+            return;
+        }
+        descriptionPopover.hidden = true;
+        descriptionTrigger.setAttribute("aria-expanded", "false");
+    };
+
+    if (descriptionTrigger && descriptionPopover) {
+        descriptionTrigger.addEventListener("click", function () {
+            if (descriptionPopover.hidden) {
+                openDescription();
+                return;
+            }
+            closeDescription();
+        });
+
+        descriptionTrigger.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                if (descriptionPopover.hidden) {
+                    openDescription();
+                    return;
+                }
+                closeDescription();
+            }
+        });
+    }
+
+    descriptionCloseButton?.addEventListener("click", function () {
+        closeDescription();
+    });
+
+    document.addEventListener("click", function (event) {
+        if (!descriptionTrigger || !descriptionPopover || descriptionPopover.hidden) {
+            return;
+        }
+
+        const clickInsideTrigger = descriptionTrigger.contains(event.target);
+        const clickInsidePopover = descriptionPopover.contains(event.target);
+        if (!clickInsideTrigger && !clickInsidePopover) {
+            closeDescription();
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && descriptionTrigger && descriptionPopover && !descriptionPopover.hidden) {
+            closeDescription();
+        }
+    });
 
     if (!form || !overlay || !cancelButton || !confirmButton) {
         return;

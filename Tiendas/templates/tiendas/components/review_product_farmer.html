@@ -18,7 +18,7 @@
       <p class="product-detail__price"><strong>Precio:</strong> ${{ product.precio }}</p>
       <p class="product-detail__unit"><strong>Unidad de medida:</strong> {{ product.get_unidad_display }}</p>
       <p class="product-detail__description"><strong>Descripción:</strong> {{ product.descripcion }}</p>
-      <p class="product-detail__warranty"><strong>Durabilidad del producto:</strong> {{ product.garantia }}</p>
+      <p class="product-detail__warranty"><strong>Durabilidad del producto:</strong> {{ product.tiempo_durabilidad }}</p>
 
       <div class="product-detail__actions">
         <a href="{% url 'tiendas:interface_farmer' %}" class="product-detail__btn--back">Volver</a>

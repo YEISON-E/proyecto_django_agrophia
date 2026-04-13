@@ -1,3 +1,4 @@
+
 {% load static %}
 <header class="header">
   <nav class="header__navbar">
@@ -18,15 +19,15 @@
       </div>
       <div class="toolbar-admin-mobile-menu">
         <details>
-          <summary class="toolbar-admin-mobile-trigger" aria-label="Abrir menú de opciones">
-            <img src="{% static 'icons/menu.svg' %}" alt="Menú" width="20" height="20">
+          <summary class="toolbar-admin-mobile-trigger" aria-label="Abrir men&uacute; de opciones">
+            <img src="{% static 'icons/menu.svg' %}" alt="Men&uacute;" width="20" height="20">
           </summary>
           <ul class="toolbar-admin-mobile-options">
             <li><button type="button" class="toolbar-admin-mobile-link js-toolbar-home-report-trigger">Generar reporte</button></li>
             <li><a href="{% url 'administrador:admin_notifications' %}" class="toolbar-admin-mobile-link">Notificaciones</a></li>
             <li><a href="{% url 'administrador:admin_perfil' %}" class="toolbar-admin-mobile-link">Ver perfil</a></li>
             <li><a href="{% url 'administrador:admin_editar_perfil' %}" class="toolbar-admin-mobile-link">Editar perfil</a></li>
-            <li><a href="/administrador/logout/" class="toolbar-admin-mobile-link toolbar-admin-mobile-link--danger">Cerrar sesión</a></li>
+            <li><a href="/administrador/logout/" class="toolbar-admin-mobile-link toolbar-admin-mobile-link--danger">Cerrar sesi&oacute;n</a></li>
           </ul>
         </details>
       </div>
@@ -47,7 +48,7 @@
             <hr style="margin:8px 0;">
             <a href="{% url 'administrador:admin_perfil' %}" style="color:#16a34a;font-weight:600;text-decoration:none;display:block;margin-bottom:8px;">Ver perfil</a>
             <a href="{% url 'administrador:admin_editar_perfil' %}" style="color:#16a34a;font-weight:600;text-decoration:none;display:block;margin-bottom:8px;">Editar perfil</a>
-            <a href="/administrador/logout/" style="color:#dc2626;font-weight:600;text-decoration:none;">Cerrar sesión</a>
+            <a href="/administrador/logout/" style="color:#dc2626;font-weight:600;text-decoration:none;">Cerrar sesi&oacute;n</a>
           </div>
         </div>
       </div>
@@ -58,7 +59,7 @@
   <div class="toolbar-report__modal" role="dialog" aria-modal="true" aria-labelledby="toolbar-home-report-title">
     <div class="toolbar-report__header">
       <h2 id="toolbar-home-report-title" class="toolbar-report__title">Reporte de actividad reciente</h2>
-      <button type="button" class="toolbar-report__close" id="toolbar-home-report-close" aria-label="Cerrar">×</button>
+      <button type="button" class="toolbar-report__close" id="toolbar-home-report-close" aria-label="Cerrar">&times;</button>
     </div>
     <form method="get" action="{% url 'administrador:reporte_actividad_reciente' %}" id="toolbar-home-report-form" class="toolbar-report__form">
       <label class="toolbar-report__field">
@@ -79,40 +80,19 @@
           <option value="period">Solo el periodo actual</option>
         </select>
       </label>
-      <div class="toolbar-report__conditional" id="toolbar-home-count-fields" hidden>
-        <label class="toolbar-report__field">
-          <span>Orden</span>
-          <select name="count_mode">
-            <option value="latest">Últimas</option>
-            <option value="first">Primeras</option>
-          </select>
-        </label>
-        <label class="toolbar-report__field">
-          <span>Cantidad</span>
-          <input type="number" name="count_value" min="1" max="1000" value="100">
-        </label>
-      </div>
-      <div class="toolbar-report__conditional" id="toolbar-home-period-fields" hidden>
-        <label class="toolbar-report__field">
-          <span>Periodo</span>
-          <select name="period">
-            <option value="month">Este mes</option>
-            <option value="year">Este año</option>
-          </select>
-        </label>
-      </div>
+
       <input type="hidden" name="output_format" value="pdf">
       <fieldset class="toolbar-report__fieldset">
         <legend>Campos a incluir</legend>
         <label class="toolbar-report__check"><input type="checkbox" name="all_fields" value="1" checked> Todos los campos</label>
         <div class="toolbar-report__checks-grid">
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="fecha"> Fecha</label>
-          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="categoria"> Categoría</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="categoria"> Categor&iacute;a</label>
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="tipo"> Tipo</label>
-          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="descripcion"> Descripción</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="descripcion"> Descripci&oacute;n</label>
         </div>
       </fieldset>
-      <p class="toolbar-report__help">Puedes exportar toda la actividad o una parte: por ejemplo, las últimas 100, las primeras 100, las de este mes o las de este año.</p>
+
       <div class="toolbar-report__actions">
         <button type="button" class="toolbar-report__button toolbar-report__button--secondary" id="toolbar-home-report-cancel">Cancelar</button>
         <button type="submit" class="toolbar-report__button toolbar-report__button--primary">Generar</button>

@@ -26,7 +26,7 @@
     <p class="product-view__unit">Unidad de medida: {{ product.unidad }}</p>
     <p class="product-view__price">$ {{ product.precio }} / {{ product.unidad }}</p>
     <p class="product-view__stock">Cantidad disponible: {{ product.stock }}</p>
-    <p class="product-view__guarantee">Durabilidad del producto: {{ product.garantia }}</p>
+    <p class="product-view__guarantee">Durabilidad del producto: {{ product.tiempo_durabilidad }}</p>
 
     <div class="product-view__buttons">
       <a href="{% url 'carrito_compras:add_to_cart' %}" class="product-view__btn product-view__btn--add" id="add-to-cart-from-description" data-product-id="{{ product.id }}" data-product-stock="{{ product.stock }}">Agregar al carrito</a>

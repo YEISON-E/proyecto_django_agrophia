@@ -1,3 +1,4 @@
+
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/shop-edit-card.css' %}">
 <div class="shop-edit-main">
@@ -20,23 +21,23 @@
         <div class="shop-edit-inline-error" style="margin-top:8px;">{{ errores.owner_id }}</div>
       {% endif %}
       <div style="margin-top:8px;font-size:0.95em;color:#4b5563;">
-        La tienda se crea sobre un cliente existente. Ese usuario conservará su usuario y contraseña para iniciar sesión como tienda.
+        La tienda se crea sobre un cliente existente. Ese usuario conservar&aacute; su usuario y contrase&ntilde;a para iniciar sesi&oacute;n como tienda.
       </div>
     </div>
     <div class="shop-edit-grid shop-edit-grid--two-cols">
       <div class="shop-edit-field">
         <div class="shop-edit-label">Nombre</div>
-        <div class="shop-edit-value"><input type="text" name="nombre" id="nombre-input" value="{{ valores.nombre|default:'' }}" maxlength="50" pattern="^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$" title="Solo se permiten letras y espacios." required></div>
+        <div class="shop-edit-value"><input type="text" name="nombre" id="nombre-input" value="{{ valores.nombre|default:'' }}" maxlength="50" title="Solo se permiten letras y espacios." required></div>
       </div>
       <div class="shop-edit-field">
-        <div class="shop-edit-label">Teléfono</div>
+        <div class="shop-edit-label">Tel&eacute;fono</div>
         <div class="shop-edit-value">
           <input type="text" name="telefono" id="telefono-input" value="{{ valores.telefono|default:'' }}" required>
           {% if errores.telefono %}<div class="shop-edit-inline-error" style="margin-top:6px;">{{ errores.telefono }}</div>{% endif %}
         </div>
       </div>
       <div class="shop-edit-field">
-        <div class="shop-edit-label">Correo electrónico</div>
+        <div class="shop-edit-label">Correo electr&oacute;nico</div>
         <div class="shop-edit-value">
           <input type="email" name="email" id="email-input" value="{{ valores.email|default:'' }}" required>
           {% if errores.email %}<div class="shop-edit-inline-error" style="margin-top:6px;">{{ errores.email }}</div>{% endif %}
@@ -62,17 +63,17 @@
         </div>
       </div>
       <div class="shop-edit-field">
-        <div class="shop-edit-label">¿Punto físico?</div>
+        <div class="shop-edit-label">&iquest;Punto f&iacute;sico?</div>
         <div class="shop-edit-value">
           <select name="punto_fisico" id="punto-fisico-select" required>
-            <option value="">Selecciona una opción</option>
-            <option value="True" {% if valores.punto_fisico == 'True' %}selected{% endif %}>Sí</option>
+            <option value="">Selecciona una opci&oacute;n</option>
+            <option value="True" {% if valores.punto_fisico == 'True' %}selected{% endif %}>S&iacute;</option>
             <option value="False" {% if valores.punto_fisico == 'False' %}selected{% endif %}>No</option>
           </select>
         </div>
       </div>
       <div class="shop-edit-field">
-        <div class="shop-edit-label" id="direccion-label">Dirección</div>
+        <div class="shop-edit-label" id="direccion-label">Direcci&oacute;n</div>
         <div class="shop-edit-value" id="direccion-field"><input type="text" name="direccion" id="direccion-input" value="{{ valores.direccion|default:'' }}"></div>
       </div>
       <div class="shop-edit-field">
@@ -80,7 +81,7 @@
         <div class="shop-edit-value" id="horario-field"><input type="text" name="horario" id="horario-input" value="{{ valores.horario|default:'' }}" placeholder="08:00 AM - 05:00 PM" pattern="^(0?[1-9]|1[0-2]):[0-5][0-9]\s*[AaPp][Mm]\s*-\s*(0?[1-9]|1[0-2]):[0-5][0-9]\s*[AaPp][Mm]$" title="Usa formato HH:MM AM/PM - HH:MM AM/PM"></div>
       </div>
       <div class="shop-edit-field shop-edit-field--full">
-        <div class="shop-edit-label">Descripción</div>
+        <div class="shop-edit-label">Descripci&oacute;n</div>
         <div class="shop-edit-value"><textarea name="descripcion">{{ valores.descripcion|default:'' }}</textarea></div>
       </div>
     </div>
@@ -105,10 +106,10 @@
     <div class="shop-confirm-modal__backdrop" data-create-confirm-close></div>
     <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="shop-create-confirm-title" aria-describedby="shop-create-confirm-text">
       <h3 class="shop-confirm-modal__title" id="shop-create-confirm-title">Confirmar cambios</h3>
-      <p class="shop-confirm-modal__text" id="shop-create-confirm-text">¿Deseas guardar los cambios de la tienda?</p>
+      <p class="shop-confirm-modal__text" id="shop-create-confirm-text">&iquest;Deseas guardar los cambios de la tienda?</p>
       <div class="shop-confirm-modal__actions">
         <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="shop-create-confirm-cancel">Cancelar</button>
-        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="shop-create-confirm-accept">Sí, guardar</button>
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="shop-create-confirm-accept">S&iacute;, guardar</button>
       </div>
     </div>
   </div>

@@ -252,35 +252,32 @@
 </div>
 {{ departamentos_municipios|json_script:"departamentos-municipios-data" }}
 <script src="{% static 'js/components/shop_editar_card.js' %}" defer></script>
-<script>(function () {
-// Toma el formulario auxiliar para env&iacute;o de recuperaci&oacute;n.
-const recoveryForm = document.getElementById('send-owner-recovery-mail-form');
-// Campo oculto donde se guarda el correo de destino real.
-const recoveryTarget = document.getElementById('owner-recovery-target-email');
-// Campo editable de correo del propietario dentro del formulario principal.
-const ownerEmailInput = document.querySelector('input[name="owner_correo_electronico"]');
-// Texto visible que muestra al administrador a qu&eacute; correo se enviar&aacute;.
-const destinationLabel = document.getElementById('owner-recovery-destination');
-if (!recoveryForm || !recoveryTarget || !ownerEmailInput) {
-return;
-}
-// Actualiza destino interno y texto visible cada vez que cambia el correo.
-const actualizarDestino = function () {
-const correo = (ownerEmailInput.value || '').trim();
-recoveryTarget.value = correo;
-if (destinationLabel) {
-destinationLabel.textContent = correo || '(sin correo)';
-}
-};
-// Escucha cambios mientras el usuario escribe.
-ownerEmailInput.addEventListener('input', actualizarDestino);
-// Escucha cambios al salir del campo.
-ownerEmailInput.addEventListener('change', actualizarDestino);
-// Sincroniza valores al cargar la vista.
-actualizarDestino();
-// Asegura sincronizaci&oacute;n final justo antes de enviar recuperaci&oacute;n.
-recoveryForm.addEventListener('submit', function () {
-actualizarDestino();
-});
-})();
+<script>
+  (function () {
+    // Sincroniza correo visible con el destino real del formulario de recuperacion.
+    const recoveryForm = document.getElementById('send-owner-recovery-mail-form');
+    const recoveryTarget = document.getElementById('owner-recovery-target-email');
+    const ownerEmailInput = document.querySelector('input[name="owner_correo_electronico"]');
+    const destinationLabel = document.getElementById('owner-recovery-destination');
+
+    if (!recoveryForm || !recoveryTarget || !ownerEmailInput) {
+      return;
+    }
+
+    const actualizarDestino = function () {
+      const correo = (ownerEmailInput.value || '').trim();
+      recoveryTarget.value = correo;
+      if (destinationLabel) {
+        destinationLabel.textContent = correo || '(sin correo)';
+      }
+    };
+
+    ownerEmailInput.addEventListener('input', actualizarDestino);
+    ownerEmailInput.addEventListener('change', actualizarDestino);
+    actualizarDestino();
+
+    recoveryForm.addEventListener('submit', function () {
+      actualizarDestino();
+    });
+  })();
 </script>

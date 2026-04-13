@@ -1,3 +1,4 @@
+
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
 <div class="user-detail-main user-detail-main--shop-detail user-detail-main--shop-detail-view">
@@ -37,9 +38,9 @@
         </div>
       </div>
       <div>
-        <div class="user-detail-label">Teléfono</div>
+        <div class="user-detail-label">Tel&eacute;fono</div>
         <div class="user-detail-value">
-          <input type="text" name="telefono" value="{{ valores.telefono|default:'' }}" inputmode="numeric" maxlength="10" pattern="^3\d{9}$" title="Debe tener 10 dígitos y empezar por 3" required>
+          <input type="text" name="telefono" value="{{ valores.telefono|default:'' }}" inputmode="numeric" maxlength="10" pattern="^3\d{9}$" title="Debe tener 10 d&iacute;gitos y empezar por 3" required>
           <div class="shop-edit-inline-error" data-error-for="telefono">{% if errores.telefono %}{{ errores.telefono }}{% endif %}</div>
         </div>
       </div>
@@ -79,10 +80,10 @@
         </div>
       </div>
       <div>
-        <div class="user-detail-label">Punto físico</div>
+        <div class="user-detail-label">Punto f&iacute;sico</div>
         <div class="user-detail-value">
           <select name="punto_fisico" id="punto-fisico-select" required>
-            <option value="True" {% if valores.punto_fisico == 'True' %}selected{% endif %}>Sí</option>
+            <option value="True" {% if valores.punto_fisico == 'True' %}selected{% endif %}>S&iacute;</option>
             <option value="False" {% if valores.punto_fisico == 'False' %}selected{% endif %}>No</option>
           </select>
           <div class="shop-edit-inline-error" data-error-for="punto_fisico">{% if errores.punto_fisico %}{{ errores.punto_fisico }}{% endif %}</div>
@@ -99,14 +100,14 @@
         </div>
       </div>
       <div id="direccion-row">
-        <div class="user-detail-label">Dirección</div>
+        <div class="user-detail-label">Direcci&oacute;n</div>
         <div class="user-detail-value">
           <input type="text" name="direccion" id="direccion-input" value="{{ valores.direccion|default:'' }}">
           <div class="shop-edit-inline-error" data-error-for="direccion">{% if errores.direccion %}{{ errores.direccion }}{% endif %}</div>
         </div>
       </div>
       <div class="user-detail-grid__full-row">
-        <div class="user-detail-label">Descripción</div>
+        <div class="user-detail-label">Descripci&oacute;n</div>
         <div class="user-detail-value">
           <textarea name="descripcion">{{ valores.descripcion|default:'' }}</textarea>
           <div class="shop-edit-inline-error" data-error-for="descripcion">{% if errores.descripcion %}{{ errores.descripcion }}{% endif %}</div>
@@ -145,9 +146,9 @@
             </div>
           </div>
           <div>
-            <div class="user-detail-label">Teléfono</div>
+            <div class="user-detail-label">Tel&eacute;fono</div>
             <div class="user-detail-value">
-              <input type="text" name="owner_telefono" value="{{ valores.owner_telefono|default:'' }}" inputmode="numeric" maxlength="10" pattern="^3\d{9}$" title="Debe tener 10 dígitos y empezar por 3" required>
+              <input type="text" name="owner_telefono" value="{{ valores.owner_telefono|default:'' }}" inputmode="numeric" maxlength="10" pattern="^3\d{9}$" title="Debe tener 10 d&iacute;gitos y empezar por 3" required>
               <div class="shop-edit-inline-error" data-error-for="owner_telefono">{% if errores.owner_telefono %}{{ errores.owner_telefono }}{% endif %}</div>
             </div>
           </div>
@@ -163,9 +164,9 @@
             </div>
           </div>
           <div>
-            <div class="user-detail-label">Número documento</div>
+            <div class="user-detail-label">N&uacute;mero documento</div>
             <div class="user-detail-value">
-              <input type="text" name="owner_numero_documento" value="{{ valores.owner_numero_documento|default:'' }}" inputmode="numeric" maxlength="15" pattern="^\d{6,15}$" title="Debe tener solo dígitos (6 a 15)" required>
+              <input type="text" name="owner_numero_documento" value="{{ valores.owner_numero_documento|default:'' }}" inputmode="numeric" maxlength="15" pattern="^\d{6,15}$" title="Debe tener solo d&iacute;gitos (6 a 15)" required>
               <div class="shop-edit-inline-error" data-error-for="owner_numero_documento">{% if errores.owner_numero_documento %}{{ errores.owner_numero_documento }}{% endif %}</div>
             </div>
           </div>
@@ -191,7 +192,7 @@
             </div>
           </div>
           <div>
-            <div class="user-detail-label">Dirección</div>
+            <div class="user-detail-label">Direcci&oacute;n</div>
             <div class="user-detail-value">
               <input type="text" name="owner_direccion_completa" value="{{ valores.owner_direccion_completa|default:'' }}" required>
               <div class="shop-edit-inline-error" data-error-for="owner_direccion_completa">{% if errores.owner_direccion_completa %}{{ errores.owner_direccion_completa }}{% endif %}</div>
@@ -205,19 +206,19 @@
       </div>
 
       <div class="shop-edit-recovery-card user-detail-grid__full-row">
-        <div class="user-detail-label shop-edit-recovery-title">Recuperación de contraseña del propietario</div>
+        <div class="user-detail-label shop-edit-recovery-title">Recuperaci&oacute;n de contrase&ntilde;a del propietario</div>
         <div class="shop-edit-recovery-row">
           <div class="shop-edit-recovery-copy">
-            <div class="shop-edit-recovery-copy__help">El administrador no puede editar directamente la contraseña del propietario.</div>
+            <div class="shop-edit-recovery-copy__help">El administrador no puede editar directamente la contrase&ntilde;a del propietario.</div>
             <div class="shop-edit-recovery-copy__target">
-              Se enviará a: <span id="owner-recovery-destination">{{ valores.owner_correo_electronico|default:'(sin correo)' }}</span>
+              Se enviar&aacute; a: <span id="owner-recovery-destination">{{ valores.owner_correo_electronico|default:'(sin correo)' }}</span>
             </div>
           </div>
           <button
             type="submit"
             form="send-owner-recovery-mail-form"
             class="shop-edit-recovery-btn"
-          >Enviar correo de recuperación</button>
+          >Enviar correo de recuperaci&oacute;n</button>
         </div>
       </div>
     {% endif %}
@@ -233,10 +234,10 @@
     <div class="shop-confirm-modal__backdrop" data-confirm-close></div>
     <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="shop-confirm-title" aria-describedby="shop-confirm-text">
       <h3 class="shop-confirm-modal__title" id="shop-confirm-title">Confirmar cambios</h3>
-      <p class="shop-confirm-modal__text" id="shop-confirm-text">¿Deseas guardar los cambios de la tienda?</p>
+      <p class="shop-confirm-modal__text" id="shop-confirm-text">&iquest;Deseas guardar los cambios de la tienda?</p>
       <div class="shop-confirm-modal__actions">
         <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="shop-confirm-cancel">Cancelar</button>
-        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="shop-confirm-accept">Sí, guardar</button>
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="shop-confirm-accept">S&iacute;, guardar</button>
       </div>
     </div>
   </div>
@@ -251,31 +252,35 @@
 </div>
 {{ departamentos_municipios|json_script:"departamentos-municipios-data" }}
 <script src="{% static 'js/components/shop_editar_card.js' %}" defer></script>
-<script>
-  (function () {
-    const recoveryForm = document.getElementById('send-owner-recovery-mail-form');
-    const recoveryTarget = document.getElementById('owner-recovery-target-email');
-    const ownerEmailInput = document.querySelector('input[name="owner_correo_electronico"]');
-    const destinationLabel = document.getElementById('owner-recovery-destination');
-
-    if (!recoveryForm || !recoveryTarget || !ownerEmailInput) {
-      return;
-    }
-
-    const actualizarDestino = function () {
-      const correo = (ownerEmailInput.value || '').trim();
-      recoveryTarget.value = correo;
-      if (destinationLabel) {
-        destinationLabel.textContent = correo || '(sin correo)';
-      }
-    };
-
-    ownerEmailInput.addEventListener('input', actualizarDestino);
-    ownerEmailInput.addEventListener('change', actualizarDestino);
-    actualizarDestino();
-
-    recoveryForm.addEventListener('submit', function () {
-      actualizarDestino();
-    });
-  })();
+<script>(function () {
+// Toma el formulario auxiliar para env&iacute;o de recuperaci&oacute;n.
+const recoveryForm = document.getElementById('send-owner-recovery-mail-form');
+// Campo oculto donde se guarda el correo de destino real.
+const recoveryTarget = document.getElementById('owner-recovery-target-email');
+// Campo editable de correo del propietario dentro del formulario principal.
+const ownerEmailInput = document.querySelector('input[name="owner_correo_electronico"]');
+// Texto visible que muestra al administrador a qu&eacute; correo se enviar&aacute;.
+const destinationLabel = document.getElementById('owner-recovery-destination');
+if (!recoveryForm || !recoveryTarget || !ownerEmailInput) {
+return;
+}
+// Actualiza destino interno y texto visible cada vez que cambia el correo.
+const actualizarDestino = function () {
+const correo = (ownerEmailInput.value || '').trim();
+recoveryTarget.value = correo;
+if (destinationLabel) {
+destinationLabel.textContent = correo || '(sin correo)';
+}
+};
+// Escucha cambios mientras el usuario escribe.
+ownerEmailInput.addEventListener('input', actualizarDestino);
+// Escucha cambios al salir del campo.
+ownerEmailInput.addEventListener('change', actualizarDestino);
+// Sincroniza valores al cargar la vista.
+actualizarDestino();
+// Asegura sincronizaci&oacute;n final justo antes de enviar recuperaci&oacute;n.
+recoveryForm.addEventListener('submit', function () {
+actualizarDestino();
+});
+})();
 </script>

@@ -1,6 +1,7 @@
 function initializeUpdatePerfilStep2() {
     const departamentoSelect = document.getElementById('input-departament');
     const municipioSelect = document.getElementById('input-municipality');
+    const telefonoInput = document.getElementById('input-telefono');
     const showPasswordCheckbox = document.getElementById('show-password');
     const currentPasswordInput = document.getElementById('input-password');
     const newPasswordInput = document.getElementById('input-new-password');
@@ -61,6 +62,32 @@ function initializeUpdatePerfilStep2() {
                 newPasswordInput.type = inputType;
             }
         });
+    }
+
+    if (telefonoInput) {
+        const validatePhone = () => {
+            const digitsOnly = (telefonoInput.value || '').replace(/\D/g, '').slice(0, 10);
+            if (telefonoInput.value !== digitsOnly) {
+                telefonoInput.value = digitsOnly;
+            }
+
+            const phoneValue = telefonoInput.value;
+            if (!phoneValue) {
+                telefonoInput.setCustomValidity('Teléfono obligatorio.');
+            } else if (!phoneValue.startsWith('3')) {
+                telefonoInput.setCustomValidity('Debe iniciar en 3.');
+            } else if (phoneValue.length !== 10) {
+                telefonoInput.setCustomValidity('Usa 10 dígitos.');
+            } else if (!/^3\d{9}$/.test(phoneValue)) {
+                telefonoInput.setCustomValidity('Solo números.');
+            } else {
+                telefonoInput.setCustomValidity('');
+            }
+        };
+
+        telefonoInput.addEventListener('input', validatePhone);
+        telefonoInput.addEventListener('blur', validatePhone);
+        validatePhone();
     }
 }
 

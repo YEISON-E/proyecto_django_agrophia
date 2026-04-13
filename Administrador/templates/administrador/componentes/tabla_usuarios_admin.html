@@ -1,12 +1,13 @@
+
 {% load static %}
 <div class="table-container">
 <table class="products-table">
   <thead class="products-table__head">
     <tr class="products-table__row products-table__row--head">
       <th class="products-table__header">Nombre</th>
-      <th class="products-table__header">Correo electrónico</th>
-      <th class="products-table__header">Teléfono</th>
-      <th class="products-table__header">Ubicación</th>
+      <th class="products-table__header">Correo electr&oacute;nico</th>
+      <th class="products-table__header">Tel&eacute;fono</th>
+      <th class="products-table__header">Ubicaci&oacute;n</th>
       <th class="products-table__header">Estado</th>
       <th class="products-table__header">Acciones</th>
     </tr>
@@ -43,8 +44,8 @@
         <button class="products-table__button users-table__button--message" title="Enviar mensaje" data-user-id="{{ usuario.id }}" data-user-name="{{ usuario.nombres }} {{ usuario.apellidos }}" data-user-document="{{ usuario.numero_documento }}">
           <img src="{% static 'icons/icon_mensaje.png' %}" alt="Mensaje" width="20" height="20">
         </button>
-        <a href="{% url 'administrador:usuario_admin_detalle' usuario.id %}" class="products-table__button products-table__button--view" title="Ver más" style="margin-left:4px;background:#e0e7ff;border:1px solid #6366f1;color:#3730a3;font-weight:600;">
-          Ver más
+        <a href="{% url 'administrador:usuario_admin_detalle' usuario.id %}" class="products-table__button products-table__button--view" title="Ver m&aacute;s">
+          Ver m&aacute;s
         </a>
       </td>
     </tr>

@@ -123,7 +123,7 @@ def _validate_step1(data, files, allow_existing_images=False):
 
 
 def _validate_step2(data):
-	"""Valida datos del paso 2 (precio, stock, descripcion y garantia)."""
+	"""Valida datos del paso 2 (precio, stock, descripcion y tiempo de durabilidad)."""
 	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
 	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	errors = {}
@@ -131,7 +131,7 @@ def _validate_step2(data):
 	precio_raw = (data.get("precio") or "").strip()
 	stock_raw = (data.get("stock") or "").strip()
 	descripcion = (data.get("descripcion") or "").strip()
-	garantia = (data.get("garantia") or "").strip()
+	tiempo_durabilidad = (data.get("tiempo_durabilidad") or "").strip()
 
 	precio_value = None
 	stock_value = None
@@ -169,15 +169,15 @@ def _validate_step2(data):
 	elif len(descripcion) > 255:
 		errors["descripcion"] = "La descripción no debe superar 255 caracteres."
 
-	if not garantia:
-		errors["garantia"] = "El tiempo de durabilidad es obligatorio."
-	elif len(garantia) < 3:
-		errors["garantia"] = "El tiempo de durabilidad debe tener al menos 3 caracteres."
+	if not tiempo_durabilidad:
+		errors["tiempo_durabilidad"] = "El tiempo de durabilidad es obligatorio."
+	elif len(tiempo_durabilidad) < 3:
+		errors["tiempo_durabilidad"] = "El tiempo de durabilidad debe tener al menos 3 caracteres."
 	# Control de flujo y validación de condiciones del proceso.
-	elif len(garantia) > 120:
-		errors["garantia"] = "La garantía no debe superar 120 caracteres."
-	elif not PRODUCT_GUARANTEE_ALLOWED_RE.fullmatch(garantia):
-		errors["garantia"] = "La garantía contiene caracteres no permitidos."
+	elif len(tiempo_durabilidad) > 120:
+		errors["tiempo_durabilidad"] = "El tiempo de durabilidad no debe superar 120 caracteres."
+	elif not PRODUCT_GUARANTEE_ALLOWED_RE.fullmatch(tiempo_durabilidad):
+		errors["tiempo_durabilidad"] = "El tiempo de durabilidad contiene caracteres no permitidos."
 
 	return errors, precio_value, stock_value
 
@@ -276,7 +276,7 @@ def create_product2(request):
 			# Paso de apoyo dentro del flujo principal de la funcionalidad.
 			"stock": (request.POST.get("stock") or "").strip(),
 			"descripcion": (request.POST.get("descripcion") or "").strip(),
-			"garantia": (request.POST.get("garantia") or "").strip(),
+			"tiempo_durabilidad": (request.POST.get("tiempo_durabilidad") or "").strip(),
 		}
 
 		if not temp_paths:
@@ -303,10 +303,10 @@ def create_product2(request):
 			# Actualización de estado intermedio que será utilizada en pasos posteriores.
 			stock=stock_value,
 			descripcion=valores["descripcion"],
-			garantia=valores["garantia"],
 			is_active=stock_value > 0,
 		# Paso de apoyo dentro del flujo principal de la funcionalidad.
 		)
+		product.tiempo_durabilidad = valores["tiempo_durabilidad"]
 
 		try:
 			product.full_clean()
@@ -468,11 +468,11 @@ def request_admin_product_reactivation(request, product_id):
 	# Flujo: valida entrada y reglas de negocio para mantener consistencia funcional.
 	# Respuesta: retorna render, redirect o JSON según el resultado de la operación.
 	if not request.user.is_authenticated:
-		return JsonResponse({"ok": False, "message": "Sesion no valida."}, status=401)
+		return JsonResponse({"ok": False, "message": "Sesión no válida."}, status=401)
 
 	product = get_object_or_404(Product, pk=product_id, owner=request.user, is_active=False)
 	if not product.disabled_by_admin:
-		return JsonResponse({"ok": False, "message": "Este producto no requiere aprobacion del administrador."}, status=400)
+		return JsonResponse({"ok": False, "message": "Este producto no requiere aprobación del administrador."}, status=400)
 
 	message_text = (request.POST.get("message") or "").strip()
 	if len(message_text) < 10:
@@ -517,7 +517,7 @@ def update_product(request, product_id):
 		"stock": product.stock,
 		"descripcion": product.descripcion,
 		# Paso de apoyo dentro del flujo principal de la funcionalidad.
-		"garantia": product.garantia,
+		"tiempo_durabilidad": product.tiempo_durabilidad,
 	}
 
 	if request.method == "POST":
@@ -534,7 +534,7 @@ def update_product(request, product_id):
 			"stock": (request.POST.get("stock") or "").strip(),
 			"descripcion": (request.POST.get("descripcion") or "").strip(),
 			# Paso de apoyo dentro del flujo principal de la funcionalidad.
-			"garantia": (request.POST.get("garantia") or "").strip(),
+			"tiempo_durabilidad": (request.POST.get("tiempo_durabilidad") or "").strip(),
 		}
 
 		try:
@@ -584,7 +584,7 @@ def update_product(request, product_id):
 			product.stock = stock_value
 			product.descripcion = valores["descripcion"]
 			# Paso de apoyo dentro del flujo principal de la funcionalidad.
-			product.garantia = valores["garantia"]
+			product.tiempo_durabilidad = valores["tiempo_durabilidad"]
 			if product.stock <= 0:
 				product.is_active = False
 

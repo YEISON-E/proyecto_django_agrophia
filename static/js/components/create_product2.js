@@ -20,15 +20,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const stockInput = document.getElementById("stock-producto");
     // Textarea/input de descripcion del producto.
     const descripcionInput = document.getElementById("descripcion-producto");
-    // Input de garantia/durabilidad.
-    const garantiaInput = document.getElementById("garantia-producto");
+    // Input de tiempo de durabilidad.
+    const tiempoDurabilidadInput = document.getElementById("tiempo-durabilidad-producto");
     // Boton para publicar producto.
     const publicarButton = document.getElementById("btn-publicar-producto");
     // Formulario del paso 2.
     const step2Form = document.getElementById("create-product-step2-form");
 
     // Si falta algun elemento critico, no continua inicializacion.
-    if (!precioInput || !stockInput || !descripcionInput || !garantiaInput || !publicarButton) {
+    if (!precioInput || !stockInput || !descripcionInput || !tiempoDurabilidadInput || !publicarButton) {
         return;
     }
 
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 precio: precioInput.value || "",
                 stock: stockInput.value || "",
                 descripcion: descripcionInput.value || "",
-                garantia: garantiaInput.value || "",
+                tiempo_durabilidad: tiempoDurabilidadInput.value || "",
             };
             // Guarda payload serializado.
             sessionStorage.setItem(STEP2_STORAGE_KEY, JSON.stringify(payload));
@@ -73,9 +73,9 @@ document.addEventListener("DOMContentLoaded", function () {
             if (!descripcionInput.value && saved.descripcion) {
                 descripcionInput.value = saved.descripcion;
             }
-            // Restaura garantia si campo actual esta vacio.
-            if (!garantiaInput.value && saved.garantia) {
-                garantiaInput.value = saved.garantia;
+            // Restaura tiempo de durabilidad si campo actual esta vacio.
+            if (!tiempoDurabilidadInput.value && saved.tiempo_durabilidad) {
+                tiempoDurabilidadInput.value = saved.tiempo_durabilidad;
             }
         } catch (error) {
             // Registra advertencia si falla restauracion.
@@ -106,8 +106,8 @@ document.addEventListener("DOMContentLoaded", function () {
     const validateStep2 = () => {
         // Bandera acumuladora de errores.
         let hasErrors = false;
-        // Patron permitido para garantia/durabilidad.
-        const garantiaPattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,:/%\-]+$/;
+        // Patron permitido para tiempo de durabilidad.
+        const tiempoDurabilidadPattern = /^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,:/%\-]+$/;
 
         // Lee y normaliza precio.
         const precioRaw = (precioInput.value || "").trim();
@@ -162,27 +162,27 @@ document.addEventListener("DOMContentLoaded", function () {
             setError("error-descripcion-producto", "");
         }
 
-        // Lee y normaliza garantia.
-        const garantia = (garantiaInput.value || "").trim();
-        // Regla: garantia obligatoria.
-        if (!garantia) {
-            setError("error-garantia-producto", "El tiempo de durabilidad es obligatorio.");
+        // Lee y normaliza tiempo de durabilidad.
+        const tiempoDurabilidad = (tiempoDurabilidadInput.value || "").trim();
+        // Regla: tiempo de durabilidad obligatorio.
+        if (!tiempoDurabilidad) {
+            setError("error-tiempo-durabilidad-producto", "El tiempo de durabilidad es obligatorio.");
             hasErrors = true;
         // Regla: minimo 3 caracteres.
-        } else if (garantia.length < 3) {
-            setError("error-garantia-producto", "El tiempo de durabilidad debe tener al menos 3 caracteres.");
+        } else if (tiempoDurabilidad.length < 3) {
+            setError("error-tiempo-durabilidad-producto", "El tiempo de durabilidad debe tener al menos 3 caracteres.");
             hasErrors = true;
         // Regla: maximo 120 caracteres.
-        } else if (garantia.length > 120) {
-            setError("error-garantia-producto", "La garantía no debe superar 120 caracteres.");
+        } else if (tiempoDurabilidad.length > 120) {
+            setError("error-tiempo-durabilidad-producto", "El tiempo de durabilidad no debe superar 120 caracteres.");
             hasErrors = true;
         // Regla: solo caracteres permitidos por patron.
-        } else if (!garantiaPattern.test(garantia)) {
-            setError("error-garantia-producto", "La garantía contiene caracteres no permitidos.");
+        } else if (!tiempoDurabilidadPattern.test(tiempoDurabilidad)) {
+            setError("error-tiempo-durabilidad-producto", "El tiempo de durabilidad contiene caracteres no permitidos.");
             hasErrors = true;
         } else {
-            // Limpia error de garantia si es valida.
-            setError("error-garantia-producto", "");
+            // Limpia error de tiempo de durabilidad si es valido.
+            setError("error-tiempo-durabilidad-producto", "");
         }
 
         // Devuelve true solo si no hubo errores.
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", function () {
     };
 
     // Enlaza validacion y persistencia a eventos input/change de campos.
-    [precioInput, stockInput, descripcionInput, garantiaInput].forEach((field) => {
+    [precioInput, stockInput, descripcionInput, tiempoDurabilidadInput].forEach((field) => {
         field.addEventListener("input", validateStep2);
         field.addEventListener("change", validateStep2);
         field.addEventListener("input", persistStep2Fields);

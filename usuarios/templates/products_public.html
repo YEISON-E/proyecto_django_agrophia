@@ -33,23 +33,7 @@
       </section>
     </main>
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const loginUrl = document.body.dataset.loginUrl;
-        const cardsContainer = document.querySelector('.card-home__container');
-        if (!loginUrl || !cardsContainer) {
-          return;
-        }
-        cardsContainer.addEventListener('click', function (event) {
-          const clickable = event.target.closest('.card-home, .card-available__button-two');
-          if (!clickable) {
-            return;
-          }
-          event.preventDefault();
-          window.location.href = loginUrl;
-        });
-      });
-    </script>
+    <script src="{% static 'js/components/products_public.js' %}" defer></script>
 
     <footer class="footer">
       <div class="footer-container">

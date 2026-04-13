@@ -1,33 +1,64 @@
+
 {% load static %}
+
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+    
     <meta charset="UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link rel="icon" href="{% static 'icons/planta.png' %}">
+    
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    
     <link rel="stylesheet" href="{% static 'css/toolbar.css' %}">
+    
     <link rel="stylesheet" href="{% static 'css/shop_products_list.css' %}">
+    
     <script src="{% static 'js/shop_products_list.js' %}" defer></script>
+    
     <title>Productos de tienda - Admin</title>
+
 </head>
+
 <body class="admin-page-shell" style="background: #f8fafc;">
+    
     <div class="govco-container__one admin-page-top">
+        
         {% include 'components/gov-co__one.html' %}
+    
     </div>
 
+    
     <main class="admin-page-main">
+        
         {% include 'administrador/componentes/toolbar_products.html' %}
+        
         <div class="layout">
+            
             {% include 'administrador/componentes/sidebar.html' %}
+            
             <div class="layout__products-row layout__products-row--shop-products">
+                
                 {% include 'administrador/componentes/shop_products_list_card.html' %}
+            
             </div>
+        
         </div>
+    
     </main>
 
+    
     <div class="govco-container__one admin-page-bottom">
+        
         {% include 'components/gov-co__one.html' %}
+    
     </div>
+
 </body>
+
 </html>

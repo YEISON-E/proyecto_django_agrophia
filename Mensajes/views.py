@@ -195,7 +195,7 @@ def delete_farmer_conversation(request):
 		sender_id=int(sender_id),
 	).delete()
 
-	return redirect("mensajes:farmer_messages?view=list")
+	return redirect(f"{reverse('mensajes:farmer_messages')}?view=list")
 
 
 @require_POST

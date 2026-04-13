@@ -1,11 +1,12 @@
+
 {% load static %}
 <div class="table-container">
 <table class="products-table">
   <thead class="products-table__head">
     <tr class="products-table__row products-table__row--head">
       <th class="products-table__header">Nombre</th>
-      <th class="products-table__header">Código</th>
-      <th class="products-table__header">Categoría</th>
+      <th class="products-table__header">C&oacute;digo</th>
+      <th class="products-table__header">Categor&iacute;a</th>
       <th class="products-table__header">Precio</th>
       <th class="products-table__header">Estado</th>
       <th class="products-table__header">Acciones</th>
@@ -38,8 +39,8 @@
         <a href="{% url 'administrador:producto_admin_editar' producto.id %}?from=table" class="products-table__button products-table__button--edit" title="Editar">
           <img src="{% static 'icons/edit.svg' %}" alt="Editar" width="20" height="20">
         </a>
-        <a href="{% url 'administrador:producto_admin_detalle' producto.id %}" class="products-table__button products-table__button--view" title="Ver más" style="margin-left:4px;background:#e0e7ff;border:1px solid #6366f1;color:#3730a3;font-weight:600;">
-          Ver más
+        <a href="{% url 'administrador:producto_admin_detalle' producto.id %}" class="products-table__button products-table__button--view" title="Ver m&aacute;s">
+          Ver m&aacute;s
         </a>
       </td>
     </tr>
@@ -49,8 +50,3 @@
   </tbody>
 </table>
 </div>
-      <!-- Solo datos de la base de datos, sin filas de ejemplo -->
-
-      
-  </tbody>
-</table>

@@ -8,9 +8,10 @@
             <div class="shop-update">
                 <form id="update-shop-step2-form" class="shop-update__body" method="post" action="{% url 'tiendas:update_shop_step2' %}">
                     {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next_url|default:'' }}">
 
                     <div class="shop-update__group">
-                        <label for="tiene_punto_fisico" class="shop-update__label">La tienda cuenta con punto físico?</label>
+                        <label for="tiene_punto_fisico" class="shop-update__label">¿La tienda cuenta con punto físico?</label>
                         <select id="tiene_punto_fisico" name="tiene_punto_fisico" class="shop-update__option" required>
                             <option value="si" {% if valores.tiene_punto_fisico != 'no' %}selected{% endif %}>Sí</option>
                             <option value="no" {% if valores.tiene_punto_fisico == 'no' %}selected{% endif %}>No</option>
@@ -40,13 +41,14 @@
 
                     <div class="shop-update__textarea">
                         <label for="descripcion" class="shop-update__label">Descripción breve de la tienda (opcional)</label>
-                        <textarea id="descripcion" name="descripcion" class="shop-update__description" placeholder="Descripción breve de la tienda">{{ valores.descripcion|default:'' }}</textarea>
+                        <textarea id="descripcion" name="descripcion" class="shop-update__description" placeholder="Descripción breve de la tienda" maxlength="255">{{ valores.descripcion|default:'' }}</textarea>
+                        {% if errores.descripcion %}<small class="form-error">{{ errores.descripcion }}</small>{% endif %}
                     </div>
 
                 </form>
 
                 <div class="form-content__register--row-buttons">
-                    <a href="{% url 'tiendas:update_shop_step1' %}" class="form-content__register--row-buttons__back">Volver</a>
+                    <a href="{% url 'tiendas:update_shop_step1' %}?next={{ next_url|urlencode }}" class="form-content__register--row-buttons__back">Volver</a>
                     <button type="submit" form="update-shop-step2-form" class="form-shop__button">Guardar cambios</button>
                 </div>
             </div>

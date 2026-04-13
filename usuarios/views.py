@@ -58,6 +58,8 @@ from django.core.files.storage import FileSystemStorage
 
 
 PASSWORD_ALLOWED_RE = re.compile(r'^[A-Za-z0-9!@#$%^&*(),.?":{}|<>]+$')
+PHONE_ALLOWED_RE = re.compile(r'^3\d{9}$')
+NAME_ALLOWED_RE = re.compile(r'^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ\s]+$')
 MAX_FAILED_LOGIN_ATTEMPTS = 3
 LOCKOUT_MINUTES = 30
 
@@ -88,6 +90,36 @@ def _validate_password_policy(password):
     # Control de flujo y validación de condiciones del proceso.
     if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         return "Debe contener al menos un carácter especial (!@#$%^&*)."
+    return None
+
+
+def _validate_phone_number(phone_value):
+    """Valida telefono movil: 10 digitos, inicia en 3 y sin letras."""
+    if not phone_value:
+        return "Teléfono obligatorio."
+    if not phone_value.isdigit():
+        return "Solo números."
+    if len(phone_value) != 10:
+        return "Usa 10 dígitos."
+    if not phone_value.startswith("3"):
+        return "Debe iniciar en 3."
+    if not PHONE_ALLOWED_RE.fullmatch(phone_value):
+        return "Teléfono inválido."
+    return None
+
+
+def _validate_person_name(name_value, field_label="nombre"):
+    """Valida nombres/apellidos: solo letras y espacios, sin emojis ni símbolos."""
+    if not name_value:
+        return f"El {field_label} es obligatorio."
+
+    normalized_value = re.sub(r"\s+", " ", name_value).strip()
+    if len(normalized_value) < 2:
+        return f"El {field_label} debe tener al menos 2 caracteres."
+    if len(normalized_value) > 40:
+        return f"El {field_label} no debe superar 40 caracteres."
+    if not NAME_ALLOWED_RE.fullmatch(normalized_value):
+        return f"El {field_label} solo puede contener letras y espacios."
     return None
 
 
@@ -137,11 +169,11 @@ def _send_temporary_lock_email(register_user, blocked_until):
     send_mail(
         subject='Bloqueo temporal por intentos fallidos - Agrophia',
         message=(
-            'Detectamos multiples intentos fallidos de inicio de sesion en tu cuenta.\n\n'
+            'Detectamos múltiples intentos fallidos de inicio de sesión en tu cuenta.\n\n'
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             'Tu cuenta ha sido bloqueada temporalmente hasta: '
             f'{local_blocked_until.strftime("%Y-%m-%d %H:%M:%S")} ({tz_name}).\n'
-            'Podras intentar iniciar sesion nuevamente despues de 30 minutos.\n\n'
+            'Podrás intentar iniciar sesión nuevamente después de 30 minutos.\n\n'
             'Si no reconoces esta actividad, te recomendamos cambiar tu contraseña cuando recuperes el acceso.'
         # Paso de apoyo dentro del flujo principal de la funcionalidad.
         ),
@@ -232,7 +264,7 @@ def update_perfil(request):
         identificacion = register_user.numero_documento
         nombres = register_user.nombres
         # Actualización de estado intermedio que será utilizada en pasos posteriores.
-        apellidos = request.POST.get("apellidos", "").strip()
+        apellidos = re.sub(r"\s+", " ", request.POST.get("apellidos", "")).strip()
 
         valores = {
             "tdocumento": tipo_documento,
@@ -242,8 +274,9 @@ def update_perfil(request):
             "apellidos": apellidos,
         }
 
-        if not apellidos:
-            errores["apellidos"] = "El apellido es obligatorio."
+        apellidos_error = _validate_person_name(apellidos, "apellido")
+        if apellidos_error:
+            errores["apellidos"] = apellidos_error
 
         foto_file = request.FILES.get("foto")
         foto_temp_path = None
@@ -340,10 +373,9 @@ def update_perfil2(request):
             "descripcion": descripcion,
         }
 
-        if not telefono:
-            errores["telefono"] = "El teléfono es obligatorio."
-        elif not telefono.isdigit() or len(telefono) < 7 or len(telefono) > 15:
-            errores["telefono"] = "Número de teléfono inválido."
+        telefono_error = _validate_phone_number(telefono)
+        if telefono_error:
+            errores["telefono"] = telefono_error
         # Control de flujo y validación de condiciones del proceso.
         elif Register.objects.exclude(pk=register_user.pk).filter(telefono=telefono).exists():
             errores["telefono"] = "Este teléfono ya está registrado."
@@ -356,8 +388,8 @@ def update_perfil2(request):
         if not direccion:
             errores["direccion"] = "La dirección es obligatoria."
 
-        if len(descripcion) > 120:
-            errores["descripcion"] = "La descripción no debe superar 120 caracteres."
+        if len(descripcion) > 100:
+            errores["descripcion"] = "La descripción no debe superar 100 caracteres."
 
         if current_password or new_password:
             if not current_password:
@@ -697,7 +729,7 @@ class Logueo(LoginView):
             remaining_minutes = max(1, math.ceil(remaining_seconds / 60))
             errores["general"] = (
                 # Paso de apoyo dentro del flujo principal de la funcionalidad.
-                "Tu cuenta esta bloqueada temporalmente por multiples intentos fallidos. "
+                "Tu cuenta está bloqueada temporalmente por múltiples intentos fallidos. "
                 f"Intenta nuevamente en {remaining_minutes} minuto(s)."
             )
             return render(request, self.template_name, {
@@ -726,7 +758,7 @@ class Logueo(LoginView):
 
                 errores["general"] = (
                     "Has superado los 3 intentos de contraseña incorrecta. "
-                    "Tu cuenta fue bloqueada por 30 minutos y enviamos una notificacion a tu correo."
+                    "Tu cuenta fue bloqueada por 30 minutos y enviamos una notificación a tu correo."
                 )
             # Control de flujo y validación de condiciones del proceso.
             else:
@@ -884,12 +916,12 @@ class Logueo(LoginView):
 
             try:
                 send_mail(
-                    subject='Codigo de verificacion de administrador - Agrophia',
+                    subject='Código de verificación de administrador - Agrophia',
                     message=(
                         # Paso de apoyo dentro del flujo principal de la funcionalidad.
-                        'Tu codigo de verificacion para iniciar sesion como administrador es: '
+                        'Tu código de verificación para iniciar sesión como administrador es: '
                         f'{admin_code}\n\n'
-                        'Este codigo expira en 2 minutos.'
+                        'Este código expira en 2 minutos.'
                     ),
                     # Actualización de estado intermedio que será utilizada en pasos posteriores.
                     from_email=settings.DEFAULT_FROM_EMAIL,
@@ -904,7 +936,7 @@ class Logueo(LoginView):
                 # Paso de apoyo dentro del flujo principal de la funcionalidad.
                 request.session.pop('pending_admin_code_expires_at', None)
                 logout(request)
-                errores['general'] = 'No se pudo enviar el codigo de seguridad al correo del administrador.'
+                errores['general'] = 'No se pudo enviar el código de seguridad al correo del administrador.'
                 return render(request, self.template_name, {
                     # Paso de apoyo dentro del flujo principal de la funcionalidad.
                     'errores': errores,
@@ -930,18 +962,25 @@ def register_step_1(request):
     if request.method == "POST":
         documento = request.POST.get("documento", "").strip()
         tdocumento = request.POST.get("tdocumento", "").strip()
-        nombres = request.POST.get("nombres", "").strip()
+        nombres = re.sub(r"\s+", " ", request.POST.get("nombres", "")).strip()
         # Actualización de estado intermedio que será utilizada en pasos posteriores.
-        apellidos = request.POST.get("apellidos", "").strip()
-        
-        # Guardar datos paso 1 en sesión (método estándar Django)
-        request.session["register_step_1"] = {
+        apellidos = re.sub(r"\s+", " ", request.POST.get("apellidos", "")).strip()
+
+        valores = {
             "tdocumento": tdocumento,
             "documento": documento,
             "nombres": nombres,
-            # Paso de apoyo dentro del flujo principal de la funcionalidad.
             "apellidos": apellidos,
         }
+        errores = {}
+
+        nombres_error = _validate_person_name(nombres, "nombre")
+        if nombres_error:
+            errores["nombres"] = nombres_error
+
+        apellidos_error = _validate_person_name(apellidos, "apellido")
+        if apellidos_error:
+            errores["apellidos"] = apellidos_error
 
         # Guardar la foto temporalmente en disco
         if request.FILES.get("foto"):
@@ -973,12 +1012,34 @@ def register_step_1(request):
             request.session["foto_temp_path"] = temp_path
         elif not request.session.get("foto_temp_path"):
             # Fallback de servidor por si se omite validación en cliente.
+            errores["foto"] = "Foto obligatoria."
+
+        if errores:
+            foto_temp_path = request.session.get("foto_temp_path")
+            has_temp_photo = bool(foto_temp_path and os.path.exists(foto_temp_path))
+            foto_preview_url = None
+            foto_preview_version = None
+            if has_temp_photo:
+                foto_preview_url = f"{settings.MEDIA_URL}temp_registros/{os.path.basename(foto_temp_path)}"
+                foto_preview_version = int(os.path.getmtime(foto_temp_path))
+
             return render(request, "register.html", {
-                "valores": request.session.get("register_step_1", {}),
-                "has_temp_photo": False,
-                "foto_error": "Foto obligatoria.",
-            # Paso de apoyo dentro del flujo principal de la funcionalidad.
+                "valores": valores,
+                "errores": errores,
+                "has_temp_photo": has_temp_photo,
+                "foto_preview_url": foto_preview_url,
+                "foto_preview_version": foto_preview_version,
+                "foto_error": errores.get("foto"),
             })
+
+        # Guardar datos paso 1 en sesión (método estándar Django)
+        request.session["register_step_1"] = {
+            "tdocumento": tdocumento,
+            "documento": documento,
+            "nombres": nombres,
+            # Paso de apoyo dentro del flujo principal de la funcionalidad.
+            "apellidos": apellidos,
+        }
 
         return redirect("usuarios:register2")
 
@@ -1067,8 +1128,8 @@ def register_step_2(request):
             errores["telefono"] = "Este teléfono ya está registrado."
 
         # Validar descripción de perfil
-        if len(descripcion) > 120:
-            errores["descripcion"] = "La descripción no debe superar 120 caracteres."
+        if len(descripcion) > 100:
+            errores["descripcion"] = "La descripción no debe superar 100 caracteres."
 
         # Si hay errores, retornar a la plantilla con los mensajes
         if errores:
@@ -1267,7 +1328,7 @@ def restablecer_contrasena(request):
                 registro = Register.objects.get(correo_electronico=email_sesion)
 
                 if not registro.codigo_reset:
-                    errores["codigo"] = "El codigo no es valido o ya fue utilizado. Solicita uno nuevo."
+                    errores["codigo"] = "El código no es válido o ya fue utilizado. Solicita uno nuevo."
                 
                 # Verificar que el código sea correcto
                 elif registro.codigo_reset != codigo:

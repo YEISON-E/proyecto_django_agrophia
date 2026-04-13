@@ -192,7 +192,7 @@ document.addEventListener("DOMContentLoaded", function () {
             try {
                 const result = await submitFormWithCsrf(pendingForm);
                 if (result && result.requires_admin_message) {
-                    showFeedback("Este producto fue deshabilitado por el administrador si desea activarlo por favor enviar un mensaje al administrador.");
+                    showFeedback("Este producto fue deshabilitado por el administrador; si desea activarlo, por favor envíe un mensaje al administrador.");
                     const requestUrl = pendingForm.dataset.requestUrl || "";
                     if (requestUrl && adminModal && adminForm) {
                         closeOverlay();
@@ -201,7 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             } catch (error) {
-                showFeedback("No se pudo completar la accion. Recarga la pagina e intenta de nuevo.");
+                showFeedback("No se pudo completar la acción. Recarga la página e intenta de nuevo.");
             } finally {
                 confirmButton.disabled = false;
                 closeOverlay();

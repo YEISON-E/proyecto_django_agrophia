@@ -10,7 +10,7 @@
 /* Contenedor que organiza las cards en grilla */
 .card-home__container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 280px));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 260px));
   gap: clamp(12px, 2vw, 24px);
   width: 100%;
   padding: 24px;
@@ -40,7 +40,7 @@
     grid-template-columns: repeat(3, minmax(230px, 1fr));
   }
 }
-
+/* Cambia la cantidad de columnas a 4 en pantallas grandes para aprovechar mejor el espacio y mostrar más productos sin necesidad de hacer scroll horizontal. */
 @media (min-width: 1024px) {
   .card-home__container--single-row {
     grid-template-columns: repeat(4, minmax(230px, 1fr));

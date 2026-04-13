@@ -13,7 +13,7 @@ class Register(models.Model):
     departamento = models.CharField(max_length=100)
     municipio = models.CharField(max_length=100)
     direccion_completa = models.CharField(max_length=255)
-    descripcion_perfil = models.CharField(max_length=120, null=True, blank=True)
+    descripcion_perfil = models.CharField(max_length=100, null=True, blank=True)
     contrasena = models.CharField(max_length=255)
     estado = models.CharField(max_length=20, default="activo")
     
@@ -23,6 +23,10 @@ class Register(models.Model):
 
     # Campo para persistir validación de código admin
     admin_code_validated = models.BooleanField(default=False)
+
+    # Seguridad de inicio de sesion
+    failed_login_attempts = models.PositiveSmallIntegerField(default=0)
+    blocked_until = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.nombres} {self.apellidos} - {self.numero_documento}"

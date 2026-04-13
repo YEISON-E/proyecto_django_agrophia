@@ -200,6 +200,7 @@ document.addEventListener("DOMContentLoaded", () => {
     button.addEventListener("click", async () => {
       const productName = button.dataset.productName || "este producto";
       const currentQuantity = button.dataset.currentQuantity || "1";
+      const availableStock = Number.parseInt(button.dataset.availableStock || "0", 10);
       const endpoint = button.dataset.updateEndpoint;
 
       const quantity = await requestProductQuantity({ productName, currentQuantity });
@@ -209,6 +210,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!Number.isInteger(quantity) || quantity < 1) {
         showTemporaryAlert("Ingresa una cantidad valida mayor que 0.", true);
+        return;
+      }
+
+      if (Number.isInteger(availableStock) && availableStock >= 0 && quantity > availableStock) {
+        showTemporaryAlert(`Solo hay ${availableStock} unidades disponibles para este producto.`, true);
         return;
       }
 

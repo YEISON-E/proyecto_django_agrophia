@@ -1,0 +1,111 @@
+
+{% load static l10n %}
+<link rel="stylesheet" href="{% static 'css/producto_editar_card.css' %}">
+<div class="product-detail-main">
+  <div class="product-detail-title">Editar producto</div>
+  <form id="product-edit-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="product-detail-grid">
+      <div class="product-detail-field">
+        <div class="product-detail-label">ID producto</div>
+        <div class="product-detail-value">{{ producto.id }}</div>
+      </div>
+      <div class="product-detail-field">
+        <div class="product-detail-label">Nombre</div>
+        <div class="product-detail-value"><input type="text" name="nombre" value="{{ valores.nombre|default:'' }}" required></div>
+      </div>
+      <div class="product-detail-field">
+        <div class="product-detail-label">Tipo</div>
+        <div class="product-detail-value">
+          <select name="tipo" id="tipo" required>
+            <option value="">Seleccione...</option>
+            {% for value, label in tipo_choices %}
+              <option value="{{ value }}" {% if valores.tipo == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="product-detail-field">
+        <div class="product-detail-label">Tipo (si seleccionaste Otros)</div>
+        <div class="product-detail-value"><input type="text" name="tipo_otro" value="{{ valores.tipo_otro|default:'' }}"></div>
+      </div>
+      <div class="product-detail-field">
+        <div class="product-detail-label">Unidad</div>
+        <div class="product-detail-value">
+          <select name="unidad" required>
+            <option value="">Seleccione...</option>
+            {% for value, label in unidad_choices %}
+              <option value="{{ value }}" {% if valores.unidad == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="product-detail-field">
+        <div class="product-detail-label">Precio</div>
+        <div class="product-detail-value"><input type="number" name="precio" value="{{ valores.precio|unlocalize|default:'' }}" min="1" step="0.01" required></div>
+      </div>
+      <div class="product-detail-field">
+        <div class="product-detail-label">Cantidad disponible</div>
+        <div class="product-detail-value"><input type="number" name="stock" value="{{ valores.stock|default:'' }}" min="1" step="1" required></div>
+      </div>
+      <div class="product-detail-field">
+        <div class="product-detail-label">Tiempo de durabilidad</div>
+        <div class="product-detail-value"><input type="text" name="tiempo_durabilidad" value="{{ valores.tiempo_durabilidad|default:'' }}" required></div>
+      </div>
+      <div class="product-detail-field product-detail-field--full">
+        <div class="product-detail-label">Descripci&oacute;n</div>
+        <div class="product-detail-value"><textarea name="descripcion" required>{{ valores.descripcion|default:'' }}</textarea></div>
+      </div>
+      <div class="product-detail-field product-detail-field--full">
+        <div class="product-detail-label">Im&aacute;genes actuales</div>
+        <div class="product-detail-value product-detail-images">
+          {% for image in existing_images %}
+            <div class="product-detail-image-item" data-image-item>
+              <button type="button" class="product-image-delete-btn" data-image-delete aria-label="Eliminar imagen" title="Eliminar imagen">&times;</button>
+              <img src="{{ image.image.url }}" alt="Imagen del producto" class="product-detail-image-thumb">
+              <input type="checkbox" name="delete_images" value="{{ image.id }}" class="product-image-delete-input" hidden>
+            </div>
+          {% empty %}
+            <p>No hay im&aacute;genes registradas.</p>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="product-detail-field product-detail-field--full">
+        <div class="product-detail-label">Agregar nuevas im&aacute;genes</div>
+        <div class="product-detail-value">
+          <input type="file" id="new-images-input" name="new_images" accept="image/*" multiple {% if not can_upload_more_images %}disabled{% endif %}>
+          <div class="product-images-helper" id="images-limit-info">M&aacute;ximo 8 im&aacute;genes en total (actuales + nuevas).</div>
+          <div class="product-new-images-preview" id="new-images-preview"></div>
+        </div>
+      </div>
+    </div>
+
+    {% if errores %}
+      <div class="form-error" style="margin-top:12px;">
+        {{ errores.fotos }} {{ errores.nombre }} {{ errores.tipo }} {{ errores.tipo_otro }} {{ errores.unidad }} {{ errores.precio }} {{ errores.stock }} {{ errores.descripcion }} {{ errores.tiempo_durabilidad }}
+      </div>
+    {% endif %}
+
+    <div class="shop-edit-footer">
+      <a href="{% if request.GET.from == 'detail' %}{% url 'administrador:producto_admin_detalle' producto.id %}{% else %}{% url 'administrador:producs_page' %}{% endif %}" class="shop-edit-cancel">&larr; Volver</a>
+      <button type="submit" class="shop-edit-btn">Guardar cambios</button>
+    </div>
+
+    {% if success %}
+      <div class="editar-producto-success">Producto editado exitosamente.</div>
+    {% endif %}
+  </form>
+
+  <div class="shop-confirm-modal" id="product-edit-confirm-modal" aria-hidden="true">
+    <div class="shop-confirm-modal__backdrop" data-product-confirm-close></div>
+    <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="product-edit-confirm-title" aria-describedby="product-edit-confirm-text">
+      <h3 class="shop-confirm-modal__title" id="product-edit-confirm-title">Confirmar cambios</h3>
+      <p class="shop-confirm-modal__text" id="product-edit-confirm-text">&iquest;Deseas guardar los cambios del producto?</p>
+      <div class="shop-confirm-modal__actions">
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="product-edit-confirm-cancel">Cancelar</button>
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="product-edit-confirm-accept">S&iacute;, guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{% static 'js/productos_editar_admin.js' %}"></script>

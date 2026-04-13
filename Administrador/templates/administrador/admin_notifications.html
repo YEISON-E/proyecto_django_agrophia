@@ -1,0 +1,354 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+  
+  <meta charset="UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Mensajes Recibidos</title>
+  
+  <link rel="icon" href="{% static 'icons/planta.png' %}">
+  
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  
+  <link rel="stylesheet" href="{% static 'css/admin_notifications.css' %}">
+
+</head>
+
+<body class="admin-page-shell admin-notifications-page" style="background: #f8fafc;">
+  
+  <div class="govco-container__one">
+    
+    {% include 'components/gov-co__one.html' %}
+  
+  </div>
+
+  
+  {% include 'administrador/componentes/toolbar_home.html' %}
+
+  
+  <main class="admin-page-main admin-notifications">
+    
+    <div class="admin-notifications__header">
+      
+      <h1 class="admin-notifications__title">Mensajes recibidos</h1>
+      
+      <p class="admin-notifications__subtitle">Solicitudes enviadas por agricultores sobre productos deshabilitados.</p>
+      
+      <button type="button" class="admin-notifications__back" id="admin-notifications-back" data-fallback-url="{% url 'administrador:home_admin' %}">&larr; Volver</button>
+    
+    </div>
+
+    
+    {% if messages %}
+    
+    <div class="admin-notifications__flash-list">
+      
+      {% for message in messages %}
+      
+      <div class="admin-notifications__flash admin-notifications__flash--{{ message.tags|default:'info' }}">{{ message }}</div>
+      
+      {% endfor %}
+    
+    </div>
+    
+    {% endif %}
+
+    
+    <section class="admin-notifications__list">
+      
+      {% for notification in notifications %}
+      
+      <article class="admin-notifications__card {% if not notification.is_read %}admin-notifications__card--unread{% endif %}">
+        
+        <div class="admin-notifications__meta">
+          
+          <span class="admin-notifications__type">{{ notification.get_notification_type_display }}</span>
+          
+          <span class="admin-notifications__date">{{ notification.created_at|date:'d/m/Y H:i' }}</span>
+        
+        </div>
+
+        
+        <h2 class="admin-notifications__sender">
+          
+          {% if notification.sender_register %}
+            
+            {{ notification.sender_register.nombres }} {{ notification.sender_register.apellidos }}
+          
+          {% else %}
+            
+            Usuario #{{ notification.sender_user_id }}
+          
+          {% endif %}
+        
+        </h2>
+
+        
+        {% if notification.product %}
+        
+        <p class="admin-notifications__product">
+          
+          <strong>Producto:</strong> {{ notification.product.nombre }}
+        
+        </p>
+        
+        {% endif %}
+
+        
+        <p class="admin-notifications__message">{{ notification.message }}</p>
+
+        
+        <details class="admin-notifications__details">
+          
+          <summary class="admin-notifications__details-trigger">Ver m&aacute;s detalles</summary>
+          
+          <div class="admin-notifications__details-content">
+            
+            <div class="admin-notifications__details-top">
+              
+              <p class="admin-notifications__id-line"><strong>ID notificaci&oacute;n:</strong> {{ notification.id }}</p>
+              
+              {% if notification.notification_type == 'blocked_login_attempt' %}
+                
+                {% if notification.sender_register or notification.sender_user %}
+                
+                <form method="post" action="{% url 'administrador:admin_notification_unblock_user' notification.id %}" data-confirm-message="&iquest;Seguro que deseas desbloquear este usuario?" class="admin-notifications__inline-unblock">
+                  
+                  {% csrf_token %}
+                  
+                  <button type="submit" class="admin-notifications__btn admin-notifications__btn--success">Desbloquear usuario</button>
+                
+                </form>
+                
+                {% endif %}
+              {% elif notification.notification_type == 'product_reactivation' and notification.product %}
+                <form method="post" action="{% url 'administrador:admin_notification_unblock_product' notification.id %}" data-confirm-message="&iquest;Seguro que deseas desbloquear y habilitar este producto?" class="admin-notifications__inline-unblock">
+                  {% csrf_token %}
+                  <button type="submit" class="admin-notifications__btn admin-notifications__btn--success">Desbloquear producto</button>
+                </form>
+              
+              {% endif %}
+            
+            </div>
+            
+            <p><strong>Fecha de env&iacute;o:</strong> {{ notification.created_at|date:'d/m/Y H:i:s' }}</p>
+            
+            {% if notification.sender_register %}
+              
+              <p><strong>ID usuario:</strong> {{ notification.sender_register.id_usuario }}</p>
+              
+              <p><strong>Documento:</strong> {{ notification.sender_register.tipo_documento }} {{ notification.sender_register.numero_documento }}</p>
+              
+              <p><strong>Correo:</strong> {{ notification.sender_register.correo_electronico|default:'No registrado' }}</p>
+              
+              <p><strong>Tel&eacute;fono:</strong> {{ notification.sender_register.telefono|default:'No registrado' }}</p>
+              
+              <p><strong>Ubicaci&oacute;n:</strong> {{ notification.sender_register.departamento|default:'-' }}, {{ notification.sender_register.municipio|default:'-' }}</p>
+            
+            {% elif notification.sender_user %}
+              
+              <p><strong>ID usuario:</strong> {{ notification.sender_user.id }}</p>
+              
+              <p><strong>Usuario:</strong> {{ notification.sender_user.username }}</p>
+              
+              <p><strong>Correo:</strong> {{ notification.sender_user.email|default:'No registrado' }}</p>
+            
+            {% else %}
+              
+              <p><strong>Remitente:</strong> Usuario no disponible.</p>
+            
+            {% endif %}
+
+            
+            <div class="admin-notifications__details-actions">
+              
+              <form method="post" action="{% url 'administrador:admin_notification_reply' notification.id %}" class="admin-notifications__reply-form" data-confirm-message="&iquest;Confirmas el env&iacute;o de esta respuesta al correo del usuario?">
+                
+                {% csrf_token %}
+                
+                <label for="reply_message_{{ notification.id }}" class="admin-notifications__reply-label">Responder al usuario</label>
+                
+                <textarea id="reply_message_{{ notification.id }}" name="reply_message" class="admin-notifications__reply-textarea" rows="3" required placeholder="Escribe tu respuesta"></textarea>
+                
+                <button type="submit" class="admin-notifications__btn admin-notifications__btn--primary">Enviar respuesta</button>
+              
+              </form>
+            
+            </div>
+          
+          </div>
+        
+        </details>
+
+        
+        <div class="admin-notifications__actions">
+          
+          {% if notification.product %}
+          
+          <a href="{% url 'administrador:producto_admin_detalle' notification.product.id %}?from=notifications" class="admin-notifications__btn admin-notifications__btn--secondary">Ver producto</a>
+          
+          {% endif %}
+          
+          {% if not notification.is_read %}
+          
+          <form method="post" action="{% url 'administrador:admin_notification_mark_read' notification.id %}">
+            
+            {% csrf_token %}
+            
+            <button type="submit" class="admin-notifications__btn admin-notifications__btn--primary">Marcar como le&iacute;do</button>
+          
+          </form>
+          
+          {% else %}
+          
+          <span class="admin-notifications__read-label">Le&iacute;do</span>
+          
+          {% endif %}
+        
+        </div>
+      
+      </article>
+      
+      {% empty %}
+      
+      <p class="admin-notifications__empty">No hay mensajes recibidos por ahora.</p>
+      
+      {% endfor %}
+    
+    </section>
+  
+  </main>
+
+  
+  <footer class="footer-container">
+    
+    {% include 'components/footer.html' %}
+  
+  </footer>
+
+  
+  <div class="govco-container__two">
+    
+    {% include 'components/gov-co__one.html' %}
+  
+  </div>
+
+  
+  <script>
+    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+    document.addEventListener('DOMContentLoaded', function () {
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      const backButton = document.getElementById('admin-notifications-back');
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      if (!backButton) {
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        return;
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      }
+
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      backButton.addEventListener('click', function () {
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        const fallbackUrl = backButton.getAttribute('data-fallback-url') || '/administrador/home/';
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        window.location.href = fallbackUrl;
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      });
+
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      const confirmForms = document.querySelectorAll('form[data-confirm-message]');
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      confirmForms.forEach(function (form) {
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        form.addEventListener('submit', function (event) {
+          // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+          // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+          const confirmText = form.getAttribute('data-confirm-message') || '&iquest;Confirmas esta acci&oacute;n?';
+          // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+          // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+          if (!window.confirm(confirmText)) {
+            // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+            // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+            event.preventDefault();
+          // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+          // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+          }
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        });
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      });
+
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      const replyTextareas = document.querySelectorAll('.admin-notifications__reply-textarea');
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      const autoResize = function (textarea) {
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        textarea.style.height = 'auto';
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        const maxHeight = 220;
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        const nextHeight = Math.min(textarea.scrollHeight, maxHeight);
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        textarea.style.height = nextHeight + 'px';
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        textarea.style.overflowY = textarea.scrollHeight > maxHeight ? 'auto' : 'hidden';
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      };
+
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      replyTextareas.forEach(function (textarea) {
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        autoResize(textarea);
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        textarea.addEventListener('input', function () {
+          // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+          // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+          autoResize(textarea);
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        });
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+      });
+    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+    });
+// L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+// Finaliza el bloque de l&oacute;gica JavaScript.
+  </script>
+
+</body>
+
+</html>

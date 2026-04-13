@@ -22,7 +22,7 @@
   <img src="{% if first_image %}{{ first_image.image.url }}{% else %}{% static 'icons/planta.png' %}{% endif %}" alt="{{ product.nombre }}" class="card-home__img">
   {% endwith %}
   <div class="card-home__info">
-    <p class="card-home__price">$ {{ product.precio }}</p>
+    <p class="card-home__price">$ {{ product.precio }} <span class="card-price__unit">/ {{ product.get_unidad_display }}</span></p>
     <p class="card-home__name">{{ product.nombre }}</p>
   </div>
 

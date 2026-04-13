@@ -1,7 +1,8 @@
-<div class="messages">
+{% load static %}
+
+<div class="messages messages--sent">
   <div class="messages__header">
     <h2 class="messages__title">Bandeja de Mensajes</h2>
-    <p class="messages__subtitle">Mensajes recibidos de tus clientes</p>
   </div>
 
   <div class="messages__layout {% if selected_conversation %}messages__layout--chat-open{% endif %}">
@@ -14,7 +15,12 @@
           <div class="messages__contact-body">
             <div class="messages__contact-main">
               <span class="messages__contact-name">{{ chat.sender.first_name|default:chat.sender.username }}</span>
-              <span class="messages__contact-date">{{ chat.last_message_at|date:"d/m/Y" }}</span>
+              <span class="messages__contact-side">
+                <span class="messages__contact-date">{{ chat.last_message_at|date:"d/m/Y" }}</span>
+                {% if chat.last_status_label %}
+                <span class="messages__contact-status messages__contact-status--{{ chat.last_status }}">{{ chat.last_status_label }}</span>
+                {% endif %}
+              </span>
             </div>
             <div class="messages__contact-meta">
               <span class="messages__contact-preview">{{ chat.last_preview|default:"Sin mensajes" }}</span>
@@ -33,12 +39,21 @@
     <section class="messages__chat-panel">
       {% if selected_conversation %}
       <header class="messages__chat-header">
-        <a href="{% url 'mensajes:farmer_messages' %}?view=list" class="messages__chat-back" aria-label="Volver a conversaciones">← Volver</a>
+        <a href="{% url 'mensajes:farmer_messages' %}?view=list" class="messages__chat-back" aria-label="Volver a conversaciones" title="Volver a conversaciones">
+          <img src="{% static 'icons/back.svg' %}" alt="" class="messages__chat-back-icon" aria-hidden="true">
+        </a>
         <div class="messages__chat-avatar">{{ selected_conversation.sender.first_name|default:selected_conversation.sender.username|slice:":1"|upper }}</div>
         <div class="messages__chat-user">
           <h3 class="messages__chat-title">{{ selected_conversation.sender.first_name|default:selected_conversation.sender.username }}</h3>
           <p class="messages__chat-subtitle">{{ selected_messages|length }} mensaje{{ selected_messages|length|pluralize }}</p>
         </div>
+        <form method="post" action="{% url 'mensajes:delete_farmer_conversation' %}" class="messages__chat-delete-form" data-delete-message-form>
+          {% csrf_token %}
+          <input type="hidden" name="sender_id" value="{{ selected_conversation.sender.id }}">
+          <button type="submit" class="messages__chat-delete" aria-label="Eliminar chat actual" title="Eliminar chat">
+            <img src="{% static 'icons/trash.svg' %}" alt="" class="messages__chat-delete-icon" aria-hidden="true">
+          </button>
+        </form>
       </header>
 
       <div class="messages__conversation">
@@ -69,10 +84,9 @@
       <form method="post" action="{% url 'mensajes:reply_conversation' selected_conversation.sender.id %}" class="messages__reply messages__reply--composer">
         {% csrf_token %}
         <textarea name="reply" class="messages__reply-text" placeholder="Escribe tu respuesta para este chat..." required></textarea>
-        <div class="messages__row-buttons">
-          <button type="submit" name="action" value="reject" formnovalidate class="messages__row-buttons--back">Rechazar pendientes</button>
-          <button type="submit" name="action" value="reply" class="messages__row-buttons--next">Responder chat</button>
-        </div>
+        <button type="submit" name="action" value="reply" class="messages__send-icon-btn" aria-label="Enviar mensaje" title="Enviar mensaje">
+          <img src="{% static 'icons/send-2.svg' %}" alt="" class="messages__send-icon" aria-hidden="true">
+        </button>
       </form>
       {% else %}
       <div class="messages__empty-state">
@@ -80,5 +94,17 @@
       </div>
       {% endif %}
     </section>
+  </div>
+
+  <div id="delete-message-modal" class="client-messages-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="delete-message-modal-title">
+    <div class="client-messages-modal__backdrop" data-close-delete-modal></div>
+    <div class="client-messages-modal__dialog">
+      <h3 id="delete-message-modal-title" class="client-messages-modal__title">Eliminar chat</h3>
+      <p class="client-messages-modal__text">Esta acción eliminará todos los mensajes de esta conversación. ¿Deseas continuar?</p>
+      <div class="client-messages-modal__actions">
+        <button type="button" class="client-messages-modal__btn client-messages-modal__btn--cancel" id="delete-modal-cancel" data-close-delete-modal>Cancelar</button>
+        <button type="button" class="client-messages-modal__btn client-messages-modal__btn--confirm" id="delete-modal-confirm">Eliminar</button>
+      </div>
+    </div>
   </div>
 </div>

@@ -1,0 +1,200 @@
+/* Estilo inspirado en usuario_detalle_card.css para editar tienda */
+.shop-edit-main {
+  max-width: 760px;
+  margin: 32px auto;
+  background: #f3f4f8;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgba(60,60,120,0.10);
+  padding: 24px 18px 18px 18px;
+  color: #232323;
+  border: 1px solid #e5e7eb;
+}
+.shop-edit-grid {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 8px 10px;
+  align-items: start;
+  margin-bottom: 12px;
+}
+.shop-edit-grid--two-cols {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 12px;
+}
+
+.shop-edit-grid--two-cols .shop-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.shop-edit-grid--two-cols .shop-edit-field--full {
+  grid-column: 1 / -1;
+}
+
+.shop-edit-grid--two-cols .shop-edit-label {
+  width: fit-content;
+  max-width: 100%;
+  display: inline-block;
+  align-self: flex-start;
+}
+.shop-edit-label {
+  font-weight: 600;
+  color: #232323;
+  margin-bottom: 0;
+  font-size: 0.92em;
+  border-bottom: 2px solid #16a34a;
+  display: inline-block;
+  width: 138px;
+  max-width: 138px;
+  padding-bottom: 1px;
+}
+
+.shop-edit-grid--order-detail .shop-edit-label {
+  width: 100%;
+  justify-self: start;
+  display: block;
+}
+
+.shop-edit-grid--order-detail {
+  grid-template-columns: minmax(160px, 0.55fr) minmax(0, 1.45fr);
+  column-gap: 12px;
+}
+
+.order-page-center-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 24px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+}
+
+.order-page-center-shell .shop-edit-main {
+  width: min(100%, 760px);
+}
+
+.shop-edit-value {
+  color: #232323;
+  font-size: 0.98em;
+  background: #e5e7eb;
+  border-radius: 6px;
+  padding: 5px 9px;
+  margin-bottom: 0;
+  word-break: break-word;
+  box-shadow: 0 1px 2px 0 rgba(60,60,120,0.03);
+  border: 1px solid #d1d5db;
+}
+.shop-edit-value input,
+.shop-edit-value textarea,
+.shop-edit-value select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.3em 0.7em;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 1em;
+  background: #f3f4f8;
+  color: #232323;
+  box-shadow: 0 1px 2px 0 rgba(60,60,120,0.03);
+  margin-bottom: 0;
+  transition: border 0.18s, box-shadow 0.18s;
+  max-width: 100%;
+  min-width: 0;
+  display: block;
+}
+.shop-edit-value input:focus,
+.shop-edit-value textarea:focus,
+.shop-edit-value select:focus {
+  border: 1.5px solid #16a34a;
+  outline: none;
+  box-shadow: 0 2px 8px 0 rgba(22,163,74,0.10);
+  background: #fff;
+}
+.shop-edit-footer {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(99, 102, 241, 0.14);
+}
+.shop-edit-btn, .shop-edit-cancel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(90deg, #16a34a 60%, #4ade80 100%);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  width: 240px;
+  min-width: 240px;
+  max-width: 240px;
+  padding: 12px 24px;
+  font-size: 1em;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(60,60,120,0.14);
+  letter-spacing: 0.02em;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.18s;
+  outline: none;
+  cursor: pointer;
+}
+.shop-edit-cancel {
+  background: linear-gradient(90deg, #515151 60%, #6b7280 100%);
+}
+.shop-edit-btn:hover, .shop-edit-cancel:hover {
+  background: linear-gradient(90deg, #15803d 60%, #16a34a 100%);
+  color: #fff;
+  box-shadow: 0 16px 30px rgba(60,60,120,0.18);
+  transform: translateY(-2px);
+}
+.shop-edit-cancel:hover {
+  background: linear-gradient(90deg, #3b3b3b 60%, #515151 100%);
+}
+.shop-edit-action-icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+.shop-edit-btn--products {
+  justify-content: center;
+}
+
+.shop-edit-btn--products .shop-edit-btn__label {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+@media (max-width: 640px) {
+  .order-page-center-shell {
+    padding: 16px 12px;
+  }
+
+  .shop-edit-grid--two-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .shop-edit-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .shop-edit-btn,
+  .shop-edit-cancel {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 980px) {
+  .shop-edit-grid--two-cols {
+    grid-template-columns: 1fr;
+  }
+}

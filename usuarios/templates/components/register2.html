@@ -6,25 +6,26 @@
   <h2 class="form__title">Formulario de Registro</h2>
   <!-- Contenedor de errores del servidor -->
   {% if errores.documento %}
-  <div class="input-error" style="display: block; margin-bottom: 20px; padding: 10px; background-color: var(--gray-800); border-left: 4px solid var(--black); border-radius: 4px;"> {{ errores.documento }}</div>
+  <div class="input-error is-visible" style="display: block; margin-bottom: 20px; padding: 10px; background-color: var(--gray-800); border-left: 4px solid var(--black); border-radius: 4px;"> {{ errores.documento }}</div>
   {% endif %}
-  <form id="register-form" method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group2">
+  <form id="register-form" method="POST" onsubmit="mostrarAlerta(event)" class="form-content__group2" autocomplete="on">
   {% csrf_token %}
+    <input type="hidden" name="action" id="register-step2-action" value="submit">
     
 
     <div class="form__group">
       <label for="email" class="form__label">Correo Electrónico</label>
-      <input type="email" name="email" class="form__input" placeholder="Correo Electrónico" value="{{ valores.email }}">
+      <input type="email" name="email" class="form__input" placeholder="Correo Electrónico" value="{{ valores.email }}" autocomplete="email">
       {% if errores.email %}
-      <div class="input-error">{{ errores.email }}</div>
+      <div class="input-error is-visible">{{ errores.email }}</div>
       {% endif %}
     </div>
 
     <div class="form__group">
       <label for="telefono" class="form__label">Teléfono</label>
-      <input type="tel" name="telefono" class="form__input" placeholder="Teléfono" value="{{ valores.telefono }}">
+      <input type="tel" name="telefono" class="form__input" placeholder="Teléfono" value="{{ valores.telefono }}" autocomplete="tel" inputmode="numeric" maxlength="10" pattern="\d{10}" title="Ingresa 10 dígitos numéricos">
       {% if errores.telefono %}
-      <div class="input-error">{{ errores.telefono }}</div>
+      <div class="input-error is-visible">{{ errores.telefono }}</div>
       {% endif %}
     </div>
 
@@ -48,19 +49,19 @@
       
     <div class="form__group">
       <label for="direccion" class="form__label">Dirección completa</label>
-      <input type="text" class="form__input" name="direccion" placeholder="Dirección completa" value="{{ valores.direccion }}">
+      <input type="text" class="form__input" name="direccion" placeholder="Dirección completa" value="{{ valores.direccion }}" autocomplete="street-address">
     </div>
     
     <div class="register__group-textarea">
           <label class="profile-update__label" for="input-descripcion">Descripción de perfil (opcional)</label>
-          <textarea id="input-direccion" class="register__textarea" type="text" name="descripcion" placeholder="Máximo 120 caracteres" maxlength="120" autocomplete="street-address">{{ valores.descripcion }}</textarea>
+          <textarea id="input-descripcion" class="register__textarea" type="text" name="descripcion" placeholder="Máximo 100 caracteres" maxlength="100" autocomplete="street-address">{{ valores.descripcion }}</textarea>
           {% if errores.descripcion %}
-          <div class="input-error">{{ errores.descripcion }}</div>
+          <div class="input-error is-visible">{{ errores.descripcion }}</div>
           {% endif %}
         </div>
     <div class="form__group">
       <label for="id_password" class="form__label">Contraseña</label>
-      <input id="id_password" type="password" name="password" class="form__input" placeholder="Contraseña" required>
+      <input id="id_password" type="password" name="password" class="form__input" placeholder="Contraseña" autocomplete="new-password" maxlength="20" required>
       <div id="error-password" class="input-error" style="display: none;">
         {% if errores.password %}{{ errores.password }}{% endif %}
       </div>
@@ -73,7 +74,7 @@
   
     <div class="form__group">
         <label for="id_confirm_password" class="form__label">Confirmar Contraseña</label>
-        <input id="id_confirm_password" type="password" name="confirm_password" class="form__input" placeholder="Confirmar Contraseña" required>
+      <input id="id_confirm_password" type="password" name="confirm_password" class="form__input" placeholder="Confirmar Contraseña" autocomplete="new-password" maxlength="20" required>
         <div id="error-confirm-password" class="input-error" style="display: none;">
           {% if errores.confirm_password %}{{ errores.confirm_password }}{% endif %}
         </div>
@@ -89,10 +90,7 @@
 
 
    <div class="form-content__register--row-buttons">
-     <a href="{% url 'usuarios:register' %}"
-     class="form-content__register--row-buttons__back">
-     Volver
-    </a>
+    <button type="submit" form="register-form" formnovalidate class="form-content__register--row-buttons__back" onclick="document.getElementById('register-step2-action').value='back'">Volver</button>
     <button type="submit" form="register-form" class="form-content__register--row-buttons__next">Registrarse</button>
     </div>
 

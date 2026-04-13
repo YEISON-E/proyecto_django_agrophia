@@ -52,6 +52,20 @@
   margin-bottom: 8px;
 }
 
+.card-disable__price .card-price__unit {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.68em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--gray-700);
+  background: rgba(15, 23, 42, 0.08);
+  vertical-align: middle;
+}
+
 .card-disable__name {
   font-size: var(--fs-xs);
   font-weight: 500;

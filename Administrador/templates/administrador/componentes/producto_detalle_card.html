@@ -1,0 +1,103 @@
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/producto_detalle_card.css' %}">
+<div class="product-detail-main">
+  <div class="product-detail-title">Detalle de producto</div>
+  <div class="product-detail-grid">
+    <div class="product-detail-field">
+      <div class="product-detail-label">ID producto</div>
+      <div class="product-detail-value">{{ producto.id }}</div>
+    </div>
+    <div class="product-detail-field">
+      <div class="product-detail-label">Nombre</div>
+      <div class="product-detail-value">{{ producto.nombre }}</div>
+    </div>
+    <div class="product-detail-field">
+      <div class="product-detail-label">Tipo</div>
+      <div class="product-detail-value">{{ producto.tipo }}{% if producto.tipo == 'Otros' and producto.tipo_otro %} ({{ producto.tipo_otro }}){% endif %}</div>
+    </div>
+    <div class="product-detail-field">
+      <div class="product-detail-label">Unidad</div>
+      <div class="product-detail-value">{{ producto.unidad }}</div>
+    </div>
+    <div class="product-detail-field">
+      <div class="product-detail-label">Precio</div>
+      <div class="product-detail-value">${{ producto.precio }}</div>
+    </div>
+    <div class="product-detail-field">
+      <div class="product-detail-label">Cantidad disponible</div>
+      <div class="product-detail-value">{{ producto.stock }}</div>
+    </div>
+    <div class="product-detail-field">
+      <div class="product-detail-label">Tiempo de durabilidad</div>
+      <div class="product-detail-value">{{ producto.tiempo_durabilidad }}</div>
+    </div>
+    <div class="product-detail-field">
+      <div class="product-detail-label">Estado</div>
+      <div class="product-detail-value">{% if producto.is_active %}Activo{% else %}Inactivo{% endif %}</div>
+    </div>
+    <div class="product-detail-field product-detail-field--full">
+      <div class="product-detail-label">Descripci&oacute;n</div>
+      <div class="product-detail-value">{{ producto.descripcion }}</div>
+    </div>
+    <div class="product-detail-field product-detail-field--full">
+      <div class="product-detail-label">Im&aacute;genes</div>
+      <div class="product-detail-value product-detail-images">
+        {% for image in producto.images.all %}
+          <img src="{{ image.image.url }}" alt="Imagen del producto" class="detalle-producto-img-fixed product-detail-image--zoomable" data-product-zoom-image>
+        {% empty %}
+          <span>No hay im&aacute;genes.</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="shop-edit-footer">
+    <a href="{% if request.GET.from == 'notifications' %}{% url 'administrador:admin_notifications' %}{% else %}{% url 'administrador:producs_page' %}{% endif %}" class="shop-edit-cancel"> Volver</a>
+    <a href="{% url 'administrador:producto_admin_editar' producto.id %}?from=detail" class="shop-edit-btn">
+      <img src="{% static 'icons/edit.svg' %}" alt="Editar" class="shop-edit-action-icon">Editar
+    </a>
+  </div>
+</div>
+
+<div class="product-image-lightbox" id="product-image-lightbox" aria-hidden="true" role="dialog" aria-label="Vista ampliada de imagen de producto">
+  <button type="button" class="product-image-lightbox__close" id="product-image-lightbox-close" aria-label="Cerrar">&times;</button>
+  <img src="" alt="Imagen ampliada" class="product-image-lightbox__img" id="product-image-lightbox-img">
+</div>
+
+<script>(function () {
+const triggerImages = document.querySelectorAll('[data-product-zoom-image]');
+const lightbox = document.getElementById('product-image-lightbox');
+const lightboxImage = document.getElementById('product-image-lightbox-img');
+const closeButton = document.getElementById('product-image-lightbox-close');
+if (!triggerImages.length || !lightbox || !lightboxImage || !closeButton) {
+return;
+}
+const openLightbox = (src, altText) => {
+lightboxImage.src = src;
+lightboxImage.alt = altText || 'Imagen ampliada';
+lightbox.setAttribute('aria-hidden', 'false');
+document.body.classList.add('product-lightbox-open');
+};
+const closeLightbox = () => {
+lightbox.setAttribute('aria-hidden', 'true');
+lightboxImage.src = '';
+document.body.classList.remove('product-lightbox-open');
+};
+triggerImages.forEach((img) => {
+img.addEventListener('click', () => {
+openLightbox(img.src, img.alt);
+});
+});
+closeButton.addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', (event) => {
+if (event.target === lightbox) {
+closeLightbox();
+}
+});
+document.addEventListener('keydown', (event) => {
+if (event.key === 'Escape' && lightbox.getAttribute('aria-hidden') === 'false') {
+closeLightbox();
+}
+});
+})();
+</script>

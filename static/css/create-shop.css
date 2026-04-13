@@ -2,16 +2,55 @@
     display: none;
 }
 
+body.create-shop-page {
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+}
+
+.create-shop-page-layout {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    min-height: calc(100dvh - 80px);
+    flex: 1;
+}
+
+body.create-shop-page .govco-container__one,
+body.create-shop-page .govco-container__two {
+    position: relative;
+    z-index: 2;
+}
+
+.page-right__shop {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100dvh - 80px);
+    padding: 16px 12px 24px;
+}
+
+.page__formshop-container {
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* .page__formshop-container {
     height: 50vh;
 } */
 
 .form-shop__content {
-    height: 100vh;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* arriba y centro */
+    justify-content: center;
     box-sizing: border-box;
+    width: 100%;
 }
 
 .form-shop__back {
@@ -41,8 +80,12 @@
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     width: 100%;
-    margin: 32px 24px 64px;
+    margin: 0 auto;
     padding: 24px;
+}
+
+.shop.shop--compact-step2 {
+    width: min(100%, 350px);
 }
 
 .form-shop {
@@ -84,6 +127,12 @@
     width: 100%;
 }
 
+/* Si no hay punto fisico, compactar el bloque del paso 2 para evitar exceso de ancho visual */
+#create-shop-step2-form:not(.show-physical-fields) {
+    width: min(100%, 560px);
+    margin-inline: auto;
+}
+
 /* Cuando hay punto fisico, usar grid de 2 columnas para select + campos */
 #create-shop-step2-form.create-shop-step2--grid {
     display: grid;
@@ -100,16 +149,20 @@
     grid-column: 1 / -1;
 }
 
-#create-shop-step2-form.create-shop-step2--grid .input-error {
-    grid-column: 1 / -1;
-}
-
 .form-shop__group{
     margin: 0;
     display:flex;
     flex-direction:column;
     gap:4px;
+    position: relative;
   
+}
+
+#create-shop-form .form-shop__group .input-error,
+#create-shop-step2-form .form-shop__group .input-error {
+    position: static;
+    margin-top: 6px;
+    z-index: 5;
 }
 .form-shop__label {
     display: block;
@@ -119,6 +172,7 @@
 
 .form-shop__input{
     width: 100%;
+    min-width: 0;
     height: 56px;
     padding: 16px;
     border: 1px solid var(--black);
@@ -154,6 +208,7 @@
 
 .form-shop__description {
     width: 100%;
+    min-width: 0;
     height: 56px;
     padding: 16px;
     border: 1px solid var(--black);
@@ -194,6 +249,7 @@
 
 .form-shop__option {
     width: 100%;
+    min-width: 0;
     height: 56px;
     padding: 16px;
     border: 1px solid var(--gray-400);
@@ -284,23 +340,33 @@
         margin: 0;
     }
 
-    .form-shop__input {
-        min-width: 320px;
-    }
 }
 
-@media (width > 768px){
+@media (width > 640px) and (width <= 762px) {
     .shop {
         width: auto;
     }
 
-    .form-shop__input {
-        min-width: 320px;
+    .form-shop__input,
+    .form-shop__option,
+    .form-shop__description {
+        width: 360px;
+        max-width: 100%;
+    }
+}
+
+@media (width >= 763px){
+    .shop {
+        width: min(100%, 840px);
+    }
+
+    .shop.shop--compact-step2 {
+        width: min(100%, 350px);
     }
 
     .form-shop__body {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   
 }
@@ -311,37 +377,31 @@
         margin: 0;
     }
 
-    .form-shop__input {
-        min-width: 320px;
+    .shop.shop--compact-step2 {
+        width: min(100%, 350px);
     }
 
     .form-shop__body {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   
 }
 
-@media (width > 1280px){
-    .page-left__shop {
-        position: fixed; 
-        top: 0; 
-        left: 0; 
-        width: 35%; 
-        height: 100dvh;   /* altura del viewport dinámico real */
-        overflow: hidden;
+@media (width > 1024px){
+    .create-shop-page-layout {
+        flex-direction: row;
+        align-items: stretch;
+    }
 
-        display: flex;                 
+    .page-left__shop {
+        position: relative;
+        display: flex;
+        width: 38%;
+        min-height: 100%;
+        overflow: hidden;
         justify-content: center;       
         align-items: center;           
-
-        background: 
-            linear-gradient(var(--overlay-dark), var(--overlay-dark)), 
-            url("/frontend/public/img/farmer.jpg");
-
-        background-size: cover;        
-        background-position: center;   
-        background-repeat: no-repeat;
     }
 
     .page__title-left {
@@ -354,13 +414,14 @@
 
 
     .page-right__shop {
-        margin-left: 43%; 
-        width:50%; 
+        width: 62%;
         color: var(--black);
-        display:flex; 
-        flex-direction:row; 
-        align-items:center; 
+        display: flex;
+        flex-direction: row;
+        align-items: center;
         justify-content: center;
+        margin-left: 0;
+        padding: 20px 16px;
     }
 
     .page-right__shop::before, .page-right__shop::after { 
@@ -376,20 +437,21 @@
 
     .form-shop__body {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .shop{
-        width: auto;
+        width: min(100%, 840px);
+        margin: 20px auto;
         padding: 24px;
+    }
+
+    .shop.shop--compact-step2 {
+        width: min(100%, 350px);
     }
 
     .form-shop__group {
         margin: 0;
-    }
-
-    .form-shop__input {
-        width: 320px;
     }
 
     .form-shop__textarea {
@@ -401,5 +463,58 @@
         top: 16px;
         left: 16px;
     }
-    
+}
+
+@media (width > 1280px){
+    .page-left__shop {
+        width: 35%;
+    }
+
+    .page-right__shop {
+        width: 65%;
+    }
+}
+
+@media (width >= 761px) and (width <= 1116px) {
+    #create-shop-step2-form.create-shop-step2--grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    #create-shop-step2-form.create-shop-step2--grid .form-shop__group--time,
+    #create-shop-step2-form.create-shop-step2--grid .form-shop__group--time .form-shop__input {
+        max-width: none;
+        width: 100%;
+    }
+}
+
+@media (max-width: 760px) {
+    #create-shop-step2-form.create-shop-step2--grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (width > 1024px) and (width <= 1181px) {
+    .create-shop-page-layout {
+        flex-direction: column;
+    }
+
+    .page-left__shop {
+        display: none;
+    }
+
+    .page-right__shop {
+        width: 100%;
+        min-height: calc(100dvh - 80px);
+        padding: 20px 16px;
+    }
+
+    .shop {
+        width: min(100%, 840px);
+        margin: 20px auto;
+    }
+
+    .shop.shop--compact-step2 {
+        width: min(100%, 350px);
+    }
 }

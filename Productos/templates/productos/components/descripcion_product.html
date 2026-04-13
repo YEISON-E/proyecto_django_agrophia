@@ -25,10 +25,11 @@
     <p class="product-view__type">Tipo: {% if product.tipo == 'Otros' and product.tipo_otro %}{{ product.tipo_otro }}{% else %}{{ product.tipo }}{% endif %}</p>
     <p class="product-view__unit">Unidad de medida: {{ product.unidad }}</p>
     <p class="product-view__price">$ {{ product.precio }} / {{ product.unidad }}</p>
-    <p class="product-view__guarantee">Garantía: {{ product.garantia }}</p>
+    <p class="product-view__stock">Cantidad disponible: {{ product.stock }}</p>
+    <p class="product-view__guarantee">Durabilidad del producto: {{ product.tiempo_durabilidad }}</p>
 
     <div class="product-view__buttons">
-      <a href="{% url 'carrito_compras:add_to_cart' %}" class="product-view__btn product-view__btn--add" id="add-to-cart-from-description" data-product-id="{{ product.id }}">Agregar al carrito</a>
+      <a href="{% url 'carrito_compras:add_to_cart' %}" class="product-view__btn product-view__btn--add" id="add-to-cart-from-description" data-product-id="{{ product.id }}" data-product-stock="{{ product.stock }}">Agregar al carrito</a>
       <button type="button" class="product-view__btn product-view__btn--message" id="open-seller-message-modal">Enviar mensaje al vendedor</button>
     </div>
 
@@ -40,18 +41,28 @@
     </div>
 
     <div class="product-view__seller">
-      <h2 class="product-view__subtitle">Información del vendedor</h2>
-      <p class="product-view__p"><strong>Nombre:</strong> {% if product.shop %}{{ product.shop.nombre }}{% else %}Agricultor{% endif %}</p>
-      <p class="product-view__p"><strong>Ubicación:</strong> {% if product.shop %}{{ product.shop.municipio }}, {{ product.shop.departamento }}{% else %}No registrada{% endif %}</p>
+      <h2 class="product-view__subtitle">Vendedor</h2>
+      {% if product.shop %}
+      <div class="seller-card">
+        <div class="seller-card__top">
+          <div class="seller-card__avatar-wrap">
+            {% if product.shop.owner and product.shop.owner.register_set.all.0.foto %}
+              <img src="{{ product.shop.owner.register_set.all.0.foto.url }}" alt="{{ product.shop.nombre }}" class="seller-card__avatar">
+            {% else %}
+              <img src="{% static 'icons/planta.png' %}" alt="{{ product.shop.nombre }}" class="seller-card__avatar">
+            {% endif %}
+          </div>
+          <div class="seller-card__identity">
+            <span class="seller-card__name">{{ product.shop.nombre }}</span>
+          </div>
+          <a href="{% url 'tiendas:seller_profile' product.shop.id %}?next={{ request.get_full_path|urlencode }}" class="seller-card__link">Visualizar</a>
+        </div>
+      </div>
+      {% else %}
+      <p class="product-view__p">Agricultor &mdash; Ubicación no registrada</p>
+      {% endif %}
     </div>
 
-    <div class="product-view__extra">
-      <h2 class="product-view__subtitle">Métodos de pago y entrega</h2>
-      <ul class="product-view__list">
-        <li><strong>Pago:</strong> {{ product.get_metodo_pago_display }}</li>
-        <li><strong>Entrega:</strong> {{ product.get_metodo_entrega_display }}</li>
-      </ul>
-    </div>
   </div>
 </div>
 

@@ -1,0 +1,79 @@
+
+{% load static %}
+
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    
+    <meta charset="UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Detalle producto (Admin)</title>
+    
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    
+    <link rel="stylesheet" href="{% static 'css/editar_producto_admin.css' %}">
+
+</head>
+
+<body style="background: #f8fafc;">
+        
+        {% if messages %}
+            
+            <div class="admin-detail-messages">
+                
+                {% for message in messages %}
+                    
+                    <div class="admin-detail-message admin-detail-message--{{ message.tags|default:'info' }}">{{ message }}</div>
+                
+                {% endfor %}
+            
+            </div>
+            
+            <script>
+                // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                document.addEventListener('DOMContentLoaded', function () {
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    const contenedorMensajes = document.querySelector('.admin-detail-messages');
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    const mensajes = document.querySelectorAll('.admin-detail-message');
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    if (!contenedorMensajes || !mensajes.length) {
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        return;
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    }
+
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    window.setTimeout(function () {
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        contenedorMensajes.classList.add('is-hiding');
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        mensajes.forEach(function (mensaje) {
+                            // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                            mensaje.classList.add('is-hiding');
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        });
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        window.setTimeout(function () {
+                            // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                            contenedorMensajes.remove();
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        }, 380);
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    }, 4000);
+                // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                });
+            // Finaliza el bloque de l&oacute;gica JavaScript.
+            </script>
+        
+        {% endif %}
+    
+    {% include 'administrador/componentes/producto_detalle_card.html' %}
+
+</body>
+
+</html>

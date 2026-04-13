@@ -125,6 +125,13 @@
   height: 24px;
 }
 
+/* Ajuste de estados en tabla admin de pedidos (usa classes products-table) */
+.table-orders .products-table__status {
+  width: auto;
+  min-width: 110px;
+  white-space: nowrap;
+}
+
 
 /* tablets */
 @media (width >  640px) {
@@ -148,17 +155,11 @@
 
 @media (width > 1280px) {
   .orders-table{
-    width: 80%;
+    width: 100%;
     margin: 0;
   }
   .table-orders{
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width: 100%;
+    display: block;
   }
-  .orders-table__cell-status{
-    text-align:center;
-  }
-  
-
 }

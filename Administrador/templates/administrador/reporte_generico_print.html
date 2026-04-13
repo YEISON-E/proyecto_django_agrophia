@@ -1,0 +1,96 @@
+
+<!DOCTYPE html>
+
+<html lang="es">
+
+<head>
+    
+    <meta charset="UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>{{ title }}</title>
+    
+    <style>
+        
+        body { font-family: Arial, sans-serif; margin: 24px; color: #111827; }
+        
+        h1 { margin: 0 0 16px; color: #166534; }
+        
+        p { margin: 0 0 16px; color: #4b5563; }
+        
+        table { width: 100%; border-collapse: collapse; }
+        
+        th, td { border: 1px solid #d1d5db; padding: 10px; text-align: left; vertical-align: top; }
+        
+        th { background: #166534; color: #fff; }
+        
+        tr:nth-child(even) { background: #f9fafb; }
+    
+    </style>
+
+</head>
+
+<body>
+    
+    <h1>{{ title }}</h1>
+    
+    {% if subtitle %}<p>{{ subtitle }}</p>{% endif %}
+    
+    <table>
+        
+        <thead>
+            
+            <tr>
+                
+                {% for header in headers %}
+                
+                <th>{{ header }}</th>
+                
+                {% endfor %}
+            
+            </tr>
+        
+        </thead>
+        
+        <tbody>
+            
+            {% for row in rows %}
+            
+            <tr>
+                
+                {% for value in row %}
+                
+                <td>{{ value }}</td>
+                
+                {% endfor %}
+            
+            </tr>
+            
+            {% empty %}
+            
+            <tr>
+                
+                <td colspan="{{ headers|length }}">No hay datos para mostrar.</td>
+            
+            </tr>
+            
+            {% endfor %}
+        
+        </tbody>
+    
+    </table>
+    
+    <script>
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        window.addEventListener('load', function () {
+            // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+            window.print();
+        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+        });
+    // Finaliza el bloque de l&oacute;gica JavaScript.
+    </script>
+
+</body>
+
+</html>

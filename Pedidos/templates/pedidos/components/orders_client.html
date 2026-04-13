@@ -60,12 +60,14 @@
         <form method="post" action="{% url 'pedidos:confirm_order' order.id %}" style="display:inline;">
           {% csrf_token %}
           {% if order.status == 'pending' %}
-          <button type="submit" class="orders__btn orders__btn--confirm">⏩ Acelerar pedido</button>
+          <button type="submit" class="orders__btn orders__btn--confirm">Confirmar pedido</button>
           {% endif %}
         </form>
+        {% if order.status == 'confirmed' %}
         <a href="{% url 'pedidos:order_receipt' order.id %}" target="_blank" class="orders__btn orders__btn--receipt">
           📄 Ver comprobante
         </a>
+        {% endif %}
       </div>
       {% endif %}
     </div>

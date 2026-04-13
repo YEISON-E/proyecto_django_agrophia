@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const customerHomeNotice = document.getElementById("customer-home-notice");
   if (customerHomeNotice) {
-    const noticeTotalDurationMs = 1500;
+    const noticeTotalDurationMs = 4000;
     const noticeFadeDurationMs = 250;
 
     window.setTimeout(() => {
@@ -54,10 +54,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const cards = cardsContainer ? Array.from(cardsContainer.querySelectorAll(".card-home")) : [];
   const addToCartButtons = document.querySelectorAll(".btn-agregar-carrito");
 
-  if (!searchInput || !cardsContainer || !cards.length) {
-    return;
-  }
-
   const getCookie = (name) => {
     const cookieValue = `; ${document.cookie}`;
     const cookieParts = cookieValue.split(`; ${name}=`);
@@ -89,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
       window.setTimeout(() => {
         alertBox.remove();
       }, isError ? 0 : 250);
-    }, 1500);
+    }, 4000);
   };
 
   const requestProductQuantity = () => new Promise((resolve) => {
@@ -202,6 +198,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
+
+  if (!searchInput || !cardsContainer || !cards.length) {
+    return;
+  }
 
   let selectedCategory = "";
   let selectedType = "";

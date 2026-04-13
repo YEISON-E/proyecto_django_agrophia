@@ -1,0 +1,51 @@
+
+{% load static %}
+<div class="table-container">
+  <table class="products-table">
+    <thead class="products-table__head">
+      <tr class="products-table__row products-table__row--head">
+        <th class="products-table__header">Nombre de la tienda</th>
+        <th class="products-table__header">Departamento</th>
+        <th class="products-table__header">Municipio</th>
+        <th class="products-table__header">Estado</th>
+        <th class="products-table__header">Acciones</th>
+      </tr>
+    </thead>
+    <tbody class="products-table__body">
+      {% for tienda in tiendas %}
+      <tr class="products-table__row">
+        <td class="products-table__cell">{{ tienda.nombre }}</td>
+        <td class="products-table__cell">{{ tienda.departamento }}</td>
+        <td class="products-table__cell">{{ tienda.municipio }}</td>
+        <td class="products-table__cell products-table__cell--status">
+          {% if tienda.is_active %}
+          <span class="products-table__status products-table__status--active">Activo</span>
+          {% else %}
+          <span class="products-table__status products-table__status--blocked">Inactivo</span>
+          {% endif %}
+        </td>
+        <td class="products-table__cell products-table__cell--actions">
+          {% if tienda.is_active %}
+          <button type="button" class="products-table__button products-table__button--block" title="Bloquear" data-shop-action="block" data-shop-id="{{ tienda.id }}">
+            <img src="{% static 'icons/lock.svg' %}" alt="Bloquear" width="20" height="20">
+          </button>
+          {% else %}
+          <button type="button" class="products-table__button products-table__button--unblock" title="Desbloquear" data-shop-action="unblock" data-shop-id="{{ tienda.id }}">
+            <img src="{% static 'icons/unlock.svg' %}" alt="Desbloquear" width="20" height="20">
+          </button>
+          {% endif %}
+          <a href="{% url 'administrador:tienda_admin_editar' tienda.id %}?from=table" class="products-table__button products-table__button--edit" title="Editar">
+            <img src="{% static 'icons/edit.svg' %}" alt="Editar" width="20" height="20">
+          </a>
+          <a href="{% url 'administrador:tienda_admin_detalle' tienda.id %}" class="products-table__button products-table__button--view" title="Ver m&aacute;s" data-shop-id="{{ tienda.id }}" data-shop-name="{{ tienda.nombre|escape }}">
+            Ver m&aacute;s
+          </a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" style="text-align:center;">No hay tiendas registradas.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<script src="{% static 'js/tiendas_admin_actions.js' %}"></script>

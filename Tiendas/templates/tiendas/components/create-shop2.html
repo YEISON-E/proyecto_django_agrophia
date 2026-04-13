@@ -2,66 +2,52 @@
 
 <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
-{% if shop_success %}
-<div class="reset-success-overlay">
-    <div class="reset-success-alert">
-        Tu tienda fue creada exitosamente.<br><br>
-        Para continuar, inicia sesion nuevamente con tu usuario y contrasena.<br><br>
-        Si deseas completar o actualizar la informacion de tu tienda, ingresa a la seccion Perfil.<br><br>
-        <a href="{% url 'usuarios:login' %}" class="form-shop__button">Continuar</a>
-    </div>
-</div>
-{% endif %}
-
 <div class="form-shop__content">
     <div class="form-shop__container">
         <div class="shop">
             <h2 class="form-shop__subtitle">Crea tu tienda</h2>
             <div class="form-shop">
-                <form id="create-shop-step2-form" method="POST" class="form-shop__body">
+                <form id="create-shop-step2-form" method="POST" class="form-shop__body" data-shop-flow-id="{{ shop_flow_id|default:'' }}">
                     {% csrf_token %}
+                    <input type="hidden" name="owner_token" value="{{ shop_owner_token|default:'' }}">
+                    <input type="hidden" name="action" id="create-shop-step2-action" value="submit">
 
-                    {% if errores.horario %}
-                        <div class="input-error" style="display: block;">{{ errores.horario }}</div>
-                    {% endif %}
-
-                    <div class="form-shop__group">
-                        <label for="tiene_punto_fisico" class="form-shop__label">La tienda cuenta con punto fisico?</label>
+                    <div class="form-shop__group form-shop__group--pickup">
+                        <label for="tiene_punto_fisico" class="form-shop__label">¿La tienda cuenta con punto físico?</label>
                         <select id="tiene_punto_fisico" class="form-shop__input" name="tiene_punto_fisico" required>
-                            <option value="si" {% if valores.tiene_punto_fisico == 'si' %}selected{% endif %}>Si</option>
+                            <option value="si" {% if valores.tiene_punto_fisico == 'si' %}selected{% endif %}>Sí</option>
                             <option value="no" {% if valores.tiene_punto_fisico != 'si' %}selected{% endif %}>No</option>
                         </select>
                     </div>
 
                     <div id="shop-physical-fields">
-                        <div class="form-shop__group">
+                        <div class="form-shop__group form-shop__group--time">
                             <label for="hora_apertura" class="form-shop__label">Hora de apertura</label>
                             <input type="time" id="hora_apertura" class="form-shop__input" name="hora_apertura" value="{{ valores.hora_apertura|default:'' }}">
                             <div id="error-hora-apertura" class="input-error" style="display: none;"></div>
                         </div>
 
-                        <div class="form-shop__group">
+                        <div class="form-shop__group form-shop__group--time">
                             <label for="hora_cierre" class="form-shop__label">Hora de cierre</label>
                             <input type="time" id="hora_cierre" class="form-shop__input" name="hora_cierre" value="{{ valores.hora_cierre|default:'' }}">
-                            <div id="error-hora-cierre" class="input-error" style="display: none;"></div>
+                            <div id="error-hora-cierre" class="input-error" style="display: none;" data-server-error="{{ errores.horario|default:'' }}"></div>
                         </div>
 
-                        <div class="form-shop__group">
-                            <label for="direccion" class="form-shop__label">Direccion</label>
-                            <input type="text" id="direccion" class="form-shop__input" name="direccion" placeholder="Escribe la direccion" value="{{ valores.direccion|default:'' }}">
-                            {% if errores.direccion %}
-                                <div class="input-error" style="display: block;">{{ errores.direccion }}</div>
-                            {% endif %}
+                        <div class="form-shop__group form-shop__group--address">
+                            <label for="direccion" class="form-shop__label">Dirección</label>
+                            <input type="text" id="direccion" class="form-shop__input" name="direccion" placeholder="Escribe la dirección" value="{{ valores.direccion|default:'' }}">
+                            <div id="error-direccion" class="input-error" style="display: none;" data-server-error="{{ errores.direccion|default:'' }}"></div>
                         </div>
                     </div>
 
                     <div class="form-shop__textarea">
-                        <label for="message" class="form-shop__label">Descripcion breve de la tienda (opcional)</label>
-                        <textarea type="message" class="form-shop__description" name="descripcion" placeholder="Descripcion breve de la tienda">{{ valores.descripcion|default:'' }}</textarea>
+                        <label for="message" class="form-shop__label">Descripción breve de la tienda (opcional)</label>
+                        <textarea type="message" id="descripcion" class="form-shop__description" name="descripcion" placeholder="Descripción breve de la tienda" maxlength="255">{{ valores.descripcion|default:'' }}</textarea>
+                        <div id="error-descripcion" class="input-error" style="display: none;" data-server-error="{{ errores.descripcion|default:'' }}"></div>
                     </div>
                 </form>
                 <div class="form-content__register--row-buttons">
-                    <a href="{% url 'tiendas:create_shop_step1' %}" class="form-content__register--row-buttons__back">Volver</a>
+                    <button type="submit" form="create-shop-step2-form" formnovalidate class="form-content__register--row-buttons__back" onclick="document.getElementById('create-shop-step2-action').value='back'">Volver</button>
                     <button type="submit" form="create-shop-step2-form" class="form-shop__button">Crear tienda</button>
                 </div>
             </div>

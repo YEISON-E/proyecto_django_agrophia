@@ -1,3 +1,4 @@
+
 {% load static %}
 <div class="user-detail-container">
   <div class="user-detail-card">
@@ -7,10 +8,10 @@
     <div class="user-detail-info">
       <h2>{{ usuario.nombres }} {{ usuario.apellidos }}</h2>
       <p><strong>Correo:</strong> {{ usuario.correo_electronico }}</p>
-      <p><strong>Teléfono:</strong> {{ usuario.telefono }}</p>
+      <p><strong>Tel&eacute;fono:</strong> {{ usuario.telefono }}</p>
       <p><strong>Departamento:</strong> {{ usuario.departamento }}</p>
       <p><strong>Municipio:</strong> {{ usuario.municipio }}</p>
-      <p><strong>Dirección:</strong> {{ usuario.direccion }}</p>
+      <p><strong>Direcci&oacute;n:</strong> {{ usuario.direccion }}</p>
       <p><strong>Tipo de usuario:</strong> {{ usuario.tipo_usuario }}</p>
       <p><strong>Estado:</strong> {{ usuario.estado|title }}</p>
       <p><strong>Fecha de registro:</strong> {{ usuario.fecha_registro|date:'d/m/Y' }}</p>
@@ -19,17 +20,21 @@
           <strong style="color:#16a34a;">Este usuario es una tienda</strong><br>
           <strong>Nombre tienda:</strong> {{ tienda.nombre }}<br>
           <strong>Email tienda:</strong> {{ tienda.email }}<br>
-          <strong>Teléfono tienda:</strong> {{ tienda.telefono }}<br>
+          <strong>Tel&eacute;fono tienda:</strong> {{ tienda.telefono }}<br>
           <strong>Departamento:</strong> {{ tienda.departamento }}<br>
           <strong>Municipio:</strong> {{ tienda.municipio }}<br>
-          <strong>Dirección:</strong> {{ tienda.direccion }}<br>
-          <strong>Descripción:</strong> {{ tienda.descripcion }}<br>
+          <strong>Direcci&oacute;n:</strong> {{ tienda.direccion }}<br>
+          <strong>Descripci&oacute;n:</strong> {{ tienda.descripcion }}<br>
           <strong>Horario:</strong> {{ tienda.horario }}<br>
-          <strong>¿Punto físico?:</strong> {{ tienda.punto_fisico|yesno:"Sí,No" }}<br>
+          <strong>&iquest;Punto f&iacute;sico?:</strong> {{ tienda.punto_fisico|yesno:"Sí,No" }}<br>
           <strong>Estado tienda:</strong> {{ tienda.is_active|yesno:"Activa,Inactiva" }}
         </div>
       {% endif %}
     </div>
   </div>
+  {% if es_perfil_admin %}
+  <a href="{% url 'administrador:home_admin' %}" class="user-detail-back">&larr; Volver al inicio</a>
+  {% else %}
   <a href="{% url 'administrador:usuarios_admin' %}" class="user-detail-back">&larr; Volver a la lista</a>
+  {% endif %}
 </div>

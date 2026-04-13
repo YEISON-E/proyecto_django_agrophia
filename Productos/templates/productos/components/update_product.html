@@ -7,7 +7,7 @@
     {% csrf_token %}
 
     <div class="product-form__upload">
-      <label class="product-form__label">Imagenes actuales</label>
+      <label class="product-form__label">Imágenes actuales</label>
       <div class="product-form__preview-grid">
         {% for image in existing_images %}
           <div class="product-form__preview-item" data-existing-image-item>
@@ -16,18 +16,18 @@
             <button type="button" class="product-form__preview-remove" data-delete-image-button aria-label="Eliminar imagen">×</button>
           </div>
         {% empty %}
-          <p class="product-form__helper">No hay imagenes registradas.</p>
+          <p class="product-form__helper">No hay imágenes registradas.</p>
         {% endfor %}
       </div>
     </div>
 
     <div class="product-form__upload">
       <label for="update-input-fotos" class="product-form__dropzone" id="update-dropzone-fotos">
-        <strong>Agregar nuevas imagenes</strong>
+        <strong>Agregar nuevas imágenes</strong>
         {% if can_upload_more_images %}
         <span id="update-fotos-counter" class="product-form__counter">0 nuevas | {{ existing_images_count }}/8 actuales</span>
         {% else %}
-        <span id="update-fotos-counter" class="product-form__counter">Ya tienes 8/8 imagenes. Elimina alguna para agregar nuevas.</span>
+        <span id="update-fotos-counter" class="product-form__counter">Ya tienes 8/8 imágenes. Elimina alguna para agregar nuevas.</span>
         {% endif %}
       </label>
       <input id="update-input-fotos" name="new_images" type="file" accept="image/*" multiple class="product-form_input--file" {% if not can_upload_more_images %}disabled{% endif %}>
@@ -73,43 +73,29 @@
 
         <div class="product-form__group">
           <label for="precio" class="product-form__label">Precio</label>
-          <input id="precio" name="precio" type="number" step="0.01" min="0" class="product-form__input" value="{{ valores.precio }}" required>
+          <input id="precio" name="precio" type="number" step="0.01" min="0.01" class="product-form__input" value="{{ valores.precio }}" required>
           <div class="input-error"{% if not errores.precio %} style="display: none;"{% endif %}>{{ errores.precio }}</div>
         </div>
 
         <div class="product-form__group">
-          <label for="descripcion" class="product-form__label">Descripcion</label>
+          <label for="stock" class="product-form__label">Cantidad disponible (stock)</label>
+          <input id="stock" name="stock" type="number" step="1" min="1" class="product-form__input" value="{{ valores.stock }}" required>
+          <div class="input-error"{% if not errores.stock %} style="display: none;"{% endif %}>{{ errores.stock }}</div>
+        </div>
+
+        <div class="product-form__group">
+          <label for="descripcion" class="product-form__label">Descripción</label>
           <textarea id="descripcion" name="descripcion" class="product-form__input product-form__input--textarea" rows="4" required>{{ valores.descripcion }}</textarea>
           <div class="input-error"{% if not errores.descripcion %} style="display: none;"{% endif %}>{{ errores.descripcion }}</div>
         </div>
 
         <div class="product-form__group">
-          <label for="garantia" class="product-form__label">Garantia</label>
-          <input id="garantia" name="garantia" class="product-form__input" value="{{ valores.garantia }}" required>
-          <div class="input-error"{% if not errores.garantia %} style="display: none;"{% endif %}>{{ errores.garantia }}</div>
+          <label for="tiempo_durabilidad" class="product-form__label">Tiempo de durabilidad</label>
+          <input id="tiempo_durabilidad" name="tiempo_durabilidad" class="product-form__input" value="{{ valores.tiempo_durabilidad }}" required>
+          <div class="input-error"{% if not errores.tiempo_durabilidad %} style="display: none;"{% endif %}>{{ errores.tiempo_durabilidad }}</div>
         </div>
 
-        <div class="product-form__group">
-          <label for="metodo_pago" class="product-form__label">Metodo de pago</label>
-          <select id="metodo_pago" name="metodo_pago" class="product-form__input" required>
-            <option value="">Selecciona un metodo</option>
-            {% for value, label in metodo_pago_choices %}
-              <option value="{{ value }}" {% if valores.metodo_pago == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-          <div class="input-error"{% if not errores.metodo_pago %} style="display: none;"{% endif %}>{{ errores.metodo_pago }}</div>
-        </div>
 
-        <div class="product-form__group">
-          <label for="metodo_entrega" class="product-form__label">Metodo de entrega</label>
-          <select id="metodo_entrega" name="metodo_entrega" class="product-form__input" required>
-            <option value="">Selecciona un metodo</option>
-            {% for value, label in metodo_entrega_choices %}
-              <option value="{{ value }}" {% if valores.metodo_entrega == value %}selected{% endif %}>{{ label }}</option>
-            {% endfor %}
-          </select>
-          <div class="input-error"{% if not errores.metodo_entrega %} style="display: none;"{% endif %}>{{ errores.metodo_entrega }}</div>
-        </div>
       </div>
     </div>
   </form>

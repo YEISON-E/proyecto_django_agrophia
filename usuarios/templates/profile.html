@@ -14,7 +14,6 @@
   <script src="/frontend/public/js/components/gov-co__one.js"></script>
   <script src="/frontend/public/js/components/gov-co__two.js"></script>
   <script src="/frontend/public/js/components/profile.js" defer></script>
-  <script src="/frontend/public/js/components/footer.js" defer></script>
 </head>
 <body>
 
@@ -25,7 +24,9 @@
     <div class="profile-container">
         {% include 'components/profile.html' %}
     </div>
-    <footer class="footer-container"></footer>
+    <footer class="footer-container">
+        {% include 'components/footer.html' %}
+    </footer>
     <div class="govco-container__two">
         {% include 'components/gov-co__one.html' %}
     </div>

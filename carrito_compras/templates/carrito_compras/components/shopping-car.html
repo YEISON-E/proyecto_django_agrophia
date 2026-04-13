@@ -3,6 +3,12 @@
 <div class="cart">
   <h2 class="cart__title">Carrito de Compras</h2>
 
+  {% if cart_notice %}
+  <div class="cart-feedback__alert cart-feedback__alert--error" style="position: static; transform: none; margin-bottom: 14px;">
+    {{ cart_notice }}
+  </div>
+  {% endif %}
+
   {% if cart_items %}
   <form method="post" action="{% url 'carrito_compras:checkout' %}" class="cart__checkout-form" id="cart-checkout-form">
     {% csrf_token %}
@@ -58,6 +64,7 @@
                       data-product-id="{{ item.product.id }}"
                       data-product-name="{{ item.product.nombre }}"
                       data-current-quantity="{{ item.quantity }}"
+                      data-available-stock="{{ item.product.stock }}"
                       data-update-endpoint="{% url 'carrito_compras:update_cart_quantity' item.product.id %}"
                     >Cambiar cantidad</button>
                   </div>

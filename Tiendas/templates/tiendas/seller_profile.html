@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil del vendedor – {{ shop.nombre }}</title>
+  <link rel="icon" href="{% static 'icons/planta.png' %}">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'css/card-home.css' %}">
+  <link rel="stylesheet" href="{% static 'css/card-available.css' %}">
+  <link rel="stylesheet" href="{% static 'css/seller_profile.css' %}">
+</head>
+<body>
+
+  <div class="govco-container__one">
+    {% include 'components/gov-co__one.html' %}
+  </div>
+
+  {% include 'components/navbar-home.html' %}
+
+  <main>
+    {% include 'tiendas/components/seller_profile.html' %}
+  </main>
+
+  <footer class="footer">
+    <div class="footer-container">
+      {% include 'components/footer.html' %}
+    </div>
+  </footer>
+
+  <div class="govco-container__two">
+    {% include 'components/gov-co__one.html' %}
+  </div>
+
+  <script src="{% static 'js/components/login_customer_user.js' %}" defer></script>
+  <script src="{% static 'js/components/seller_profile.js' %}" defer></script>
+
+</body>
+</html>

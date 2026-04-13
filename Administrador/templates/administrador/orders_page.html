@@ -1,32 +1,114 @@
+
+{% load static %}
+
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+    
     <meta charset="UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" href="/frontend/public/icons/planta.png">
-    <link rel="stylesheet" href="/frontend/public/css/main.css">
-    <script src="/frontend/public/js/components/header_admin.js" defer></script>
-    <script src="/frontend/public/js/components/toolbar_pedidos.js" defer></script>
-    <script src="/frontend/public/js/components/search_orders.js"></script>
-    <script src="/frontend/public/js/components/sidebar_admin.js" defer></script>
-    <script src="/frontend/public/js/components/orders_admin.js" defer></script>
+  
+  <link rel="icon" href="{% static 'icons/planta.png' %}">
+  
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  
+  <link rel="stylesheet" href="{% static 'css/toolbar.css' %}">
 
     
+    
     <title>Pedidos admin</title>
+
 </head>
-<body>
-    <div class="govco-container__one">
+
+<body class="admin-page-shell" style="background: #f8fafc;">
+        
+        {% if messages %}
+            
+            <div class="admin-detail-messages">
+                
+                {% for message in messages %}
+                    
+                    <div class="admin-detail-message admin-detail-message--{{ message.tags|default:'info' }}">{{ message }}</div>
+                
+                {% endfor %}
+            
+            </div>
+            
+            <script>
+                // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                document.addEventListener('DOMContentLoaded', function () {
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    const contenedorMensajes = document.querySelector('.admin-detail-messages');
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    const mensajes = document.querySelectorAll('.admin-detail-message');
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    if (!contenedorMensajes || !mensajes.length) {
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        return;
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    }
+
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    window.setTimeout(function () {
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        contenedorMensajes.classList.add('is-hiding');
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        mensajes.forEach(function (mensaje) {
+                            // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                            mensaje.classList.add('is-hiding');
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        });
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        window.setTimeout(function () {
+                            // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                            contenedorMensajes.remove();
+                        // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                        }, 380);
+                    // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                    }, 4000);
+                // L&iacute;nea de estructura o l&oacute;gica que hace parte del funcionamiento de la vista.
+                });
+            // Finaliza el bloque de l&oacute;gica JavaScript.
+            </script>
+        
+        {% endif %}
+    
+    <div class="govco-container__one admin-page-top">
+        
         {% include 'components/gov-co__one.html' %}
+    
     </div>
-    {% include 'administrador/componentes/toolbar_orders.html' %}
-    <div class="layout">
-        {% include 'administrador/componentes/sidebar.html' %}
-        <div class="table-orders">
-            <!-- Aquí puedes incluir la tabla de pedidos si existe un componente -->
+
+    
+    <main class="admin-page-main">
+        
+        {% include 'administrador/componentes/toolbar_orders.html' %}
+
+        
+        <div class="layout">
+            
+            {% include 'administrador/componentes/sidebar.html' %}
+            
+            <div class="table-orders">
+                
+                {% include 'administrador/componentes/table_orders_admin.html' with pedidos=pedidos %}
+            
+            </div>
+        
         </div>
+    
+    </main>
+
+    
+    <div class="govco-container__one admin-page-bottom">
+        
+        {% include 'components/gov-co__one.html' %}
+    
     </div>
-    <div class="govco-container__two">
-        {% include 'components/gov-co__two.html' %}
-    </div>
+
 </body>
+
 </html>

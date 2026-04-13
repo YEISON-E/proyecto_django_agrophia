@@ -9,14 +9,16 @@
 </head>
 <body>
     {% include 'components/gov-co__one.html' %}
-    <div class="page__left_login" style="background: linear-gradient(var(--overlay-dark), var(--overlay-dark)), url('{% static "img/farmer.jpg" %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
-        <h1 class="login__title-left">
-            Bienvenido a Agrophia <br> conectando el campo con tu mesa
-        </h1>
-    </div>
-    <div class="page__right_login">
-        {% include 'components/forloggin.html' %}
-    </div>
+    <main class="login-page-layout">
+        <div class="page__left_login" style="background: linear-gradient(var(--overlay-dark), var(--overlay-dark)), url('{% static "img/farmer.jpg" %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+            <h1 class="login__title-left">
+                Bienvenido a Agrophia <br> conectando el campo con tu mesa
+            </h1>
+        </div>
+        <div class="page__right_login">
+            {% include 'components/forloggin.html' %}
+        </div>
+    </main>
     {% include 'components/gov-co__one.html' %}
 </body>
 </html>

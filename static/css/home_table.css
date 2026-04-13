@@ -19,7 +19,7 @@
     font-size: var(--fs-xxxs);
     border-radius: 12px;
     overflow: hidden;
-    margin: 24px;
+    margin: 24px auto;
 }
 
 .home-table__header,

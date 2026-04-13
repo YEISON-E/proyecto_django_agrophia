@@ -1,14 +1,16 @@
 {% load static %}
 
 <div class="profile-content">
-  <!-- <h1 class="profile__title-principal">Informacion de perfil</h1> -->
+  <!-- <h1 class="profile__title-principal">Información de perfil</h1> -->
   <div class="profile">
     <div class="profile__header">
       <div class="profile__img-container">
         {% if register_user and register_user.foto %}
-        <img src="{{ register_user.foto.url }}" alt="imagen de Perfil" class="profile__img">
+        <img src="{{ register_user.foto.url }}" alt="imagen de Perfil" class="profile__img profile__img--zoomable" data-zoom-image>
         {% else %}
-        <img src="{% static 'img/foto_sofi.png' %}" alt="imagen de Perfil" class="profile__img">
+        <span class="profile__img" style="display:flex;align-items:center;justify-content:center;background:#6366f1;color:#fff;font-weight:700;font-size:2.1rem;">
+          {% if register_user and register_user.nombres %}{{ register_user.nombres|slice:':1'|upper }}{% else %}U{% endif %}{% if register_user and register_user.apellidos %}{{ register_user.apellidos|slice:':1'|upper }}{% endif %}
+        </span>
         {% endif %}
       </div>
       <h2 class="profile__title">{{ register_user.nombres|default:'' }} {{ register_user.apellidos|default:'' }}</h2>
@@ -72,4 +74,11 @@
     </div>
   </div>
   </div>
+
+<div class="user-image-lightbox" id="user-image-lightbox" aria-hidden="true" role="dialog" aria-label="Vista ampliada de imagen">
+  <button type="button" class="user-image-lightbox__close" id="user-image-lightbox-close" aria-label="Cerrar">&times;</button>
+  <img src="" alt="Imagen ampliada" class="user-image-lightbox__img" id="user-image-lightbox-img">
+</div>
+
+<script src="{% static 'js/components/image_lightbox.js' %}" defer></script>
 </div>

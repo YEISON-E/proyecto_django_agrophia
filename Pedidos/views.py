@@ -1,14 +1,33 @@
-from django.shortcuts import render
-from django.shortcuts import redirect
-from django.shortcuts import get_object_or_404
-from django.views.decorators.cache import never_cache
-from django.views.decorators.http import require_POST
+"""Vistas del módulo de pedidos.
+
+Resumen de negocio:
+- El cliente puede confirmar o cancelar pedidos pendientes.
+- El agricultor puede consultar pedidos con sus productos y cambiar estado.
+- Los pedidos pendientes se confirman automáticamente al vencer la ventana de
+  cancelación definida en ``Order.CANCEL_WINDOW_HOURS``.
+"""
+
 from datetime import timedelta
 
-# Confirmar pedido por el cliente
+from django.db.models import Prefetch
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_POST
+
+from Tiendas.models import Shop
+from .models import Order, OrderItem
+
+
 @require_POST
 @never_cache
 def confirm_order(request, order_id):
+	"""Confirma manualmente un pedido del cliente autenticado.
+
+	Reglas:
+	- Solo se permite para el propietario del pedido.
+	- Solo cambia estado cuando el pedido está en ``pending``.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -19,20 +38,18 @@ def confirm_order(request, order_id):
 
 	return redirect("pedidos:orders_client")
 
-from django.db.models import Prefetch
-from django.utils import timezone
-from Tiendas.models import Shop
-from .models import Order, OrderItem
-
-# Create your views here.
-
 
 @never_cache
 def orders_client(request):
+	"""Lista pedidos del cliente y aplica confirmación automática de vencidos.
+
+	Antes de renderizar, actualiza a ``confirmed`` los pedidos pendientes cuya
+	fecha de creación supera la ventana de cancelación.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
-	# Auto-confirm orders whose 7-hour cancellation window has expired
+	# Confirma pendientes del cliente cuando vence la ventana de cancelación.
 	cutoff = timezone.now() - timedelta(hours=Order.CANCEL_WINDOW_HOURS)
 	Order.objects.filter(
 		customer=request.user,
@@ -51,6 +68,12 @@ def orders_client(request):
 
 @never_cache
 def orders_farmer(request):
+	"""Lista pedidos donde el agricultor actual tiene ítems asociados.
+
+	También aplica confirmación automática de pedidos pendientes vencidos.
+	Cada pedido retorna los ítems del agricultor en ``my_items`` para simplificar
+	la plantilla.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -63,7 +86,7 @@ def orders_farmer(request):
 		created_at__lt=cutoff,
 	).update(status=Order.STATUS_CONFIRMED)
 
-	# Mostrar todos los pedidos donde el agricultor tenga productos (sin filtrar por cutoff)
+	# Incluye pedidos que contienen al menos un ítem del agricultor autenticado.
 	orders = Order.objects.filter(
 		items__farmer=request.user
 	).distinct().prefetch_related(
@@ -81,6 +104,11 @@ def orders_farmer(request):
 
 @never_cache
 def order_farmer_detail(request, order_id):
+	"""Muestra el detalle de un pedido para el agricultor autenticado.
+
+	Si el pedido no contiene productos del agricultor, redirige al listado para
+	evitar exposición de información de terceros.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -104,6 +132,13 @@ def order_farmer_detail(request, order_id):
 @require_POST
 @never_cache
 def update_order_status(request, order_id):
+	"""Actualiza estado de un pedido desde el panel de agricultor.
+
+	Reglas:
+	- Solo puede actualizar quien participa en el pedido (tiene ítems).
+	- No se permiten cambios si ya está cancelado.
+	- El nuevo estado debe estar dentro del conjunto permitido.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -127,6 +162,7 @@ def update_order_status(request, order_id):
 @require_POST
 @never_cache
 def cancel_order(request, order_id):
+	"""Cancela un pedido del cliente si aún está dentro de la ventana válida."""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
@@ -140,10 +176,19 @@ def cancel_order(request, order_id):
 
 @never_cache
 def order_receipt(request, order_id):
+	"""Renderiza el comprobante de un pedido confirmado para su cliente.
+
+	Reglas:
+	- El pedido debe pertenecer al usuario autenticado.
+	- Solo se permite acceso cuando el estado es ``confirmed``.
+	"""
 	if not request.user.is_authenticated:
 		return redirect("usuarios:login")
 
 	order = get_object_or_404(Order, pk=order_id, customer=request.user)
+	if order.status != Order.STATUS_CONFIRMED:
+		return redirect("pedidos:orders_client")
+
 	items = order.items.select_related("product", "farmer").all()
 
 	return render(request, "pedidos/comprobante.html", {

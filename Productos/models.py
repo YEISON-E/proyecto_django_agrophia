@@ -1,6 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+import re
+
+
+PRODUCT_NAME_ALLOWED_RE = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,\-]+$")
+PRODUCT_DURABILITY_ALLOWED_RE = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ0-9\s.,:/%\-]+$")
 
 
 class Product(models.Model):
@@ -24,41 +29,23 @@ class Product(models.Model):
 	UNIDAD_KILO = "Kilo"
 	UNIDAD_ARROBA = "Arroba"
 	UNIDAD_LITRO = "Litro"
+	UNIDAD_UNIDAD = "Unidad"
 
 	UNIDAD_CHOICES = [
 		(UNIDAD_LIBRA, "Libra"),
 		(UNIDAD_KILO, "Kilo"),
 		(UNIDAD_ARROBA, "Arroba"),
 		(UNIDAD_LITRO, "Litro"),
-	]
-
-	METODO_PAGO_CONTADO = "contado"
-	METODO_PAGO_ENTREGA = "entrega"
-	METODO_PAGO_TRANSFERENCIA = "transferencia"
-
-	METODO_PAGO_CHOICES = [
-		(METODO_PAGO_CONTADO, "Pago de contado"),
-		(METODO_PAGO_ENTREGA, "Pago contra entrega"),
-		(METODO_PAGO_TRANSFERENCIA, "Transferencia"),
-	]
-
-	METODO_ENTREGA_DOMICILIO = "domicilio"
-	METODO_ENTREGA_TIENDA = "tienda"
-	METODO_ENTREGA_CITA = "cita"
-
-	METODO_ENTREGA_CHOICES = [
-		(METODO_ENTREGA_DOMICILIO, "Envío a domicilio"),
-		(METODO_ENTREGA_TIENDA, "Recogido en tienda"),
-		(METODO_ENTREGA_CITA, "Entrega bajo cita"),
+		(UNIDAD_UNIDAD, "Unidad"),
 	]
 
 	UNIDADES_POR_TIPO = {
-		TIPO_FRUTAS: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA},
-		TIPO_VEGETALES: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA},
-		TIPO_LACTEOS: {UNIDAD_LITRO},
-		TIPO_CARNE: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA},
-		TIPO_GRANOS: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA},
-		TIPO_OTROS: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA, UNIDAD_LITRO},
+		TIPO_FRUTAS: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA, UNIDAD_UNIDAD},
+		TIPO_VEGETALES: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA, UNIDAD_UNIDAD},
+		TIPO_LACTEOS: {UNIDAD_LITRO, UNIDAD_UNIDAD},
+		TIPO_CARNE: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA, UNIDAD_UNIDAD},
+		TIPO_GRANOS: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA, UNIDAD_UNIDAD},
+		TIPO_OTROS: {UNIDAD_LIBRA, UNIDAD_KILO, UNIDAD_ARROBA, UNIDAD_LITRO, UNIDAD_UNIDAD},
 	}
 
 	owner = models.ForeignKey(
@@ -80,16 +67,26 @@ class Product(models.Model):
 	unidad = models.CharField(max_length=10, choices=UNIDAD_CHOICES)
 
 	precio = models.DecimalField(max_digits=12, decimal_places=2)
+	stock = models.PositiveIntegerField(default=1)
 	descripcion = models.TextField()
-	garantia = models.CharField(max_length=120)
-	metodo_pago = models.CharField(max_length=20, choices=METODO_PAGO_CHOICES)
-	metodo_entrega = models.CharField(max_length=20, choices=METODO_ENTREGA_CHOICES)
+	tiempo_durabilidad = models.CharField(max_length=120)
 	is_active = models.BooleanField(default=True)
+	disabled_by_admin = models.BooleanField(default=False)
 
 	created_at = models.DateTimeField(auto_now_add=True)
 
 	class Meta:
 		db_table = "productos_product"
+		constraints = [
+			models.CheckConstraint(
+				check=models.Q(precio__gte=0),
+				name="product_price_non_negative",
+			),
+			models.CheckConstraint(
+				check=models.Q(stock__gte=0),
+				name="product_stock_non_negative",
+			),
+		]
 
 	def clean(self):
 		errors = {}
@@ -107,14 +104,27 @@ class Product(models.Model):
 		if self.precio is not None and self.precio <= 0:
 			errors["precio"] = "El precio debe ser mayor que 0."
 
+		if self.stock is None or self.stock < 1:
+			errors["stock"] = "La cantidad disponible debe ser al menos 1."
+
 		if (self.nombre or "").strip() and len(self.nombre.strip()) < 3:
 			errors["nombre"] = "El nombre debe tener al menos 3 caracteres."
+		elif (self.nombre or "").strip() and len(self.nombre.strip()) > 120:
+			errors["nombre"] = "El nombre no debe superar 120 caracteres."
+		elif (self.nombre or "").strip() and not PRODUCT_NAME_ALLOWED_RE.fullmatch(self.nombre.strip()):
+			errors["nombre"] = "El nombre contiene caracteres no permitidos."
 
 		if (self.descripcion or "").strip() and len(self.descripcion.strip()) < 10:
 			errors["descripcion"] = "La descripción debe tener al menos 10 caracteres."
+		elif (self.descripcion or "").strip() and len(self.descripcion.strip()) > 255:
+			errors["descripcion"] = "La descripción no debe superar 255 caracteres."
 
-		if (self.garantia or "").strip() and len(self.garantia.strip()) < 3:
-			errors["garantia"] = "La garantía debe tener al menos 3 caracteres."
+		if (self.tiempo_durabilidad or "").strip() and len(self.tiempo_durabilidad.strip()) < 3:
+			errors["tiempo_durabilidad"] = "El tiempo de durabilidad debe tener al menos 3 caracteres."
+		elif (self.tiempo_durabilidad or "").strip() and len(self.tiempo_durabilidad.strip()) > 120:
+			errors["tiempo_durabilidad"] = "El tiempo de durabilidad no debe superar 120 caracteres."
+		elif (self.tiempo_durabilidad or "").strip() and not PRODUCT_DURABILITY_ALLOWED_RE.fullmatch(self.tiempo_durabilidad.strip()):
+			errors["tiempo_durabilidad"] = "El tiempo de durabilidad contiene caracteres no permitidos."
 
 		if errors:
 			raise ValidationError(errors)

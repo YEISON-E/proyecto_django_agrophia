@@ -14,7 +14,6 @@
     <script src="/frontend/public/js/components/form_contact.js" defer></script> 
     <!-- <script src="/frontend/public/js/components/navbar_contact.js" defer></script>  -->
     <script src="/frontend/public/js/components/navbar-home.js"></script>
-    <script src="/frontend/public/js/components/footer.js" defer></script> 
     
 
 </head>
@@ -35,7 +34,9 @@
         <div class="contact-form-container"></div>
     </form>
 
-     <footer class="footer-container"></footer>
+      <footer class="footer-container">
+          {% include 'components/footer.html' %}
+      </footer>
     <div class="govco-container__two">
         {% include 'components/gov-co__one.html' %}
     </div>

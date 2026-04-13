@@ -10,8 +10,8 @@
   <div class="header-home__group header-home__group--right">
     <div class="header-home__mobile-controls">
       <details class="header-home__mobile-select">
-        <summary class="header-home__mobile-trigger" aria-label="Abrir menu">
-          <img src="{% static 'icons/menu.svg' %}" alt="Mas opciones" class="nav-menu__icon">
+        <summary class="header-home__mobile-trigger" aria-label="Abrir menú">
+          <img src="{% static 'icons/menu.svg' %}" alt="Más opciones" class="nav-menu__icon">
         </summary>
         <ul class="header-home__mobile-options">
           <li><a href="{% url 'usuarios:home_customer' %}">Inicio</a></li>
@@ -37,7 +37,7 @@
           {% elif not has_active_shop %}
           <li><a href="{% url 'tiendas:create_farmer_perfil' %}">Crear Tienda</a></li>
           {% endif %}
-          <li><a href="{% url 'usuarios:logout' %}">Cerrar Sesion</a></li>
+          <li><a href="{% url 'usuarios:logout' %}">Cerrar Sesión</a></li>
         </ul>
       </details>
     </div>
@@ -73,7 +73,7 @@
           {% elif not has_active_shop %}
           <li><a href="{% url 'tiendas:create_farmer_perfil' %}">Crear Tienda</a></li>
           {% endif %}
-          <li><a href="{% url 'usuarios:logout' %}">Cerrar Sesion</a></li>
+          <li><a href="{% url 'usuarios:logout' %}">Cerrar Sesión</a></li>
         </ul>
       </details>
     </li>

@@ -110,6 +110,16 @@
   margin: 0;
 }
 
+.profile-update .input-error {
+  width: 100%;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.2;
+  font-size: var(--fs-xxxs);
+}
+
 .profile-update__group-file__photo {
   display: flex;
   flex-direction: row;
@@ -117,6 +127,19 @@
   margin: 0;
   align-items: center;
   justify-content: center;
+}
+
+.profile-update__group-file__photo_review {
+  width: clamp(92px, 18vw, 120px);
+  height: clamp(92px, 18vw, 120px);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .profile-update__input {
@@ -150,6 +173,11 @@ select.profile-update__input--locked:disabled {
   width: 100%;
   height: 48px;
   border-radius: 8px;
+  font-size: var(--fs-xs);
+}
+
+select.profile-update__input--locked {
+  font-size: var(--fs-xs);
 }
 
 .profile-update__textarea {
@@ -255,6 +283,10 @@ select.profile-update__input--locked:disabled {
     width: 400px;
   }
 
+  .profile-update .input-error {
+    max-width: 400px;
+  }
+
   .profile-update__form {
     display: grid;
   }
@@ -283,7 +315,7 @@ select.profile-update__input--locked:disabled {
     padding: 24px;
     gap: 12px;
     width: 712px;
-    margin: 0 auto;
+    margin: 12px auto;
   }
 
   .profile-update__form {
@@ -301,6 +333,10 @@ select.profile-update__input--locked:disabled {
     max-width: 320px;
   }
 
+  .profile-update .input-error {
+    max-width: 320px;
+  }
+
   .profile-update__label--file {
     width: 150px;
   }
@@ -314,7 +350,7 @@ select.profile-update__input--locked:disabled {
     padding: 24px;
     gap: 12px;
     width: auto;
-    margin: 0 auto 24px auto;
+    margin: 24px auto 24px auto;
     max-width: max-content;
   }
 
@@ -330,6 +366,10 @@ select.profile-update__input--locked:disabled {
 
   .profile-update__input,
   .profile-update__deparment {
+    max-width: 320px;
+  }
+
+  .profile-update .input-error {
     max-width: 320px;
   }
 
@@ -382,6 +422,10 @@ select.profile-update__input--locked:disabled {
 
   .profile-update__input,
   .profile-update__deparment {
+    max-width: 320px;
+  }
+
+  .profile-update .input-error {
     max-width: 320px;
   }
 

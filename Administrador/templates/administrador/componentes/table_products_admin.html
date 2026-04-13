@@ -1,86 +1,52 @@
+
+{% load static %}
+<div class="table-container">
 <table class="products-table">
   <thead class="products-table__head">
     <tr class="products-table__row products-table__row--head">
       <th class="products-table__header">Nombre</th>
-      <th class="products-table__header">Código</th>
-      <th class="products-table__header">Categoría</th>
+      <th class="products-table__header">C&oacute;digo</th>
+      <th class="products-table__header">Categor&iacute;a</th>
       <th class="products-table__header">Precio</th>
       <th class="products-table__header">Estado</th>
       <th class="products-table__header">Acciones</th>
     </tr>
   </thead>
-
   <tbody class="products-table__body">
+    {% for producto in productos %}
     <tr class="products-table__row">
-      <td class="products-table__cell">Manzana</td>
-      <td class="products-table__cell">01</td>
-      <td class="products-table__cell">Fruta</td>
-      <td class="products-table__cell">Precio</td>
-
-      <!-- ESTADO centrado -->
+      <td class="products-table__cell">{{ producto.nombre }}</td>
+      <td class="products-table__cell">{{ producto.id }}</td>
+      <td class="products-table__cell">{{ producto.tipo }}</td>
+      <td class="products-table__cell">${{ producto.precio }}</td>
       <td class="products-table__cell products-table__cell--status">
-        <span class="products-table__status products-table__status--active">Activo</span>
+        {% if producto.is_active %}
+          <span class="products-table__status products-table__status--active">Activo</span>
+        {% else %}
+          <span class="products-table__status products-table__status--blocked">Inactivo</span>
+        {% endif %}
       </td>
-
-      <!-- ACCIONES en columna -->
       <td class="products-table__cell products-table__cell--actions">
-        <button class="products-table__button products-table__button--block">
-          <img src="/frontend/public/icons/lock.svg" alt="Bloquear" class="products-table__icon">
-
+        {% if producto.is_active %}
+        <button class="products-table__button products-table__button--block" title="Bloquear" data-product-id="{{ producto.id }}" data-product-name="{{ producto.nombre }}" data-action="block">
+          <img src="{% static 'icons/lock.svg' %}" alt="Bloquear" width="20" height="20">
         </button>
-        <button class="products-table__button products-table__button--edit">
-          <img src="/frontend/public/icons/edit.svg" alt="editar" class="products-table__icon">
-
+        {% else %}
+        <button class="products-table__button products-table__button--unblock" title="Desbloquear" data-product-id="{{ producto.id }}" data-product-name="{{ producto.nombre }}" data-action="unblock">
+          <img src="{% static 'icons/unlock.svg' %}" alt="Desbloquear" width="20" height="20">
         </button>
+        {% endif %}
+        <a href="{% url 'administrador:producto_admin_editar' producto.id %}?from=table" class="products-table__button products-table__button--edit" title="Editar">
+          <img src="{% static 'icons/edit.svg' %}" alt="Editar" width="20" height="20">
+        </a>
+        <a href="{% url 'administrador:producto_admin_detalle' producto.id %}" class="products-table__button products-table__button--view" title="Ver m&aacute;s">
+          Ver m&aacute;s
+        </a>
       </td>
     </tr>
-    <tr class="products-table__row">
-      <td class="products-table__cell">Manzana</td>
-      <td class="products-table__cell">01</td>
-      <td class="products-table__cell">Fruta</td>
-      <td class="products-table__cell">Precio</td>
-
-      <!-- ESTADO centrado -->
-      <td class="products-table__cell products-table__cell--status">
-        <span class="products-table__status products-table__status--idle">Inactivo</span>
-      </td>
-
-      <!-- ACCIONES en columna -->
-      <td class="products-table__cell products-table__cell--actions">
-        <button class="products-table__button products-table__button--block">
-          <img src="/frontend/public/icons/unlock.svg" alt="Bloquear" class="products-table__icon">
-        </button>
-        <button class="products-table__button products-table__button--edit">
-          <img src="/frontend/public/icons/edit.svg" alt="editar" class="products-table__icon">
-
-        </button>
-      </td>
-    </tr>
-    <tr class="products-table__row">
-      <td class="products-table__cell">Manzana</td>
-      <td class="products-table__cell">01</td>
-      <td class="products-table__cell">Fruta</td>
-      <td class="products-table__cell">Precio</td>
-
-      <!-- ESTADO centrado -->
-      <td class="products-table__cell products-table__cell--status">
-        <span class="products-table__status products-table__status--active">Activo</span>
-      </td>
-
-      <!-- ACCIONES en columna -->
-      <td class="products-table__cell products-table__cell--actions">
-        <button class="products-table__button products-table__button--block">
-          <img src="/frontend/public/icons/lock.svg" alt="desbloquear" class="products-table__icon">
-
-        </button>
-        <button class="products-table__button products-table__button--edit">
-          <img src="/frontend/public/icons/edit.svg" alt="editar" class="products-table__icon">
-
-        </button>
-      </td>
-    </tr>
-
-
-      
+    {% empty %}
+    <tr><td colspan="6" style="text-align:center;">No hay productos registrados.</td></tr>
+    {% endfor %}
   </tbody>
 </table>
+</div>

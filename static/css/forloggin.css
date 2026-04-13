@@ -1,10 +1,31 @@
 
 .login-container {
-  min-height: 100vh;
+  min-height: 100%;
+  width: min(100%, 520px);
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* arriba y centro */
+  justify-content: flex-start;
   box-sizing: border-box;
+}
+
+.login-page-layout {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.page__left_login {
+  display: none;
+}
+
+.page__right_login {
+  width: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
 }
 
 .register__back {
@@ -30,7 +51,8 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   width: 100%;
-  margin: 0 24px 24px 24px;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 /* Mantén el resto de tu estilo igual */
@@ -137,10 +159,11 @@
 }
 
 .login__back{
-  margin: 12px 0 0 12px;
-  position: static;
-  top: 16px;
+  margin: 0;
+  position: fixed;
+  top: calc(max(4vh, 40px) + 8px);
   left: 16px;
+  z-index: 1200;
   background-color: var(--gray-700);
   border-radius: 4px;
   padding: 9px 16px;
@@ -167,23 +190,52 @@
   }
   
 }
+
+@media (width <= 1024px) {
+  .page__right_login {
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-container__card {
+    width: 100%;
+  }
+}
+
+@media (width <= 640px) {
+  .page__right_login {
+    padding: 12px;
+  }
+
+  .login {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+
+  .login-form__container,
+  .login__show-password {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  .login__title {
+    margin-top: 20px;
+  }
+
+  .login-container__register {
+    margin-bottom: 20px;
+  }
+}
+
 @media (width > 1024px){
   .page__left_login {
-  position: absolute;
-  /* top: 0; */
-  /* left: 0; */
-  width: 50%;
-  height: 86vh;   /* altura del viewport dinámico real */
-  overflow: hidden;
+  position: relative;
   display: flex;
+  width: 50%;
+  min-height: 100%;
+  overflow: hidden;
   justify-content: center;
   align-items: center;
-  background: 
-    linear-gradient(var(--overlay-dark), var(--overlay-dark)), 
-    url("{% static 'img/farmer.jpg' %}");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }
 
 .login__title-left {
@@ -197,15 +249,21 @@
 
 .page__right_login{
   position: relative;
-  margin-left:50%;
   width:50%;
-  height: 86vh;
+  min-height: 100%;
   color: var(--black);
   display:flex;
   flex-direction:row;
   align-items:center;
   justify-content: center;
+  padding: 0;
 }
+
+.login-page-layout {
+  flex-direction: row;
+  align-items: stretch;
+}
+
 .page__right::before, .page__right::after { 
   content:""; 
   display:block; 
@@ -216,11 +274,6 @@
   }
   .login-form__container__input{
     width: 320px;
-  }
-  .login__back{
-    position: fixed;
-    top: 64px;
-    left: 16px;
   }
 }
 
@@ -233,14 +286,23 @@
     margin-top: 6px;
     margin-left: 4px;
     font-weight: 500;
-    display: flex;
+  display: flex;
     align-items: center;
     gap: 6px;
     animation: slideDown 0.3s ease-out;
 }
 
-.input-error::before {
-    content: '⚠️'; /* Icono de advertencia */
+.input-error[style*="display: none"],
+.input-error[style*="display:none"] {
+  display: none !important;
+}
+
+.input-error.is-visible {
+  display: flex;
+}
+
+.input-error.is-visible:not(:empty)::before {
+  content: '⚠'; /* Icono de advertencia */
     flex-shrink: 0;
 }
 

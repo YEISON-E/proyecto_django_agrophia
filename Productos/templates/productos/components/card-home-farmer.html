@@ -5,7 +5,7 @@
   <img src="{% if first_image %}{{ first_image.image.url }}{% else %}{% static 'icons/planta.png' %}{% endif %}" alt="{{ product.nombre }}" class="card-farmer__img">
   {% endwith %}
   <div class="card-farmer__info">
-    <p class="card-farmer__price">$ {{ product.precio }}</p>
+    <p class="card-farmer__price">$ {{ product.precio }} <span class="card-price__unit">/ {{ product.get_unidad_display }}</span></p>
     <p class="card-farmer__name">{{ product.nombre }}</p>
   </div>
     <div class="card-homefarmer__button">

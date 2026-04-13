@@ -13,14 +13,14 @@
 
           <div class="profile-update__group">
             <label class="profile-update__label" for="input-telefono">Teléfono</label>
-            <input id="input-telefono" class="profile-update__input" type="tel" name="telefono" value="{{ valores.telefono }}" placeholder="315678934" autocomplete="tel" pattern="[0-9]{7,15}" required />
-            {% if errores.telefono %}<div class="input-error">{{ errores.telefono }}</div>{% endif %}
+            <input id="input-telefono" class="profile-update__input" type="tel" name="telefono" value="{{ valores.telefono }}" placeholder="3XXXXXXXXX" autocomplete="tel" inputmode="numeric" minlength="10" maxlength="10" pattern="3[0-9]{9}" title="Usa 10 dígitos e inicia en 3." required />
+            {% if errores.telefono %}<div class="input-error is-visible">{{ errores.telefono }}</div>{% endif %}
           </div>
           
         <div class="profile-update__group">
           <label class="profile-update__label" for="input-email">Correo Electrónico</label>
           <input id="input-email" class="profile-update__input profile-update__input--locked" type="email" name="email" value="{{ valores.email }}" placeholder="breinermorales@agrophia.com" autocomplete="email" required readonly />
-          {% if errores.email %}<div class="input-error">{{ errores.email }}</div>{% endif %}
+          {% if errores.email %}<div class="input-error is-visible">{{ errores.email }}</div>{% endif %}
         </div>
         
         <div class="profile-update__group">
@@ -31,7 +31,7 @@
             <option value="Caldas" {% if valores.departamento == 'Caldas' %}selected{% endif %}>Caldas</option>
             <option value="Quindio" {% if valores.departamento == 'Quindio' %}selected{% endif %}>Quindio</option>
           </select>
-          {% if errores.departamento %}<div class="input-error">{{ errores.departamento }}</div>{% endif %}
+          {% if errores.departamento %}<div class="input-error is-visible">{{ errores.departamento }}</div>{% endif %}
         </div>
         
         <div class="profile-update__group">
@@ -42,7 +42,7 @@
             <option value="{{ valores.municipio }}" selected>{{ valores.municipio }}</option>
             {% endif %}
           </select>
-          {% if errores.municipio %}<div class="input-error">{{ errores.municipio }}</div>{% endif %}
+          {% if errores.municipio %}<div class="input-error is-visible">{{ errores.municipio }}</div>{% endif %}
         </div>
         
         
@@ -53,17 +53,17 @@
         <div class="profile-update__group">
           <label class="profile-update__label" for="input-direccion">Dirección</label>
           <input id="input-nombres" class="profile-update__input" type="text" name="direccion" value="{{ valores.direccion }}" placeholder="Dirección" autocomplete="given-name" required />
-          {% if errores.direccion %}<div class="input-error">{{ errores.direccion }}</div>{% endif %}
+          {% if errores.direccion %}<div class="input-error is-visible">{{ errores.direccion }}</div>{% endif %}
         </div>
         <div class="profile-update__group-textarea">
           <label class="profile-update__label" for="input-descripcion">Descripción de perfil (opcional)</label>
-          <textarea id="input-direccion" class="profile-update__textarea" name="descripcion" placeholder="Máximo 120 caracteres" maxlength="120" autocomplete="street-address">{{ valores.descripcion }}</textarea>
-          {% if errores.descripcion %}<div class="input-error">{{ errores.descripcion }}</div>{% endif %}
+          <textarea id="input-descripcion" class="profile-update__textarea" name="descripcion" placeholder="Máximo 100 caracteres" maxlength="100" autocomplete="street-address">{{ valores.descripcion }}</textarea>
+          {% if errores.descripcion %}<div class="input-error is-visible">{{ errores.descripcion }}</div>{% endif %}
         </div>
         <div class="profile-update__group">
           <label class="profile-update__label" for="input-password">Contraseña actual</label>
           <input id="input-password" class="profile-update__input" type="password" name="current_password" placeholder="********" autocomplete="current-password" />
-          {% if errores.current_password %}<div class="input-error">{{ errores.current_password }}</div>{% endif %}
+          {% if errores.current_password %}<div class="input-error is-visible">{{ errores.current_password }}</div>{% endif %}
           <div class="profile-update__group profile-update__group-checkbox">
             <input id="show-password" class="profile-update__checkbox" type="checkbox" />
             <label class="profile-update__label profile-update__label--checkbox" for="show-password">Mostrar contraseña</label>
@@ -72,7 +72,7 @@
         <div class="profile-update__group">
           <label class="profile-update__label" for="input-new-password">Nueva contraseña</label>
           <input id="input-new-password" class="profile-update__input" type="password" name="new_password" placeholder="********" autocomplete="new-password" />
-          {% if errores.new_password %}<div class="input-error">{{ errores.new_password }}</div>{% endif %}
+          {% if errores.new_password %}<div class="input-error is-visible">{{ errores.new_password }}</div>{% endif %}
           
         </div>
       </div>

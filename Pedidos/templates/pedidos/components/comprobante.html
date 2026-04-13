@@ -2,13 +2,11 @@
 
 <!-- Toolbar -->
 <div class="receipt-toolbar">
-  <span class="receipt-toolbar__brand">🌱 Agrophia</span>
+  <span class="receipt-toolbar__brand">
+    <img src="{% static 'icons/planta.png' %}" alt="Agrophia" class="receipt-toolbar__brand-icon">
+    <span>Agrophia</span>
+  </span>
   <a href="{% url 'pedidos:orders_client' %}" class="receipt-toolbar__back">← Mis pedidos</a>
-  <button
-    class="receipt-btn receipt-btn--share"
-    id="shareBtn"
-    data-title="Comprobante Pedido #{{ order.id }} — Agrophia"
-  >⬆ Compartir</button>
   <button class="receipt-btn receipt-btn--print" id="printBtn">🖨 Descargar / Imprimir</button>
 </div>
 
@@ -19,7 +17,9 @@
     <!-- Head -->
     <div class="invoice__head">
       <div class="invoice__brand">
-        <div class="invoice__brand-logo">🌱</div>
+        <div class="invoice__brand-logo">
+          <img src="{% static 'icons/planta.png' %}" alt="Agrophia" class="invoice__brand-logo-icon">
+        </div>
         <div>
           <div class="invoice__brand-name">Agrophia</div>
           <div class="invoice__brand-tag">Mercado agrícola local</div>
@@ -28,7 +28,11 @@
       <div class="invoice__ref">
         <div class="invoice__ref-label">Comprobante</div>
         <div class="invoice__ref-number">#{{ order.id|stringformat:"06d" }}</div>
-        <div class="invoice__ref-date">{{ order.created_at|date:"d \d\e F \d\e Y, H:i" }}</div>
+        <div
+          class="invoice__ref-date receipt-local-datetime"
+          data-iso="{{ order.created_at|date:'c' }}"
+          data-format="long"
+        >{{ order.created_at|date:"d \d\e F \d\e Y, H:i" }}</div>
       </div>
     </div>
 
@@ -53,7 +57,11 @@
           </div>
           <div class="invoice__info-item">
             <div class="invoice__info-label">Fecha</div>
-            <div class="invoice__info-value">{{ order.created_at|date:"d/m/Y H:i" }}</div>
+            <div
+              class="invoice__info-value receipt-local-datetime"
+              data-iso="{{ order.created_at|date:'c' }}"
+              data-format="short"
+            >{{ order.created_at|date:"d/m/Y H:i" }}</div>
           </div>
           {% if order.delivery_address %}
           <div class="invoice__info-item" style="grid-column: 1 / -1;">
@@ -121,4 +129,3 @@
   </div><!-- /.invoice -->
 </div><!-- /.invoice-wrap -->
 
-<div id="shareToast"></div>

@@ -35,6 +35,7 @@ from urllib.parse import urlparse
 
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
 
 from django.core.mail import send_mail
 from django.core import signing
@@ -1116,6 +1117,8 @@ def register_step_2(request):
         # Validar que el documento no esté registrado
         if documento and Register.objects.filter(numero_documento=documento).exists():
             errores["documento"] = "Este número de documento ya está registrado."
+        elif documento and User.objects.filter(username=documento).exists():
+            errores["documento"] = "Este número de documento ya está registrado."
 
         # Validar que el correo no esté registrado
         if User.objects.filter(email=email).exists():
@@ -1139,13 +1142,21 @@ def register_step_2(request):
             # Paso de apoyo dentro del flujo principal de la funcionalidad.
             })
 
-        # Crear usuario Django
-        user = User.objects.create_user(
-            username=step1["documento"],
-            password=password,
-            email=email
-        # Paso de apoyo dentro del flujo principal de la funcionalidad.
-        )
+        # Crear usuario Django. Se captura colisión por concurrencia para evitar 500.
+        try:
+            with transaction.atomic():
+                user = User.objects.create_user(
+                    username=step1["documento"],
+                    password=password,
+                    email=email
+                # Paso de apoyo dentro del flujo principal de la funcionalidad.
+                )
+        except IntegrityError:
+            errores["documento"] = "Este número de documento ya está registrado."
+            return render(request, "register2.html", {
+                "errores": errores,
+                "valores": valores
+            })
 
         # Recuperar la foto del archivo temporal
         foto_file = None

@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Agrega clase CSS para estilizar visualmente el estado expirado.
     timer.classList.add("admin-auth__timer--expired");
     // Reemplaza el texto del temporizador por mensaje de expiracion.
-    timer.textContent = "El codigo expiro. Redirigiendo al login...";
+    timer.textContent = "El código expiró. Redirigiendo al login...";
 
     // Si existe input de codigo, lo deshabilita para evitar mas escritura.
     if (codeInput) {

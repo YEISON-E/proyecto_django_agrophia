@@ -20,6 +20,10 @@
 
     <main class="order-detail">
         <section class="order-detail__card">
+            <div class="order-detail__print-brand" aria-hidden="true">
+                <img src="{% static 'icons/planta.png' %}" alt="Agrophia" class="order-detail__print-brand-icon">
+                <span class="order-detail__print-brand-text">Agrophia</span>
+            </div>
             <header class="order-detail__header">
                 <div>
                     <p class="order-detail__eyebrow">Detalle de pedido</p>
@@ -74,6 +78,7 @@
             </div>
 
             <div class="order-detail__actions">
+                <a href="{% url 'pedidos:orders_farmer' %}" class="order-detail__btn order-detail__btn--back">Volver a pedidos</a>
                 <button type="button" class="order-detail__btn order-detail__btn--print" id="print-order">Imprimir</button>
             </div>
         </section>

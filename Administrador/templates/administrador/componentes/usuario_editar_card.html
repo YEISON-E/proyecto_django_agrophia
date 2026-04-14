@@ -1,3 +1,4 @@
+
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
 <div class="user-detail-main">
@@ -34,7 +35,7 @@
         <div class="user-detail-value">{{ form.tipo_documento }}</div>
       </div>
       <div>
-        <div class="user-detail-label">Número documento</div>
+        <div class="user-detail-label">N&uacute;mero documento</div>
         <div class="user-detail-value">{{ form.numero_documento }}</div>
       </div>
       <div>
@@ -51,7 +52,7 @@
         </div>
       </div>
       <div>
-        <div class="user-detail-label">Teléfono</div>
+        <div class="user-detail-label">Tel&eacute;fono</div>
         <div class="user-detail-value">
           {{ form.telefono }}
           {% for error in form.telefono.errors %}
@@ -66,7 +67,7 @@
             <option value="">Seleccione...</option>
             <option value="Risaralda" {% if form.departamento.value == 'Risaralda' %}selected{% endif %}>Risaralda</option>
             <option value="Caldas" {% if form.departamento.value == 'Caldas' %}selected{% endif %}>Caldas</option>
-            <option value="Quindío" {% if form.departamento.value == 'Quindío' %}selected{% endif %}>Quindío</option>
+            <option value="Quind&iacute;o" {% if form.departamento.value == 'Quind&iacute;o' %}selected{% endif %}>Quind&iacute;o</option>
           </select>
         </div>
       </div>
@@ -80,58 +81,55 @@
         </div>
       </div>
       </div>
-      <script>
-      const municipiosPorDepto = {
-        'Risaralda': ['Pereira', 'Dosquebradas', 'Santa Rosa de Cabal'],
-        'Caldas': ['Manizales', 'Villamaría'],
-        'Quindío': ['Armenia'],
-      };
-
-      // Si quieres agregar más municipios, solo agrégalos aquí según el archivo departamentos_municipios.py
-      // Ejemplo extendido (puedes copiar y pegar del archivo si hay más):
-      // 'Caldas': ['Manizales', 'Villamaría', 'Aguadas', 'Anserma', ...],
-
-      // Actualización automática desde el archivo de referencia:
-      // Caldas
-      municipiosPorDepto['Caldas'] = [
-        'Manizales', 'Villamaría', 'Aguadas', 'Anserma', 'Aranzazu', 'Belalcázar', 'Chinchiná', 'Filadelfia', 'La Dorada', 'La Merced', 'Manzanares', 'Marmato', 'Marquetalia', 'Marulanda', 'Neira', 'Norcasia', 'Pácora', 'Palestina', 'Pensilvania', 'Riosucio', 'Risaralda', 'Salamina', 'Samaná', 'San José', 'Supía', 'Victoria', 'Viterbo'
-      ];
-      // Risaralda
-      municipiosPorDepto['Risaralda'] = [
-        'Pereira', 'Dosquebradas', 'Santa Rosa de Cabal', 'Apía', 'Balboa', 'Belén de Umbría', 'La Celia', 'La Virginia', 'Marsella', 'Mistrató', 'Pueblo Rico', 'Quinchía', 'Santuario'
-      ];
-      // Quindío
-      municipiosPorDepto['Quindío'] = [
-        'Armenia', 'Buenavista', 'Calarcá', 'Circasia', 'Córdoba', 'Filandia', 'Génova', 'La Tebaida', 'Montenegro', 'Pijao', 'Quimbaya', 'Salento'
-      ];
-      function actualizarMunicipios() {
-        const depto = document.getElementById('departamento-select').value;
-        const municipioSelect = document.getElementById('municipio-select');
-        municipioSelect.innerHTML = '<option value="">Seleccione...</option>';
-        if (municipiosPorDepto[depto]) {
-          municipiosPorDepto[depto].forEach(function(mun) {
-            const opt = document.createElement('option');
-            opt.value = mun;
-            opt.textContent = mun;
-            municipioSelect.appendChild(opt);
-          });
-        }
-        // Si hay valor previo, seleccionarlo
-        if (window.municipioPrevio) {
-          municipioSelect.value = window.municipioPrevio;
-        }
-      }
-      document.addEventListener('DOMContentLoaded', function() {
-        const deptoSel = document.getElementById('departamento-select');
-        const municipioSel = document.getElementById('municipio-select');
-        // Guardar valor previo de municipio
-        window.municipioPrevio = '{{ form.municipio.value|escapejs }}';
-        deptoSel.addEventListener('change', actualizarMunicipios);
-        if (deptoSel.value) {
-          actualizarMunicipios();
-        }
-      });
-      </script>
+      <script>const municipiosPorDepto = {
+'Risaralda': ['Pereira', 'Dosquebradas', 'Santa Rosa de Cabal'],
+'Caldas': ['Manizales', 'Villamar&iacute;a'],
+'Quind&iacute;o': ['Armenia'],
+};
+// Si quieres agregar m&aacute;s municipios, solo agr&eacute;galos aqu&iacute; seg&uacute;n el archivo departamentos_municipios.py
+// Ejemplo extendido (puedes copiar y pegar del archivo si hay m&aacute;s):
+// 'Caldas': ['Manizales', 'Villamar&iacute;a', 'Aguadas', 'Anserma', ...],
+// Actualizaci&oacute;n autom&aacute;tica desde el archivo de referencia:
+// Caldas
+municipiosPorDepto['Caldas'] = [
+'Manizales', 'Villamar&iacute;a', 'Aguadas', 'Anserma', 'Aranzazu', 'Belalc&aacute;zar', 'Chinchin&aacute;', 'Filadelfia', 'La Dorada', 'La Merced', 'Manzanares', 'Marmato', 'Marquetalia', 'Marulanda', 'Neira', 'Norcasia', 'P&aacute;cora', 'Palestina', 'Pensilvania', 'Riosucio', 'Risaralda', 'Salamina', 'Saman&aacute;', 'San Jos&eacute;', 'Sup&iacute;a', 'Victoria', 'Viterbo'
+];
+// Risaralda
+municipiosPorDepto['Risaralda'] = [
+'Pereira', 'Dosquebradas', 'Santa Rosa de Cabal', 'Ap&iacute;a', 'Balboa', 'Bel&eacute;n de Umbr&iacute;a', 'La Celia', 'La Virginia', 'Marsella', 'Mistrat&oacute;', 'Pueblo Rico', 'Quinch&iacute;a', 'Santuario'
+];
+// Quind&iacute;o
+municipiosPorDepto['Quind&iacute;o'] = [
+'Armenia', 'Buenavista', 'Calarc&aacute;', 'Circasia', 'C&oacute;rdoba', 'Filandia', 'G&eacute;nova', 'La Tebaida', 'Montenegro', 'Pijao', 'Quimbaya', 'Salento'
+];
+function actualizarMunicipios() {
+const depto = document.getElementById('departamento-select').value;
+const municipioSelect = document.getElementById('municipio-select');
+municipioSelect.innerHTML = '<option value="">Seleccione...</option>';
+if (municipiosPorDepto[depto]) {
+municipiosPorDepto[depto].forEach(function(mun) {
+const opt = document.createElement('option');
+opt.value = mun;
+opt.textContent = mun;
+municipioSelect.appendChild(opt);
+});
+}
+// Si hay valor previo, seleccionarlo
+if (window.municipioPrevio) {
+municipioSelect.value = window.municipioPrevio;
+}
+}
+document.addEventListener('DOMContentLoaded', function() {
+const deptoSel = document.getElementById('departamento-select');
+const municipioSel = document.getElementById('municipio-select');
+// Guardar valor previo de municipio
+window.municipioPrevio = '{{ form.municipio.value|escapejs }}';
+deptoSel.addEventListener('change', actualizarMunicipios);
+if (deptoSel.value) {
+actualizarMunicipios();
+}
+});
+</script>
       <div>
         <div class="user-detail-label">Estado</div>
         <div class="user-detail-value">{{ form.estado }}</div>
@@ -141,22 +139,22 @@
         <div class="user-detail-value">{{ form.admin_code_validated }}</div>
       </div>
       <div style="grid-column: 1 / 4;">
-        <div class="user-detail-label">Dirección</div>
+        <div class="user-detail-label">Direcci&oacute;n</div>
         <div class="user-detail-value">{{ form.direccion_completa }}</div>
       </div>
       <div style="grid-column: 1 / 4;">
-        <div class="user-detail-label">Descripción perfil</div>
+        <div class="user-detail-label">Descripci&oacute;n perfil</div>
         <div class="user-detail-value">{{ form.descripcion_perfil }}</div>
       </div>
       <div style="grid-column: 1 / 4; background:#f8fafc; border:1px solid #dbe3ee; border-radius:8px; padding:12px 14px;">
-        <div class="user-detail-label" style="margin-bottom:8px;">Recuperación de contraseña</div>
+        <div class="user-detail-label" style="margin-bottom:8px;">Recuperaci&oacute;n de contrase&ntilde;a</div>
         <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-          <div style="font-size:.95em; color:#45556c;">El administrador no puede editar directamente la contraseña.</div>
+          <div style="font-size:.95em; color:#45556c;">El administrador no puede editar directamente la contrase&ntilde;a.</div>
           <button
             type="submit"
             form="send-recovery-mail-form"
             style="background:#0f766e;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer;"
-          >Enviar correo de recuperación</button>
+          >Enviar correo de recuperaci&oacute;n</button>
         </div>
       </div>
       <div class="shop-edit-footer">
@@ -171,10 +169,10 @@
     <div class="shop-confirm-modal__backdrop" data-user-confirm-close></div>
     <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="user-edit-confirm-title" aria-describedby="user-edit-confirm-text">
       <h3 class="shop-confirm-modal__title" id="user-edit-confirm-title">Confirmar cambios</h3>
-      <p class="shop-confirm-modal__text" id="user-edit-confirm-text">¿Deseas guardar los cambios del usuario?</p>
+      <p class="shop-confirm-modal__text" id="user-edit-confirm-text">&iquest;Deseas guardar los cambios del usuario?</p>
       <div class="shop-confirm-modal__actions">
         <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="user-edit-confirm-cancel">Cancelar</button>
-        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="user-edit-confirm-accept">Sí, guardar</button>
+        <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="user-edit-confirm-accept">S&iacute;, guardar</button>
       </div>
     </div>
   </div>
@@ -184,54 +182,44 @@
   </form>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const form = document.getElementById('admin-profile-edit-form');
-  const modal = document.getElementById('user-edit-confirm-modal');
-  const btnAccept = document.getElementById('user-edit-confirm-accept');
-  const btnCancel = document.getElementById('user-edit-confirm-cancel');
-  const backdrop = modal ? modal.querySelector('[data-user-confirm-close]') : null;
-
-  if (!form || !modal || !btnAccept || !btnCancel) {
-    return;
-  }
-
-  let envioConfirmado = false;
-
-  const abrir = function () {
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('user-lightbox-open');
-    btnAccept.focus();
-  };
-
-  const cerrar = function () {
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('user-lightbox-open');
-  };
-
-  form.addEventListener('submit', function (event) {
-    if (envioConfirmado) {
-      envioConfirmado = false;
-      return;
-    }
-
-    event.preventDefault();
-    abrir();
-  });
-
-  btnAccept.addEventListener('click', function () {
-    cerrar();
-    envioConfirmado = true;
-    form.requestSubmit();
-  });
-
-  btnCancel.addEventListener('click', cerrar);
-  backdrop?.addEventListener('click', cerrar);
-
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
-      cerrar();
-    }
-  });
+<script>document.addEventListener('DOMContentLoaded', function () {
+const form = document.getElementById('admin-profile-edit-form');
+const modal = document.getElementById('user-edit-confirm-modal');
+const btnAccept = document.getElementById('user-edit-confirm-accept');
+const btnCancel = document.getElementById('user-edit-confirm-cancel');
+const backdrop = modal ? modal.querySelector('[data-user-confirm-close]') : null;
+if (!form || !modal || !btnAccept || !btnCancel) {
+return;
+}
+let envioConfirmado = false;
+const abrir = function () {
+modal.setAttribute('aria-hidden', 'false');
+document.body.classList.add('user-lightbox-open');
+btnAccept.focus();
+};
+const cerrar = function () {
+modal.setAttribute('aria-hidden', 'true');
+document.body.classList.remove('user-lightbox-open');
+};
+form.addEventListener('submit', function (event) {
+if (envioConfirmado) {
+envioConfirmado = false;
+return;
+}
+event.preventDefault();
+abrir();
+});
+btnAccept.addEventListener('click', function () {
+cerrar();
+envioConfirmado = true;
+form.requestSubmit();
+});
+btnCancel.addEventListener('click', cerrar);
+backdrop?.addEventListener('click', cerrar);
+document.addEventListener('keydown', function (event) {
+if (event.key === 'Escape' && modal.getAttribute('aria-hidden') === 'false') {
+cerrar();
+}
+});
 });
 </script>

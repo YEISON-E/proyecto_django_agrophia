@@ -25,11 +25,15 @@ document.addEventListener("DOMContentLoaded", function () {
     const serverHorarioError = document.getElementById("error-hora-cierre")?.dataset.serverError || "";
     // Lee posible error del servidor asociado a dirección.
     const serverDireccionError = document.getElementById("error-direccion")?.dataset.serverError || "";
+    // Lee posible error del servidor asociado a descripción.
+    const serverDescripcionError = document.getElementById("error-descripcion")?.dataset.serverError || "";
 
     // Select que indica si la tienda tendrá punto físico.
     const puntoFisicoSelect = document.getElementById("tiene_punto_fisico");
     // Contenedor visual de campos físicos (horario y dirección).
     const physicalFields = document.getElementById("shop-physical-fields");
+    // Tarjeta contenedora principal del paso 2.
+    const shopCard = form.closest(".shop");
     // Input de hora de apertura.
     const horaAperturaInput = document.getElementById("hora_apertura");
     // Input de hora de cierre.
@@ -129,6 +133,8 @@ document.addEventListener("DOMContentLoaded", function () {
         form.classList.toggle("create-shop-step2--grid", mostrar);
         // Ajusta clase auxiliar de visibilidad de campos físicos.
         form.classList.toggle("show-physical-fields", mostrar);
+        // Compacta o expande el ancho de la tarjeta principal según el estado.
+        shopCard?.classList.toggle("shop--compact-step2", !mostrar);
 
         // Si existe el contenedor, permite que CSS controle su visualización.
         if (physicalFields) {
@@ -165,6 +171,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Define cuándo un campo debe mostrar mensaje de error.
     const shouldShowError = (fieldKey) => submitAttempted || touchedFields.has(fieldKey);
+
+    // Valida longitud máxima de descripción opcional.
+    const validateDescripcion = () => {
+        const descripcion = descripcionInput?.value || "";
+        if (descripcion.length > 255) {
+            if (shouldShowError("descripcion")) {
+                setError("error-descripcion", "La descripción no puede superar los 255 caracteres.");
+            }
+            return false;
+        }
+        setError("error-descripcion", "");
+        return true;
+    };
 
     // Helper para pintar errores inline
     // Muestra u oculta un mensaje de error en el contenedor indicado.
@@ -263,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // Muestra error solo si el campo debe mostrarlo.
             if (shouldShowError("direccion")) {
                 // Informa obligatoriedad de dirección en este caso.
-                setError("error-direccion", "La direccion es obligatoria si tienes punto fisico.");
+                setError("error-direccion", "La dirección es obligatoria si tienes punto físico.");
             }
             // Acumula error de validación.
             hasErrors = true;
@@ -328,6 +347,16 @@ document.addEventListener("DOMContentLoaded", function () {
         // Revalida horario/dirección.
         validateHorario();
     });
+    // Al escribir descripción, marca campo y valida longitud.
+    descripcionInput?.addEventListener("input", function () {
+        touchedFields.add("descripcion");
+        validateDescripcion();
+    });
+    // Al perder foco en descripción, marca campo y valida longitud.
+    descripcionInput?.addEventListener("blur", function () {
+        touchedFields.add("descripcion");
+        validateDescripcion();
+    });
     // Registra persistencia en cambios de todos los campos relevantes del paso 2.
     [puntoFisicoSelect, horaAperturaInput, horaCierreInput, direccionInput, descripcionInput].forEach((field) => {
         // Guarda estado al escribir en el campo.
@@ -352,6 +381,10 @@ document.addEventListener("DOMContentLoaded", function () {
         // Pinta error proveniente del servidor en dirección.
         setError("error-direccion", serverDireccionError);
     }
+    // Si backend reportó error de descripción, se muestra al cargar.
+    if (serverDescripcionError) {
+        setError("error-descripcion", serverDescripcionError);
+    }
 
     // Previene submit si el horario es inválido
     // Intercepta el envío para validar y persistir estado correctamente.
@@ -369,7 +402,7 @@ document.addEventListener("DOMContentLoaded", function () {
         // Marca que ya hubo intento de submit para habilitar mensajes.
         submitAttempted = true;
         // Si validación falla, cancela el envío.
-        if (!validateHorario()) {
+        if (!validateHorario() || !validateDescripcion()) {
             // Previene submit al backend con datos inválidos.
             event.preventDefault();
             // Finaliza ejecución del manejador.

@@ -1,3 +1,4 @@
+
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/usuario_detalle_card.css' %}">
 <div class="user-detail-main user-detail-main--usuario-detalle">
@@ -18,7 +19,7 @@
       <div class="user-detail-value">{{ usuario.tipo_documento }}</div>
     </div>
     <div>
-      <div class="user-detail-label">Número documento</div>
+      <div class="user-detail-label">N&uacute;mero documento</div>
       <div class="user-detail-value">{{ usuario.numero_documento }}</div>
     </div>
     <div>
@@ -30,7 +31,7 @@
       <div class="user-detail-value">{{ usuario.correo_electronico }}</div>
     </div>
     <div>
-      <div class="user-detail-label">Teléfono</div>
+      <div class="user-detail-label">Tel&eacute;fono</div>
       <div class="user-detail-value">{{ usuario.telefono }}</div>
     </div>
     <div>
@@ -50,12 +51,12 @@
       <div class="user-detail-value">{{ usuario.admin_code_validated|yesno:"Sí,No" }}</div>
     </div>
     <div class="user-detail-grid__full-row">
-      <div class="user-detail-label">Dirección</div>
+      <div class="user-detail-label">Direcci&oacute;n</div>
       <div class="user-detail-value">{{ usuario.direccion_completa }}</div>
     </div>
     {% if usuario.descripcion_perfil %}
     <div class="user-detail-grid__full-row">
-      <div class="user-detail-label">Descripción perfil</div>
+      <div class="user-detail-label">Descripci&oacute;n perfil</div>
       <div class="user-detail-value">{{ usuario.descripcion_perfil }}</div>
     </div>
     {% endif %}
@@ -65,13 +66,13 @@
     <strong style="color:#16a34a;">Este usuario es una tienda</strong><br>
     <strong>Nombre tienda:</strong> {{ tienda.nombre }}<br>
     <strong>Email tienda:</strong> {{ tienda.email }}<br>
-    <strong>Teléfono tienda:</strong> {{ tienda.telefono }}<br>
+    <strong>Tel&eacute;fono tienda:</strong> {{ tienda.telefono }}<br>
     <strong>Departamento:</strong> {{ tienda.departamento }}<br>
     <strong>Municipio:</strong> {{ tienda.municipio }}<br>
-    <strong>Dirección:</strong> {{ tienda.direccion }}<br>
-    <strong>Descripción:</strong> {{ tienda.descripcion }}<br>
+    <strong>Direcci&oacute;n:</strong> {{ tienda.direccion }}<br>
+    <strong>Descripci&oacute;n:</strong> {{ tienda.descripcion }}<br>
     <strong>Horario:</strong> {{ tienda.horario }}<br>
-    <strong>¿Punto físico?:</strong> {{ tienda.punto_fisico|yesno:"Sí,No" }}<br>
+    <strong>&iquest;Punto f&iacute;sico?:</strong> {{ tienda.punto_fisico|yesno:"Sí,No" }}<br>
     <strong>Estado tienda:</strong> {{ tienda.is_active|yesno:"Activa,Inactiva" }}
   </div>
   {% endif %}
@@ -88,47 +89,40 @@
   <img src="" alt="Imagen ampliada" class="user-image-lightbox__img" id="user-image-lightbox-img">
 </div>
 
-<script>
-  (function () {
-    const triggerImages = document.querySelectorAll('[data-zoom-image]');
-    const lightbox = document.getElementById('user-image-lightbox');
-    const lightboxImage = document.getElementById('user-image-lightbox-img');
-    const closeButton = document.getElementById('user-image-lightbox-close');
-
-    if (!triggerImages.length || !lightbox || !lightboxImage || !closeButton) {
-      return;
-    }
-
-    const openLightbox = (src, altText) => {
-      lightboxImage.src = src;
-      lightboxImage.alt = altText || 'Imagen ampliada';
-      lightbox.setAttribute('aria-hidden', 'false');
-      document.body.classList.add('user-lightbox-open');
-    };
-
-    const closeLightbox = () => {
-      lightbox.setAttribute('aria-hidden', 'true');
-      lightboxImage.src = '';
-      document.body.classList.remove('user-lightbox-open');
-    };
-
-    triggerImages.forEach((img) => {
-      img.addEventListener('click', () => {
-        openLightbox(img.src, img.alt);
-      });
-    });
-
-    closeButton.addEventListener('click', closeLightbox);
-    lightbox.addEventListener('click', (event) => {
-      if (event.target === lightbox) {
-        closeLightbox();
-      }
-    });
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && lightbox.getAttribute('aria-hidden') === 'false') {
-        closeLightbox();
-      }
-    });
-  })();
+<script>(function () {
+const triggerImages = document.querySelectorAll('[data-zoom-image]');
+const lightbox = document.getElementById('user-image-lightbox');
+const lightboxImage = document.getElementById('user-image-lightbox-img');
+const closeButton = document.getElementById('user-image-lightbox-close');
+if (!triggerImages.length || !lightbox || !lightboxImage || !closeButton) {
+return;
+}
+const openLightbox = (src, altText) => {
+lightboxImage.src = src;
+lightboxImage.alt = altText || 'Imagen ampliada';
+lightbox.setAttribute('aria-hidden', 'false');
+document.body.classList.add('user-lightbox-open');
+};
+const closeLightbox = () => {
+lightbox.setAttribute('aria-hidden', 'true');
+lightboxImage.src = '';
+document.body.classList.remove('user-lightbox-open');
+};
+triggerImages.forEach((img) => {
+img.addEventListener('click', () => {
+openLightbox(img.src, img.alt);
+});
+});
+closeButton.addEventListener('click', closeLightbox);
+lightbox.addEventListener('click', (event) => {
+if (event.target === lightbox) {
+closeLightbox();
+}
+});
+document.addEventListener('keydown', (event) => {
+if (event.key === 'Escape' && lightbox.getAttribute('aria-hidden') === 'false') {
+closeLightbox();
+}
+});
+})();
 </script>

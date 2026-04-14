@@ -1,7 +1,8 @@
+
 {% load static %}
 <div class="editar-producto-container">
   <a href="{% url 'administrador:producs_page' %}" style="display:inline-block;margin-bottom:18px;color:#16a34a;font-weight:600;text-decoration:none;font-size:1.08em;">
-    ← Volver al listado
+    &larr; Volver al listado
   </a>
   <div class="editar-producto-title">Editar producto</div>
   {% if success %}
@@ -50,18 +51,18 @@
       {% if errores.stock %}<div class="form-error">{{ errores.stock }}</div>{% endif %}
     </div>
     <div>
-      <label for="descripcion">Descripción</label>
+      <label for="descripcion">Descripci&oacute;n</label>
       <textarea name="descripcion" id="descripcion" required>{{ valores.descripcion|default:'' }}</textarea>
       {% if errores.descripcion %}<div class="form-error">{{ errores.descripcion }}</div>{% endif %}
     </div>
     <div>
-      <label for="garantia">Garantía</label>
-      <input type="text" name="garantia" id="garantia" value="{{ valores.garantia|default:'' }}" required>
-      {% if errores.garantia %}<div class="form-error">{{ errores.garantia }}</div>{% endif %}
+      <label for="tiempo_durabilidad">Tiempo de durabilidad</label>
+      <input type="text" name="tiempo_durabilidad" id="tiempo_durabilidad" value="{{ valores.tiempo_durabilidad|default:'' }}" required>
+      {% if errores.tiempo_durabilidad %}<div class="form-error">{{ errores.tiempo_durabilidad }}</div>{% endif %}
     </div>
 
     <div>
-      <label>Imágenes actuales</label>
+      <label>Im&aacute;genes actuales</label>
       <div class="editar-producto-imagenes">
         {% for image in existing_images %}
           <div class="editar-producto-imagen-item">
@@ -69,12 +70,12 @@
             <label><input type="checkbox" name="delete_images" value="{{ image.id }}"> Eliminar</label>
           </div>
         {% empty %}
-          <p>No hay imágenes registradas.</p>
+          <p>No hay im&aacute;genes registradas.</p>
         {% endfor %}
       </div>
     </div>
     <div>
-      <label for="new_images">Agregar nuevas imágenes</label>
+      <label for="new_images">Agregar nuevas im&aacute;genes</label>
       <input type="file" name="new_images" id="new_images" accept="image/*" multiple {% if not can_upload_more_images %}disabled{% endif %}>
       {% if errores.fotos %}<div class="form-error">{{ errores.fotos }}</div>{% endif %}
     </div>

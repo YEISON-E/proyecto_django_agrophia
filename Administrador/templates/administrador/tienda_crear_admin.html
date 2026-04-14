@@ -1,18 +1,36 @@
+
 {% load static %}
+
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+    
     <meta charset="UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Crear Tienda</title>
+    
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    
     <link rel="stylesheet" href="{% static 'css/store_admin.css' %}">
+    
     <link rel="stylesheet" href="{% static 'css/toolbar_shop.css' %}">
+    
     <link rel="stylesheet" href="{% static 'css/create-shop.css' %}">
+
 </head>
+
 <body>
+    
     {% block content %}
+    
     {% include 'administrador/componentes/shop_crear_card.html' %}
+    
     {% endblock %}
+
 </body>
+
 </html>

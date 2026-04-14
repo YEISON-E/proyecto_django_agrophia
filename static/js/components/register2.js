@@ -122,13 +122,13 @@ function validarTelefono(valor) {
 
 function validarTelefonoDetallado(valor) {
   if (!valor) {
-    return 'Telefono obligatorio.';
+    return 'Teléfono obligatorio.';
   }
   if (!/^\d+$/.test(valor)) {
-    return 'Solo numeros.';
+    return 'Solo números.';
   }
   if (valor.length !== 10) {
-    return 'Debe tener 10 digitos.';
+    return 'Debe tener 10 dígitos.';
   }
   return '';
 }
@@ -381,9 +381,9 @@ function mostrarAlerta(event) {
     hayErrores = true;
   }
 
-  // Validar que la descripción no exceda 40 caracteres
-  if (descripcion && descripcion.value.length > 40) {
-    mostrarErrorEnInput(descripcion, 'La descripción no puede superar los 40 caracteres.');
+  // Validar que la descripción no exceda 100 caracteres
+  if (descripcion && descripcion.value.length > 100) {
+    mostrarErrorEnInput(descripcion, 'La descripción no puede superar los 100 caracteres.');
     hayErrores = true;
   }
 

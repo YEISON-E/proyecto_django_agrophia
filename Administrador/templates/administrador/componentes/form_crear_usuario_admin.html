@@ -1,3 +1,4 @@
+
 {% comment %} Componente: Formulario crear usuario admin (misma estructura visual que editar) {% endcomment %}
 <div class="user-detail-main user-detail-main--crear-usuario">
   <h2 class="crear-usuario-heading">Crear nuevo usuario</h2>
@@ -8,7 +9,7 @@
       <div>
         <div class="user-detail-label">Nombres</div>
         <div class="user-detail-value">
-          <input type="text" name="nombres" id="nombres" value="{{ valores.nombres|default:'' }}" required>
+            <input type="text" name="nombres" id="nombres" value="{{ valores.nombres|default:'' }}" minlength="2" maxlength="40" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+" title="Solo letras y espacios (2 a 40 caracteres)" required>
           {% if errores.nombres %}<div class="form-error">{{ errores.nombres }}</div>{% endif %}
         </div>
       </div>
@@ -16,7 +17,7 @@
       <div>
         <div class="user-detail-label">Apellidos</div>
         <div class="user-detail-value">
-          <input type="text" name="apellidos" id="apellidos" value="{{ valores.apellidos|default:'' }}" required>
+            <input type="text" name="apellidos" id="apellidos" value="{{ valores.apellidos|default:'' }}" minlength="2" maxlength="40" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+" title="Solo letras y espacios (2 a 40 caracteres)" required>
           {% if errores.apellidos %}<div class="form-error">{{ errores.apellidos }}</div>{% endif %}
         </div>
       </div>
@@ -25,7 +26,7 @@
         <div class="user-detail-label">Tipo de documento</div>
         <div class="user-detail-value">
           <select name="tipo_documento" id="tipo_documento" required>
-            <option value="CC" {% if valores.tipo_documento == 'CC' %}selected{% endif %}>Cédula</option>
+            <option value="CC" {% if valores.tipo_documento == 'CC' %}selected{% endif %}>C&eacute;dula</option>
             <option value="TI" {% if valores.tipo_documento == 'TI' %}selected{% endif %}>Tarjeta de identidad</option>
           </select>
           {% if errores.tipo_documento %}<div class="form-error">{{ errores.tipo_documento }}</div>{% endif %}
@@ -33,9 +34,9 @@
       </div>
 
       <div>
-        <div class="user-detail-label">Número documento</div>
+        <div class="user-detail-label">N&uacute;mero documento</div>
         <div class="user-detail-value">
-          <input type="text" name="numero_documento" id="numero_documento" value="{{ valores.numero_documento|default:'' }}" inputmode="numeric" pattern="\d{7,10}" maxlength="10" title="Debe tener entre 7 y 10 dígitos numéricos" required>
+          <input type="text" name="numero_documento" id="numero_documento" value="{{ valores.numero_documento|default:'' }}" inputmode="numeric" pattern="\d{7,10}" maxlength="10" title="Debe tener entre 7 y 10 d&iacute;gitos num&eacute;ricos" required>
           {% if errores.numero_documento %}<div class="form-error">{{ errores.numero_documento }}</div>{% endif %}
         </div>
       </div>
@@ -49,9 +50,9 @@
       </div>
 
       <div>
-        <div class="user-detail-label">Teléfono</div>
+        <div class="user-detail-label">Tel&eacute;fono</div>
         <div class="user-detail-value">
-          <input type="text" name="telefono" id="telefono" value="{{ valores.telefono|default:'' }}" inputmode="numeric" pattern="3\d{9}" maxlength="10" title="Debe tener 10 dígitos y empezar por 3" required>
+          <input type="text" name="telefono" id="telefono" value="{{ valores.telefono|default:'' }}" inputmode="numeric" pattern="3\d{9}" maxlength="10" title="Debe tener 10 d&iacute;gitos y empezar por 3" required>
           {% if errores.telefono %}<div class="form-error">{{ errores.telefono }}</div>{% endif %}
         </div>
       </div>
@@ -81,7 +82,7 @@
       </div>
 
       <div style="grid-column: 1 / 3;">
-        <div class="user-detail-label">Dirección</div>
+        <div class="user-detail-label">Direcci&oacute;n</div>
         <div class="user-detail-value">
           <input type="text" name="direccion_completa" id="direccion_completa" value="{{ valores.direccion_completa|default:'' }}" required>
           {% if errores.direccion_completa %}<div class="form-error">{{ errores.direccion_completa }}</div>{% endif %}
@@ -89,15 +90,15 @@
       </div>
 
       <div style="grid-column: 1 / 3;">
-        <div class="user-detail-label">Descripción perfil</div>
+        <div class="user-detail-label">Descripci&oacute;n perfil</div>
         <div class="user-detail-value">
-          <textarea name="descripcion_perfil" id="descripcion_perfil" rows="2">{{ valores.descripcion_perfil|default:'' }}</textarea>
+          <textarea name="descripcion_perfil" id="descripcion_perfil" rows="2" maxlength="100">{{ valores.descripcion_perfil|default:'' }}</textarea>
           {% if errores.descripcion_perfil %}<div class="form-error">{{ errores.descripcion_perfil }}</div>{% endif %}
         </div>
       </div>
 
       <div style="grid-column: 1 / 3;">
-        <div class="user-detail-label">Contraseña</div>
+        <div class="user-detail-label">Contrase&ntilde;a</div>
         <div class="user-detail-value">
           <input type="password" name="contrasena" id="contrasena" maxlength="20" required>
           {% if errores.contrasena %}<div class="form-error">{{ errores.contrasena }}</div>{% endif %}
@@ -116,10 +117,10 @@
   <div class="shop-confirm-modal__backdrop" data-crear-usuario-confirm-close></div>
   <div class="shop-confirm-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="crear-usuario-confirm-title" aria-describedby="crear-usuario-confirm-text">
     <h3 class="shop-confirm-modal__title" id="crear-usuario-confirm-title">Confirmar cambios</h3>
-    <p class="shop-confirm-modal__text" id="crear-usuario-confirm-text">¿Deseas guardar los cambios del usuario?</p>
+    <p class="shop-confirm-modal__text" id="crear-usuario-confirm-text">&iquest;Deseas guardar los cambios del usuario?</p>
     <div class="shop-confirm-modal__actions">
       <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--cancel" id="crear-usuario-confirm-cancel">Cancelar</button>
-      <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="crear-usuario-confirm-accept">Sí, guardar</button>
+      <button type="button" class="shop-confirm-modal__btn shop-confirm-modal__btn--accept" id="crear-usuario-confirm-accept">S&iacute;, guardar</button>
     </div>
   </div>
 </div>
@@ -134,137 +135,115 @@
 {% endif %}
 
 {{ departamentos_municipios|json_script:"departamentos-municipios-data-usuario" }}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  const form = document.getElementById('crear-usuario-form');
-  const volverBtn = document.getElementById('btn-volver-usuarios');
-  const departamentoSelect = document.getElementById('departamento');
-  const municipioSelect = document.getElementById('municipio');
-  const dataNode = document.getElementById('departamentos-municipios-data-usuario');
-  const confirmModal = document.getElementById('crear-usuario-confirm-modal');
-  const confirmAcceptBtn = document.getElementById('crear-usuario-confirm-accept');
-  const confirmCancelBtn = document.getElementById('crear-usuario-confirm-cancel');
-  const confirmBackdrop = confirmModal ? confirmModal.querySelector('[data-crear-usuario-confirm-close]') : null;
-  const successModal = document.getElementById('crear-usuario-modal');
-  const usersListUrl = "{% url 'administrador:usuarios_admin' %}";
-  let envioConfirmado = false;
-
-  const abrirConfirmacion = function () {
-    if (!confirmModal) {
-      return;
-    }
-    confirmModal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('user-lightbox-open');
-    if (confirmAcceptBtn) {
-      confirmAcceptBtn.focus();
-    }
-  };
-
-  const cerrarConfirmacion = function () {
-    if (!confirmModal) {
-      return;
-    }
-    confirmModal.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('user-lightbox-open');
-  };
-
-  if (confirmCancelBtn) {
-    confirmCancelBtn.addEventListener('click', cerrarConfirmacion);
-  }
-  if (confirmBackdrop) {
-    confirmBackdrop.addEventListener('click', cerrarConfirmacion);
-  }
-  if (confirmAcceptBtn) {
-    confirmAcceptBtn.addEventListener('click', function () {
-      cerrarConfirmacion();
-      envioConfirmado = true;
-      if (form) {
-        form.requestSubmit();
-      }
-    });
-  }
-
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && confirmModal && confirmModal.getAttribute('aria-hidden') === 'false') {
-      cerrarConfirmacion();
-    }
-  });
-
-  if (form) {
-    form.addEventListener('submit', function (event) {
-      if (envioConfirmado) {
-        envioConfirmado = false;
-        return;
-      }
-
-      if (!form.checkValidity()) {
-        return;
-      }
-
-      event.preventDefault();
-      abrirConfirmacion();
-    });
-  }
-
-  if (successModal) {
-    window.setTimeout(function () {
-      window.location.href = usersListUrl;
-    }, 1800);
-  }
-
-  if (volverBtn) {
-    volverBtn.addEventListener('click', function () {
-      window.location.href = usersListUrl;
-    });
-  }
-
-  if (!departamentoSelect || !municipioSelect || !dataNode) {
-    return;
-  }
-
-  let departamentosMunicipios = {};
-  try {
-    departamentosMunicipios = JSON.parse(dataNode.textContent) || {};
-  } catch (error) {
-    console.error('No se pudo parsear departamentos/municipios.', error);
-    return;
-  }
-
-  const municipioInicial = municipioSelect.dataset.selectedMunicipio || '';
-
-  function poblarMunicipios(municipioPreferido) {
-    const departamento = departamentoSelect.value;
-    const municipios = departamentosMunicipios[departamento] || [];
-
-    municipioSelect.innerHTML = '';
-
-    const optionDefault = document.createElement('option');
-    optionDefault.value = '';
-    optionDefault.textContent = municipios.length ? 'Seleccione...' : 'Primero seleccione un departamento';
-    municipioSelect.appendChild(optionDefault);
-
-    municipios.forEach(function (municipio) {
-      const option = document.createElement('option');
-      option.value = municipio;
-      option.textContent = municipio;
-      if (municipioPreferido && municipio === municipioPreferido) {
-        option.selected = true;
-      }
-      municipioSelect.appendChild(option);
-    });
-
-    municipioSelect.disabled = !departamento;
-
-    if (municipioPreferido && !municipios.includes(municipioPreferido)) {
-      municipioSelect.value = '';
-    }
-  }
-
-  departamentoSelect.addEventListener('change', function () {
-    poblarMunicipios('');
-  });
-
-  poblarMunicipios(municipioInicial);
+<script>document.addEventListener('DOMContentLoaded', function () {
+const form = document.getElementById('crear-usuario-form');
+const volverBtn = document.getElementById('btn-volver-usuarios');
+const departamentoSelect = document.getElementById('departamento');
+const municipioSelect = document.getElementById('municipio');
+const dataNode = document.getElementById('departamentos-municipios-data-usuario');
+const confirmModal = document.getElementById('crear-usuario-confirm-modal');
+const confirmAcceptBtn = document.getElementById('crear-usuario-confirm-accept');
+const confirmCancelBtn = document.getElementById('crear-usuario-confirm-cancel');
+const confirmBackdrop = confirmModal ? confirmModal.querySelector('[data-crear-usuario-confirm-close]') : null;
+const successModal = document.getElementById('crear-usuario-modal');
+const usersListUrl = "{% url 'administrador:usuarios_admin' %}";
+let envioConfirmado = false;
+const abrirConfirmacion = function () {
+if (!confirmModal) {
+return;
+}
+confirmModal.setAttribute('aria-hidden', 'false');
+document.body.classList.add('user-lightbox-open');
+if (confirmAcceptBtn) {
+confirmAcceptBtn.focus();
+}
+};
+const cerrarConfirmacion = function () {
+if (!confirmModal) {
+return;
+}
+confirmModal.setAttribute('aria-hidden', 'true');
+document.body.classList.remove('user-lightbox-open');
+};
+if (confirmCancelBtn) {
+confirmCancelBtn.addEventListener('click', cerrarConfirmacion);
+}
+if (confirmBackdrop) {
+confirmBackdrop.addEventListener('click', cerrarConfirmacion);
+}
+if (confirmAcceptBtn) {
+confirmAcceptBtn.addEventListener('click', function () {
+cerrarConfirmacion();
+envioConfirmado = true;
+if (form) {
+form.requestSubmit();
+}
+});
+}
+document.addEventListener('keydown', function (event) {
+if (event.key === 'Escape' && confirmModal && confirmModal.getAttribute('aria-hidden') === 'false') {
+cerrarConfirmacion();
+}
+});
+if (form) {
+form.addEventListener('submit', function (event) {
+if (envioConfirmado) {
+envioConfirmado = false;
+return;
+}
+if (!form.checkValidity()) {
+return;
+}
+event.preventDefault();
+abrirConfirmacion();
+});
+}
+if (successModal) {
+window.setTimeout(function () {
+window.location.href = usersListUrl;
+}, 1800);
+}
+if (volverBtn) {
+volverBtn.addEventListener('click', function () {
+window.location.href = usersListUrl;
+});
+}
+if (!departamentoSelect || !municipioSelect || !dataNode) {
+return;
+}
+let departamentosMunicipios = {};
+try {
+departamentosMunicipios = JSON.parse(dataNode.textContent) || {};
+} catch (error) {
+console.error('No se pudo parsear departamentos/municipios.', error);
+return;
+}
+const municipioInicial = municipioSelect.dataset.selectedMunicipio || '';
+function poblarMunicipios(municipioPreferido) {
+const departamento = departamentoSelect.value;
+const municipios = departamentosMunicipios[departamento] || [];
+municipioSelect.innerHTML = '';
+const optionDefault = document.createElement('option');
+optionDefault.value = '';
+optionDefault.textContent = municipios.length ? 'Seleccione...' : 'Primero seleccione un departamento';
+municipioSelect.appendChild(optionDefault);
+municipios.forEach(function (municipio) {
+const option = document.createElement('option');
+option.value = municipio;
+option.textContent = municipio;
+if (municipioPreferido && municipio === municipioPreferido) {
+option.selected = true;
+}
+municipioSelect.appendChild(option);
+});
+municipioSelect.disabled = !departamento;
+if (municipioPreferido && !municipios.includes(municipioPreferido)) {
+municipioSelect.value = '';
+}
+}
+departamentoSelect.addEventListener('change', function () {
+poblarMunicipios('');
+});
+poblarMunicipios(municipioInicial);
 });
 </script>
-

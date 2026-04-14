@@ -1,3 +1,4 @@
+
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/shop-edit-card.css' %}">
 <div class="shop-edit-main shop-edit-main--order-detail">
@@ -13,8 +14,8 @@
     <div class="shop-edit-value">${{ pedido.total_amount }}</div>
     <div class="shop-edit-label">Estado</div>
     <div class="shop-edit-value">{{ pedido.get_status_display }}</div>
-    <div class="shop-edit-label">Dirección de entrega</div>
-    <div class="shop-edit-value">{{ pedido.delivery_address|default:'Sin dirección registrada' }}</div>
+    <div class="shop-edit-label">Direcci&oacute;n de entrega</div>
+    <div class="shop-edit-value">{{ pedido.delivery_address|default:'Sin direcci&oacute;n registrada' }}</div>
   </div>
   <div class="shop-edit-footer">
     <a href="{% url 'administrador:orders_page' %}" class="shop-edit-cancel">&larr; Volver</a>

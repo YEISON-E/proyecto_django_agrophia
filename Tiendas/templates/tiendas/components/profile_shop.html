@@ -6,9 +6,9 @@
     <div class="profile__header">
       <div class="profile__img-container">
                 {% if register_user and register_user.foto %}
-                <img src="{{ register_user.foto.url }}" alt="imagen de Perfil" class="profile__img">
+                <img src="{{ register_user.foto.url }}" alt="imagen de Perfil" class="profile__img profile__img--zoomable" data-zoom-image>
                 {% else %}
-                <img src="{% static 'img/foto_sofi.png' %}" alt="imagen de Perfil" class="profile__img">
+                <img src="{% static 'img/foto_sofi.png' %}" alt="imagen de Perfil" class="profile__img profile__img--zoomable" data-zoom-image>
                 {% endif %}
       </div>
             <h2 class="profile__title">{{ register_user.nombres|default:'' }} {{ register_user.apellidos|default:'' }}</h2>
@@ -107,9 +107,16 @@
                             <span class="profile__label">Dirección</span>
                             <div class="profile__value">{% if shop and shop.punto_fisico %}{{ shop.direccion|default:'-' }}{% else %}No aplica{% endif %}</div>
                         </div>
-                        <div class="profile__item">
+                        <div class="profile__item profile__item--description">
                             <span class="profile__label">Descripción</span>
-                            <div class="profile__value">{{ shop.descripcion|default:'-' }}</div>
+                            <div class="profile__value profile__value--description" data-description-trigger role="button" tabindex="0" aria-expanded="false">
+                                {{ shop.descripcion|default:'-' }}
+                            </div>
+                            <div class="profile__description-popover" data-description-popover hidden>
+                                <button type="button" class="profile__description-popover-close" data-description-close aria-label="Cerrar descripción">&times;</button>
+                                <div class="profile__description-popover-title">Descripción completa</div>
+                                <p class="profile__description-popover-text">{{ shop.descripcion|default:'-' }}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -127,11 +134,11 @@
                 
             </div>
             <div class="profile__subcontainer-actions">
-                <a href="{% url 'usuarios:update_perfil' %}?next={% url 'tiendas:interface_farmer' %}" class="profile__actions--edit">
+                <a href="{% url 'usuarios:update_perfil' %}?next={% url 'tiendas:profile_shop' %}" class="profile__actions--edit">
                     Editar información personal
                 </a>
                 
-                <a href="{% url 'tiendas:update_shop_step1' %}" class="profile__actions--edit">
+                <a href="{% url 'tiendas:update_shop_step1' %}?next={% url 'tiendas:profile_shop' %}" class="profile__actions--edit">
                     Editar Tienda
                 </a>
             </div>
@@ -139,6 +146,11 @@
         </div>
     </div>
   </div>
+</div>
+
+<div class="user-image-lightbox" id="user-image-lightbox" aria-hidden="true" role="dialog" aria-label="Vista ampliada de imagen">
+    <button type="button" class="user-image-lightbox__close" id="user-image-lightbox-close" aria-label="Cerrar">&times;</button>
+    <img src="" alt="Imagen ampliada" class="user-image-lightbox__img" id="user-image-lightbox-img">
 </div>
 
 <div class="reset-success-overlay profile-shop-alert-overlay" id="disable-shop-overlay" aria-hidden="true">
@@ -152,4 +164,5 @@
     </div>
 </div>
 
+<script src="{% static 'js/components/image_lightbox.js' %}" defer></script>
 <script src="{% static 'js/components/profile_shop.js' %}" defer></script>

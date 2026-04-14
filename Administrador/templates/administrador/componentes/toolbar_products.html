@@ -1,3 +1,4 @@
+
 {% load static %}
 <header class="header">
   <nav class="header__navbar">
@@ -19,8 +20,8 @@
       </div>
       <div class="toolbar-admin-mobile-menu">
         <details>
-          <summary class="toolbar-admin-mobile-trigger" aria-label="Abrir menú de opciones">
-            <img src="{% static 'icons/menu.svg' %}" alt="Menú" width="20" height="20">
+          <summary class="toolbar-admin-mobile-trigger" aria-label="Abrir men&uacute; de opciones">
+            <img src="{% static 'icons/menu.svg' %}" alt="Men&uacute;" width="20" height="20">
           </summary>
           <ul class="toolbar-admin-mobile-options">
             <li><button type="button" class="toolbar-admin-mobile-link js-toolbar-products-report-trigger">Generar reporte</button></li>
@@ -28,7 +29,7 @@
             <li><a href="{% url 'administrador:admin_notifications' %}" class="toolbar-admin-mobile-link">Notificaciones</a></li>
             <li><a href="{% url 'administrador:admin_perfil' %}" class="toolbar-admin-mobile-link">Ver perfil</a></li>
             <li><a href="{% url 'administrador:admin_editar_perfil' %}" class="toolbar-admin-mobile-link">Editar perfil</a></li>
-            <li><a href="/administrador/logout/" class="toolbar-admin-mobile-link toolbar-admin-mobile-link--danger">Cerrar sesión</a></li>
+            <li><a href="/administrador/logout/" class="toolbar-admin-mobile-link toolbar-admin-mobile-link--danger">Cerrar sesi&oacute;n</a></li>
           </ul>
         </details>
       </div>
@@ -49,7 +50,7 @@
             <hr style="margin:8px 0;">
             <a href="{% url 'administrador:admin_perfil' %}" style="color:#16a34a;font-weight:600;text-decoration:none;display:block;margin-bottom:8px;">Ver perfil</a>
             <a href="{% url 'administrador:admin_editar_perfil' %}" style="color:#16a34a;font-weight:600;text-decoration:none;display:block;margin-bottom:8px;">Editar perfil</a>
-            <a href="/administrador/logout/" style="color:#dc2626;font-weight:600;text-decoration:none;">Cerrar sesión</a>
+            <a href="/administrador/logout/" style="color:#dc2626;font-weight:600;text-decoration:none;">Cerrar sesi&oacute;n</a>
           </div>
         </div>
       </div>
@@ -60,7 +61,7 @@
   <div class="toolbar-report__modal" role="dialog" aria-modal="true" aria-labelledby="toolbar-products-report-title">
     <div class="toolbar-report__header">
       <h2 id="toolbar-products-report-title" class="toolbar-report__title">Reporte de productos</h2>
-      <button type="button" class="toolbar-report__close" id="toolbar-products-report-close" aria-label="Cerrar">×</button>
+      <button type="button" class="toolbar-report__close" id="toolbar-products-report-close" aria-label="Cerrar">&times;</button>
     </div>
     <form method="get" action="{% url 'administrador:reporte_productos' %}" id="toolbar-products-report-form" class="toolbar-report__form">
       <label class="toolbar-report__field">
@@ -92,7 +93,7 @@
             <option value="">Todos</option>
             <option value="Frutas">Frutas</option>
             <option value="Vegetales">Vegetales</option>
-            <option value="Lácteos">Lácteos</option>
+            <option value="L&aacute;cteos">L&aacute;cteos</option>
             <option value="Carne">Carne</option>
             <option value="Granos">Granos</option>
             <option value="Otros">Otros</option>
@@ -131,10 +132,10 @@
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="tipo"> Tipo</label>
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="unidad"> Unidad</label>
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="precio"> Precio</label>
-          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="descripcion"> Descripción</label>
-          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="garantia"> Garantía</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="descripcion"> Descripci&oacute;n</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="tiempo_durabilidad"> Tiempo de durabilidad</label>
           <label class="toolbar-report__check"><input type="checkbox" name="fields" value="estado"> Estado</label>
-          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="fecha_creacion"> Fecha creación</label>
+          <label class="toolbar-report__check"><input type="checkbox" name="fields" value="fecha_creacion"> Fecha creaci&oacute;n</label>
         </div>
       </fieldset>
       <p class="toolbar-report__help">Genera el reporte de productos con el mismo estilo de modal del inicio del panel.</p>

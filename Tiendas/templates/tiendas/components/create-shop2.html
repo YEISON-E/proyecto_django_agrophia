@@ -12,8 +12,8 @@
                     <input type="hidden" name="owner_token" value="{{ shop_owner_token|default:'' }}">
                     <input type="hidden" name="action" id="create-shop-step2-action" value="submit">
 
-                    <div class="form-shop__group">
-                        <label for="tiene_punto_fisico" class="form-shop__label">La tienda cuenta con punto físico?</label>
+                    <div class="form-shop__group form-shop__group--pickup">
+                        <label for="tiene_punto_fisico" class="form-shop__label">¿La tienda cuenta con punto físico?</label>
                         <select id="tiene_punto_fisico" class="form-shop__input" name="tiene_punto_fisico" required>
                             <option value="si" {% if valores.tiene_punto_fisico == 'si' %}selected{% endif %}>Sí</option>
                             <option value="no" {% if valores.tiene_punto_fisico != 'si' %}selected{% endif %}>No</option>
@@ -21,19 +21,19 @@
                     </div>
 
                     <div id="shop-physical-fields">
-                        <div class="form-shop__group">
+                        <div class="form-shop__group form-shop__group--time">
                             <label for="hora_apertura" class="form-shop__label">Hora de apertura</label>
                             <input type="time" id="hora_apertura" class="form-shop__input" name="hora_apertura" value="{{ valores.hora_apertura|default:'' }}">
                             <div id="error-hora-apertura" class="input-error" style="display: none;"></div>
                         </div>
 
-                        <div class="form-shop__group">
+                        <div class="form-shop__group form-shop__group--time">
                             <label for="hora_cierre" class="form-shop__label">Hora de cierre</label>
                             <input type="time" id="hora_cierre" class="form-shop__input" name="hora_cierre" value="{{ valores.hora_cierre|default:'' }}">
                             <div id="error-hora-cierre" class="input-error" style="display: none;" data-server-error="{{ errores.horario|default:'' }}"></div>
                         </div>
 
-                        <div class="form-shop__group">
+                        <div class="form-shop__group form-shop__group--address">
                             <label for="direccion" class="form-shop__label">Dirección</label>
                             <input type="text" id="direccion" class="form-shop__input" name="direccion" placeholder="Escribe la dirección" value="{{ valores.direccion|default:'' }}">
                             <div id="error-direccion" class="input-error" style="display: none;" data-server-error="{{ errores.direccion|default:'' }}"></div>
@@ -42,7 +42,8 @@
 
                     <div class="form-shop__textarea">
                         <label for="message" class="form-shop__label">Descripción breve de la tienda (opcional)</label>
-                        <textarea type="message" class="form-shop__description" name="descripcion" placeholder="Descripción breve de la tienda">{{ valores.descripcion|default:'' }}</textarea>
+                        <textarea type="message" id="descripcion" class="form-shop__description" name="descripcion" placeholder="Descripción breve de la tienda" maxlength="255">{{ valores.descripcion|default:'' }}</textarea>
+                        <div id="error-descripcion" class="input-error" style="display: none;" data-server-error="{{ errores.descripcion|default:'' }}"></div>
                     </div>
                 </form>
                 <div class="form-content__register--row-buttons">

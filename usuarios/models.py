@@ -13,7 +13,7 @@ class Register(models.Model):
     departamento = models.CharField(max_length=100)
     municipio = models.CharField(max_length=100)
     direccion_completa = models.CharField(max_length=255)
-    descripcion_perfil = models.CharField(max_length=120, null=True, blank=True)
+    descripcion_perfil = models.CharField(max_length=100, null=True, blank=True)
     contrasena = models.CharField(max_length=255)
     estado = models.CharField(max_length=20, default="activo")
     

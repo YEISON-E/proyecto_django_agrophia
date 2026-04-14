@@ -55,7 +55,7 @@
         
         <div class="profile-update__group">
           <label class="profile-update__label" for="input-apellidos">Apellidos</label>
-          <input id="input-apellidos" class="profile-update__input" type="text" name="apellidos" value="{{ valores.apellidos }}" placeholder="Morales" autocomplete="family-name" required />
+          <input id="input-apellidos" class="profile-update__input" type="text" name="apellidos" value="{{ valores.apellidos }}" placeholder="Morales" autocomplete="family-name" minlength="2" maxlength="40" pattern="[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+" title="Solo letras y espacios (2 a 40 caracteres)" required />
           {% if errores.apellidos %}<small class="form__error">{{ errores.apellidos }}</small>{% endif %}
         </div>
       </div>

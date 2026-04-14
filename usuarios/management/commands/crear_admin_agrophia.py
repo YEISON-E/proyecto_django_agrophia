@@ -21,6 +21,13 @@ class Command(BaseCommand):
         parser.add_argument("--direccion", default="N/A", help="Direccion completa")
 
     def handle(self, *args, **options):
+        """Crea o actualiza un admin manteniendo sincronizados User y Register.
+
+        El sistema usa dos fuentes de verdad para el mismo actor:
+        - User: autenticacion/permiso de Django.
+        - Register: perfil de negocio usado por la app para roles (estado='admin').
+        """
+        # Normaliza entrada para comparar/persistir valores de forma consistente.
         documento = (options["documento"] or "").strip()
         email = (options["email"] or "").strip().lower()
         nombres = (options["nombres"] or "").strip()
@@ -32,6 +39,7 @@ class Command(BaseCommand):
         municipio = (options["municipio"] or "N/A").strip()
         direccion = (options["direccion"] or "N/A").strip()
 
+        # Falla temprano para evitar crear registros parciales o inconsistentes.
         if not documento.isdigit():
             raise CommandError("El documento debe contener solo digitos.")
         if len(documento) < 8 or len(documento) > 10:
@@ -41,7 +49,8 @@ class Command(BaseCommand):
 
         User = get_user_model()
 
-        # Unifica la cuenta auth con username=documento para el login del sistema.
+        # Crea/actualiza la cuenta auth.
+        # Se usa el documento como username para alinear login y perfil de negocio.
         user, _ = User.objects.get_or_create(
             username=documento,
             defaults={
@@ -63,7 +72,8 @@ class Command(BaseCommand):
         user.set_password(raw_password)
         user.save()
 
-        # Evita conflictos de unicidad antes de crear/actualizar Register.
+        # Valida unicidad en Register antes de crear/editar para evitar colisiones
+        # por correo/telefono compartidos entre personas distintas.
         doc_conflict = Register.objects.exclude(numero_documento=documento).filter(numero_documento=documento).exists()
         if doc_conflict:
             raise CommandError("Ya existe otro Register con ese documento.")
@@ -76,6 +86,7 @@ class Command(BaseCommand):
         if tel_conflict:
             raise CommandError("Ya existe otro Register con ese telefono.")
 
+        # Crea/actualiza Register y fuerza rol administrativo en la capa de negocio.
         register, created = Register.objects.get_or_create(
             numero_documento=documento,
             defaults={
@@ -95,6 +106,7 @@ class Command(BaseCommand):
             },
         )
 
+        # Si el perfil ya existia, se sincroniza completamente con la cuenta auth.
         if not created:
             register.id_usuario = user.id
             register.tipo_documento = tipo_documento
@@ -111,5 +123,6 @@ class Command(BaseCommand):
             register.admin_code_validated = True
             register.save()
 
+        # Confirmacion final para trazabilidad operativa en consola.
         self.stdout.write(self.style.SUCCESS("Administrador creado/actualizado correctamente."))
         self.stdout.write(f"User.id={user.id} | Register.id={register.id} | documento={documento}")

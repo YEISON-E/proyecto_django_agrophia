@@ -2,7 +2,26 @@
 function initializeRegisterStep1() {
   // Previsualización de foto cargada por el usuario
   const inputFoto = document.getElementById('input-foto');
+  const inputFotoLabel = document.getElementById('input-foto-label');
   const hasTempPhotoInput = document.getElementById('has-temp-photo');
+
+  const updatePhotoLabelText = () => {
+    if (!inputFotoLabel) {
+      return;
+    }
+
+    const preview = document.getElementById('preview');
+    const hasNewPhoto = Boolean(inputFoto && inputFoto.files && inputFoto.files[0]);
+    const hasTempPhoto = Boolean(hasTempPhotoInput && hasTempPhotoInput.value === '1');
+    const hasPreviewPhoto = Boolean(preview && preview.src && !preview.src.includes('not-found.png'));
+
+    inputFotoLabel.textContent = (hasNewPhoto || hasTempPhoto || hasPreviewPhoto)
+      ? 'Cambiar foto'
+      : 'Seleccionar foto';
+  };
+
+  updatePhotoLabelText();
+
   if (inputFoto) {
     inputFoto.addEventListener('change', function(e) {
       if (e.target.files && e.target.files[0]) {
@@ -14,9 +33,12 @@ function initializeRegisterStep1() {
             if (hasTempPhotoInput) {
               hasTempPhotoInput.value = '1';
             }
+            updatePhotoLabelText();
           }
         };
         reader.readAsDataURL(e.target.files[0]);
+      } else {
+        updatePhotoLabelText();
       }
     });
   }
@@ -86,7 +108,7 @@ function validarNombreApellido(valor, campo) {
   if (valor.length > 40) {
     return `Maximo 40 caracteres.`;
   }
-  if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s']+$/.test(valor)) {
+  if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñÜü\s]+$/.test(valor)) {
     return `Solo letras y espacios.`;
   }
   return '';

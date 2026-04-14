@@ -8,7 +8,7 @@ Cobertura funcional:
 - Generacion de pedido y detalle de items en transaccion atomica.
 - Descuento de inventario con bloqueo de filas para evitar sobreventa.
 
-Garantia de consistencia:
+Aseguramiento de consistencia:
 El checkout usa `transaction.atomic()` y `select_for_update()` para confirmar
 existencias finales justo antes de crear el pedido.
 """

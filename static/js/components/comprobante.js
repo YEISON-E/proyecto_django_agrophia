@@ -50,40 +50,6 @@
     });
   }
 
-  // Bloque: boton para compartir enlace del comprobante.
-  const shareBtn = document.getElementById('shareBtn');
-  // Si existe el boton compartir, registra su evento click.
-  if (shareBtn) {
-    // Maneja accion de compartir al hacer click.
-    shareBtn.addEventListener('click', async function () {
-      // Toma la URL actual de la pagina.
-      const url   = window.location.href;
-      // Define titulo a compartir desde data-title o usa document.title.
-      const title = shareBtn.dataset.title || document.title;
-
-      // Si el navegador soporta Web Share API, intenta compartir nativamente.
-      if (navigator.share) {
-        try {
-          // Abre dialogo nativo de compartir.
-          await navigator.share({ title, url });
-        // Ignora errores comunes como cancelacion del usuario.
-        } catch (_) { /* user cancelled */ }
-      } else {
-        // Fallback: intenta copiar la URL al portapapeles.
-        try {
-          // Copia enlace para compartir manualmente.
-          await navigator.clipboard.writeText(url);
-          // Muestra confirmacion visual de copiado.
-          showToast('Enlace copiado al portapapeles');
-        // Si falla el portapapeles, usa prompt como ultimo recurso.
-        } catch (_) {
-          // Abre cuadro para copiar enlace manualmente.
-          prompt('Copia este enlace:', url);
-        }
-      }
-    });
-  }
-
   // Bloque: boton para imprimir comprobante.
   const printBtn = document.getElementById('printBtn');
   // Si existe el boton imprimir, registra su evento click.
@@ -95,18 +61,5 @@
     });
   }
 
-  // Helper: muestra un toast temporal con mensaje en pantalla.
-  function showToast(message) {
-    // Busca el elemento toast por su id.
-    const toast = document.getElementById('shareToast');
-    // Si no existe toast, termina la funcion.
-    if (!toast) return;
-    // Asigna el texto recibido al contenido del toast.
-    toast.textContent = message;
-    // Muestra el toast agregando clase CSS de visibilidad.
-    toast.classList.add('show');
-    // Oculta el toast despues de 2.5 segundos.
-    setTimeout(() => toast.classList.remove('show'), 2500);
-  }
 // Cierra la funcion autoejecutable.
 })();

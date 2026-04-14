@@ -54,10 +54,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const cards = cardsContainer ? Array.from(cardsContainer.querySelectorAll(".card-home")) : [];
   const addToCartButtons = document.querySelectorAll(".btn-agregar-carrito");
 
-  if (!searchInput || !cardsContainer || !cards.length) {
-    return;
-  }
-
   const getCookie = (name) => {
     const cookieValue = `; ${document.cookie}`;
     const cookieParts = cookieValue.split(`; ${name}=`);
@@ -202,6 +198,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   });
+
+  if (!searchInput || !cardsContainer || !cards.length) {
+    return;
+  }
 
   let selectedCategory = "";
   let selectedType = "";
